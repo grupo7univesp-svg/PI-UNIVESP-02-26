@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Registrar Produção</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/producao.css') }}">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- CABEÇALHO -->
+        <header class="header">
+
+            <button class="menu-btn" type="button">
+                ☰
+            </button>
+
+            <div class="user-avatar">
+                AP
+            </div>
+
+        </header>
+
+
+        <!-- CONTEÚDO -->
+        <main class="container">
+
+            <div class="page-title">
+
+                <h1>Registrar Produção</h1>
+
+                <p>
+                    Preencha todos os campos obrigatórios
+                    marcados com <span>*</span>
+                </p>
+
+            </div>
+
+
+            <!-- FORMULÁRIO -->
+            <form method="POST"
+                  action="{{ url_for('registrar_producao') }}"
+                  class="production-form">
+
+
+                <!-- DATA -->
+                <div class="form-group">
+
+                    <label for="data_producao">
+                        Data da produção <span>*</span>
+                    </label>
+
+                    <input
+                        type="date"
+                        id="data_producao"
+                        name="data_producao"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- ETAPA -->
+                <div class="form-group">
+
+                    <label for="etapa">
+                        Etapa de produção <span>*</span>
+                    </label>
+
+                    <select
+                        id="etapa"
+                        name="etapa"
+                        required
+                    >
+
+                        <option value="">
+                            Selecione...
+                        </option>
+
+                        <option value="Corte">
+                            Corte
+                        </option>
+
+                        <option value="Costura">
+                            Costura
+                        </option>
+
+                        <option value="Colagem">
+                            Colagem
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- PRODUTO -->
+                <div class="form-group">
+
+                    <label for="produto">
+                        Modelo do produto <span>*</span>
+                    </label>
+
+                    <select
+                        id="produto"
+                        name="produto"
+                        required
+                    >
+
+                        <option value="">
+                            Selecione...
+                        </option>
+
+                        <option value="Camiseta Básica">
+                            Camiseta Básica
+                        </option>
+
+                        <option value="Shorts Esportivo">
+                            Shorts Esportivo
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- GÊNERO -->
+                <div class="form-group">
+
+                    <label>
+                        Gênero <span>*</span>
+                    </label>
+
+                    <div class="radio-group">
+
+                        <label class="radio-option">
+
+                            <input
+                                type="radio"
+                                name="genero"
+                                value="Masculino"
+                                required
+                            >
+
+                            <span>Masculino</span>
+
+                        </label>
+
+
+                        <label class="radio-option">
+
+                            <input
+                                type="radio"
+                                name="genero"
+                                value="Feminino"
+                            >
+
+                            <span>Feminino</span>
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- TAMANHO -->
+                <div class="form-group">
+
+                    <label>
+                        Tamanho <span>*</span>
+                    </label>
+
+                    <div class="size-group">
+
+                        <label class="size-option">
+                            <input
+                                type="radio"
+                                name="tamanho"
+                                value="P"
+                                required
+                            >
+                            <span>P</span>
+                        </label>
+
+                        <label class="size-option">
+                            <input
+                                type="radio"
+                                name="tamanho"
+                                value="M"
+                            >
+                            <span>M</span>
+                        </label>
+
+                        <label class="size-option">
+                            <input
+                                type="radio"
+                                name="tamanho"
+                                value="G"
+                            >
+                            <span>G</span>
+                        </label>
+
+                        <label class="size-option">
+                            <input
+                                type="radio"
+                                name="tamanho"
+                                value="GG"
+                            >
+                            <span>GG</span>
+                        </label>
+
+                        <label class="size-option">
+                            <input
+                                type="radio"
+                                name="tamanho"
+                                value="XG"
+                            >
+                            <span>XG</span>
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- COR -->
+                <div class="form-group">
+
+                    <label for="cor">
+                        Cor <span>*</span>
+                    </label>
+
+                    <select
+                        id="cor"
+                        name="cor"
+                        required
+                    >
+
+                        <option value="">
+                            Selecione...
+                        </option>
+
+                        <option value="Preto">
+                            Preto
+                        </option>
+
+                        <option value="Branco">
+                            Branco
+                        </option>
+
+                        <option value="Azul">
+                            Azul
+                        </option>
+
+                        <option value="Vermelho">
+                            Vermelho
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- QUANTIDADE -->
+                <div class="form-group">
+
+                    <label for="quantidade">
+                        Quantidade produzida <span>*</span>
+                    </label>
+
+                    <input
+                        type="number"
+                        id="quantidade"
+                        name="quantidade"
+                        min="1"
+                        placeholder="Ex: 45"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- OBSERVAÇÃO -->
+                <div class="form-group">
+
+                    <label for="observacao">
+                        Observações (opcional)
+                    </label>
+
+                    <textarea
+                        id="observacao"
+                        name="observacao"
+                        rows="3"
+                        placeholder="Alguma observação sobre este registro..."
+                    ></textarea>
+
+                </div>
+
+
+                <!-- BOTÕES -->
+                <div class="buttons">
+
+                    <button
+                        type="submit"
+                        class="btn-save"
+                    >
+                        Salvar Registro
+                    </button>
+
+                    <button
+                        type="reset"
+                        class="btn-cancel"
+                    >
+                        Limpar
+                    </button>
+
+                </div>
+
+            </form>
+
+        </main>
+
+    </div>
+
+
+    <!-- DATA ATUAL -->
+    <script>
+
+        const campoData =
+            document.getElementById("data_producao");
+
+        const hoje =
+            new Date().toISOString().split("T")[0];
+
+        campoData.value = hoje;
+
+    </script>
+
+</body>
+
+</html>
