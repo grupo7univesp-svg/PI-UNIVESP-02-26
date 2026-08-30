@@ -7,10 +7,8 @@
 
     <title>Dashboard ADM</title>
 
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- CSS personalizado -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_adm.css') }}">
 </head>
 
@@ -23,17 +21,12 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
 
             <div>
-
-                <h1>
-                    Dashboard do Administrador
-                </h1>
+                <h1>Dashboard do Administrador</h1>
 
                 <p class="text-muted mb-0">
                     Acompanhe a produção dos funcionários e os valores para pagamento.
                 </p>
-
             </div>
-
 
             <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
                 Sair
@@ -47,9 +40,7 @@
         <div class="row g-3">
 
             <div class="col-md-4">
-
                 <div class="card dashboard-card">
-
                     <div class="card-body">
 
                         <h2 class="h6">
@@ -57,7 +48,7 @@
                         </h2>
 
                         <p class="dashboard-number">
-                            320
+                            {{ producao_hoje }}
                         </p>
 
                         <small class="text-muted">
@@ -65,16 +56,12 @@
                         </small>
 
                     </div>
-
                 </div>
-
             </div>
 
 
             <div class="col-md-4">
-
                 <div class="card dashboard-card">
-
                     <div class="card-body">
 
                         <h2 class="h6">
@@ -82,7 +69,7 @@
                         </h2>
 
                         <p class="dashboard-number">
-                            4.850
+                            {{ producao_mes }}
                         </p>
 
                         <small class="text-muted">
@@ -90,16 +77,12 @@
                         </small>
 
                     </div>
-
                 </div>
-
             </div>
 
 
             <div class="col-md-4">
-
                 <div class="card dashboard-card">
-
                     <div class="card-body">
 
                         <h2 class="h6">
@@ -107,7 +90,7 @@
                         </h2>
 
                         <p class="dashboard-number">
-                            8
+                            {{ funcionarios_ativos }}
                         </p>
 
                         <small class="text-muted">
@@ -115,9 +98,7 @@
                         </small>
 
                     </div>
-
                 </div>
-
             </div>
 
         </div>
@@ -138,35 +119,54 @@
                     <table class="table">
 
                         <thead>
-
                             <tr>
                                 <th>Funcionário</th>
-                                <th>Produção no mês</th>
+                                <th>Produção</th>
                                 <th>Último registro</th>
                             </tr>
-
                         </thead>
-
 
                         <tbody>
 
-                            <tr>
-                                <td>João</td>
-                                <td>1.250</td>
-                                <td>30/08/2026</td>
-                            </tr>
+                            {% for funcionario in producao_funcionarios %}
 
                             <tr>
-                                <td>Maria</td>
-                                <td>1.480</td>
-                                <td>30/08/2026</td>
+
+                                <td>
+                                    {{ funcionario[0] }}
+                                </td>
+
+                                <td>
+                                    {{ funcionario[1] }}
+                                </td>
+
+                                <td>
+
+                                    {% if funcionario[2] %}
+
+                                    {{ funcionario[2].strftime('%d/%m/%Y') }}
+
+                                    {% else %}
+
+                                    Nenhum registro
+
+                                    {% endif %}
+
+                                </td>
+
                             </tr>
 
+                            {% else %}
+
                             <tr>
-                                <td>Carlos</td>
-                                <td>980</td>
-                                <td>29/08/2026</td>
+
+                                <td colspan="3">
+                                    Nenhum funcionário encontrado.
+                                </td>
+
                             </tr>
+
+                            {% endfor %}
 
                         </tbody>
 
@@ -194,34 +194,19 @@
                     <table class="table">
 
                         <thead>
-
                             <tr>
                                 <th>Funcionário</th>
                                 <th>Quantidade produzida</th>
                                 <th>Valor estimado</th>
                             </tr>
-
                         </thead>
-
 
                         <tbody>
 
                             <tr>
-                                <td>João</td>
-                                <td>1.250</td>
-                                <td>R$ 1.875,00</td>
-                            </tr>
-
-                            <tr>
-                                <td>Maria</td>
-                                <td>1.480</td>
-                                <td>R$ 2.220,00</td>
-                            </tr>
-
-                            <tr>
-                                <td>Carlos</td>
-                                <td>980</td>
-                                <td>R$ 1.470,00</td>
+                                <td>-</td>
+                                <td>0</td>
+                                <td>R$ 0,00</td>
                             </tr>
 
                         </tbody>

@@ -46,7 +46,105 @@ def entrar():
 
 @app.route("/dashboard-adm")
 def dashboard_adm():
-    return render_template("dashboard_adm.html")
+
+    conn = get_connection()
+
+    if conn is None:
+        return "Não foi possível conectar ao banco.", 500
+
+    try:
+        cursor = conn.cursor()
+
+
+        # PRODUÇÃO TOTAL DE HOJE
+
+        cursor.execute(
+            """
+            SELECT COALESCE(SUM(quantidade), 0)
+            FROM producoes
+            WHERE data_producao = CURRENT_DATE
+            """
+        )
+
+        producao_hoje = cursor.fetchone()[0]
+
+
+        # PRODUÇÃO TOTAL DO MÊS
+
+        cursor.execute(
+            """
+            SELECT COALESCE(SUM(quantidade), 0)
+            FROM producoes
+            WHERE DATE_TRUNC('month', data_producao) =
+                  DATE_TRUNC('month', CURRENT_DATE)
+            """
+        )
+
+        producao_mes = cursor.fetchone()[0]
+
+
+        # FUNCIONÁRIOS ATIVOS
+
+        cursor.execute(
+            """
+            SELECT COUNT(*)
+            FROM usuarios
+            WHERE ativo = TRUE
+            """
+        )
+
+        funcionarios_ativos = cursor.fetchone()[0]
+
+
+        # PRODUÇÃO POR FUNCIONÁRIO
+
+        cursor.execute(
+            """
+            SELECT
+                usuarios.nome,
+                COALESCE(SUM(producoes.quantidade), 0),
+                MAX(producoes.data_producao)
+
+            FROM usuarios
+
+            LEFT JOIN producoes
+                ON usuarios.id = producoes.usuario_id
+
+            WHERE usuarios.ativo = TRUE
+
+            GROUP BY
+                usuarios.id,
+                usuarios.nome
+
+            ORDER BY
+                usuarios.nome
+            """
+        )
+
+        producao_funcionarios = cursor.fetchall()
+
+
+        return render_template(
+            "dashboard_adm.html",
+            producao_hoje=producao_hoje,
+            producao_mes=producao_mes,
+            funcionarios_ativos=funcionarios_ativos,
+            producao_funcionarios=producao_funcionarios
+        )
+
+
+    except Exception as erro:
+
+        print("Erro ao carregar Dashboard ADM:")
+        print(repr(erro))
+
+        return "Erro ao carregar Dashboard ADM.", 500
+
+
+    finally:
+
+        cursor.close()
+        conn.close()
 
 @app.route("/inicio")
 def inicio_funcionario():
