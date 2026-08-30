@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Área do Funcionário</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/inicio_funcionario.css') }}">
+</head>
+
+<body>
+
+    <div class="container mt-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+                <h1>Área do Funcionário</h1>
+
+                <p class="text-muted mb-0">
+                    Acompanhe sua produção e registre novos relatórios.
+                </p>
+            </div>
+
+            <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
+                Sair
+            </a>
+
+        </div>
+
+
+        <div class="row g-3 mt-3">
+
+            <div class="col-md-6">
+
+                <div class="card funcionario-card">
+                    <div class="card-body">
+
+                        <h2 class="h6">
+                            Produção de hoje
+                        </h2>
+
+                        <p class="funcionario-number">
+                            {{ producao_hoje }}
+                        </p>
+
+                        <small class="text-muted">
+                            peças produzidas
+                        </small>
+
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="col-md-6">
+
+                <div class="card funcionario-card">
+                    <div class="card-body">
+
+                        <h2 class="h6">
+                            Produção no mês
+                        </h2>
+
+                        <p class="funcionario-number">
+                            {{ producao_mes }}
+                        </p>
+
+                        <small class="text-muted">
+                            peças produzidas
+                        </small>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card registros-card mt-4">
+
+            <div class="card-body">
+
+                <h2 class="h5 mb-3">
+                    Últimos registros
+                </h2>
+
+                <div class="table-responsive">
+
+                    <table class="table">
+
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Produto</th>
+                                <th>Etapa</th>
+                                <th>Quantidade</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for registro in ultimos_registros %}
+
+                            <tr>
+                                <td>{{ registro[0].strftime('%d/%m/%Y') }}</td>
+                                <td>{{ registro[1] }}</td>
+                                <td>{{ registro[2] }}</td>
+                                <td>{{ registro[3] }}</td>
+                            </tr>
+
+                            {% else %}
+
+                            <tr>
+                                <td colspan="4">
+                                    Nenhum registro encontrado.
+                                </td>
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="mt-4">
+
+            <button type="button" class="btn btn-novo-relatorio" data-bs-toggle="modal"
+                data-bs-target="#modalNovoRelatorio">
+                Novo relatório
+            </button>
+
+        </div>
+
+
+        <!-- MODAL -->
+        <div class="modal fade" id="modalNovoRelatorio" tabindex="-1" aria-hidden="true">
+
+            <div class="modal-dialog">
+
+                <div class="modal-content">
+
+                    <div class="modal-header">
+
+                        <h2 class="modal-title fs-5">
+                            Novo relatório
+                        </h2>
+
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+
+                    </div>
+
+                    <div class="modal-body">
+
+                        <form method="POST" action="{{ url_for('registrar_producao') }}">
+
+                            <div class="mb-3">
+                                <label for="data_producao" class="form-label">
+                                    Data da produção
+                                </label>
+
+                                <input type="date" class="form-control" id="data_producao" name="data_producao"
+                                    required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="etapa" class="form-label">
+                                    Etapa de produção
+                                </label>
+
+                                <select class="form-select" id="etapa" name="etapa" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Corte">Corte</option>
+                                    <option value="Costura">Costura</option>
+                                    <option value="Colagem">Colagem</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="produto" class="form-label">
+                                    Modelo do produto
+                                </label>
+
+                                <select class="form-select" id="produto" name="produto" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Camiseta Básica">Camiseta Básica</option>
+                                    <option value="Shorts Esportivo">Shorts Esportivo</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    Gênero
+                                </label>
+
+                                <div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="genero" id="genero_masculino"
+                                            value="Masculino" required>
+
+                                        <label class="form-check-label" for="genero_masculino">
+                                            Masculino
+                                        </label>
+                                    </div>
+
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="genero" id="genero_feminino"
+                                            value="Feminino">
+
+                                        <label class="form-check-label" for="genero_feminino">
+                                            Feminino
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    Tamanho
+                                </label>
+
+                                <select class="form-select" name="tamanho" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="P">P</option>
+                                    <option value="M">M</option>
+                                    <option value="G">G</option>
+                                    <option value="GG">GG</option>
+                                    <option value="XG">XG</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="cor" class="form-label">
+                                    Cor
+                                </label>
+
+                                <select class="form-select" id="cor" name="cor" required>
+                                    <option value="">Selecione...</option>
+                                    <option value="Preto">Preto</option>
+                                    <option value="Branco">Branco</option>
+                                    <option value="Azul">Azul</option>
+                                    <option value="Vermelho">Vermelho</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="quantidade" class="form-label">
+                                    Quantidade produzida
+                                </label>
+
+                                <input type="number" class="form-control" id="quantidade" name="quantidade" min="1"
+                                    placeholder="Ex: 45" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="observacao" class="form-label">
+                                    Observações
+                                </label>
+
+                                <textarea class="form-control" id="observacao" name="observacao" rows="3"
+                                    placeholder="Alguma observação sobre este registro..."></textarea>
+                            </div>
+
+                            <div class="d-flex gap-2 justify-content-end">
+
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    Cancelar
+                                </button>
+
+                                <button type="submit" class="btn btn-primary">
+                                    Salvar Registro
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+</body>
+
+</html>
