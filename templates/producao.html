@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta name="viewport"
@@ -11,340 +12,525 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/producao.css') }}">
+
 </head>
+
 
 <body>
 
-    <div class="app">
+<div class="app">
 
-        <!-- CABEÇALHO -->
-        <header class="header">
 
-            <button class="menu-btn" type="button">
-                ☰
-            </button>
+    <!-- ==================================================
+         CABEÇALHO
+    =================================================== -->
 
-            <div class="user-avatar">
-                AP
+    <header class="header">
+
+        <button
+            class="menu-btn"
+            type="button"
+            aria-label="Abrir menu">
+
+            ☰
+
+        </button>
+
+
+        <div
+            class="user-avatar"
+            aria-label="Usuário">
+
+            AP
+
+        </div>
+
+    </header>
+
+
+
+    <!-- ==================================================
+         CONTEÚDO
+    =================================================== -->
+
+    <main class="container">
+
+
+        <!-- TÍTULO -->
+
+        <div class="page-title">
+
+            <h1>
+                Registrar Produção
+            </h1>
+
+            <p>
+                Adicione os itens produzidos e envie tudo de uma vez.
+            </p>
+
+        </div>
+
+
+
+        <!-- ==================================================
+             INFORMAÇÕES DA PRODUÇÃO
+        =================================================== -->
+
+        <section class="production-card">
+
+            <div class="card-title">
+
+                INFORMAÇÕES DA PRODUÇÃO
+
             </div>
 
-        </header>
+
+            <!-- DATA -->
+
+            <div class="form-group">
+
+                <label for="data_producao">
+
+                    Data
+                    <span>*</span>
+
+                </label>
 
 
-        <!-- CONTEÚDO -->
-        <main class="container">
-
-            <div class="page-title">
-
-                <h1>Registrar Produção</h1>
-
-                <p>
-                    Preencha todos os campos obrigatórios
-                    marcados com <span>*</span>
-                </p>
+                <input
+                    type="date"
+                    id="data_producao"
+                    required>
 
             </div>
 
 
-            <!-- FORMULÁRIO -->
-            <form method="POST"
-                  action="{{ url_for('registrar_producao') }}"
-                  class="production-form">
+
+            <!-- ETAPA -->
+
+            <div class="form-group">
+
+                <label for="etapa">
+
+                    Etapa
+                    <span>*</span>
+
+                </label>
 
 
-                <!-- DATA -->
-                <div class="form-group">
+                <select
+                    id="etapa"
+                    required>
 
-                    <label for="data_producao">
-                        Data da produção <span>*</span>
+                    <option value="">
+                        Selecione...
+                    </option>
+
+                    <option value="Corte">
+                        Corte
+                    </option>
+
+                    <option value="Costura">
+                        Costura
+                    </option>
+
+                    <option value="Colagem">
+                        Colagem
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- PRODUTO -->
+
+            <div class="form-group">
+
+                <label for="produto">
+
+                    Modelo
+                    <span>*</span>
+
+                </label>
+
+
+                <select
+                    id="produto"
+                    required>
+
+                    <option value="">
+                        Selecione...
+                    </option>
+
+                    <option value="Camiseta Básica">
+                        Camiseta Básica
+                    </option>
+
+                    <option value="Shorts Esportivo">
+                        Shorts Esportivo
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==================================================
+             ADICIONAR ITEM
+        =================================================== -->
+
+        <section class="production-card">
+
+
+            <div class="card-title">
+
+                ADICIONAR ITEM
+
+            </div>
+
+
+
+            <!-- GÊNERO -->
+
+            <div class="form-group">
+
+                <label>
+
+                    Gênero
+                    <span>*</span>
+
+                </label>
+
+
+                <div class="gender-group">
+
+
+                    <label class="gender-option">
+
+                        <input
+                            type="radio"
+                            name="genero"
+                            value="Masculino">
+
+                        <span>
+                            ♂ Masculino
+                        </span>
+
                     </label>
 
-                    <input
-                        type="date"
-                        id="data_producao"
-                        name="data_producao"
-                        required
-                    >
+
+
+                    <label class="gender-option">
+
+                        <input
+                            type="radio"
+                            name="genero"
+                            value="Feminino">
+
+                        <span>
+                            ♀ Feminino
+                        </span>
+
+                    </label>
 
                 </div>
 
+            </div>
 
-                <!-- ETAPA -->
-                <div class="form-group">
 
-                    <label for="etapa">
-                        Etapa de produção <span>*</span>
+
+            <!-- TAMANHO -->
+
+            <div class="form-group">
+
+                <label>
+
+                    Tamanho
+                    <span>*</span>
+
+                </label>
+
+
+                <div class="size-group">
+
+
+                    <label class="size-option">
+
+                        <input
+                            type="radio"
+                            name="tamanho"
+                            value="P">
+
+                        <span>P</span>
+
                     </label>
 
-                    <select
-                        id="etapa"
-                        name="etapa"
-                        required
-                    >
 
-                        <option value="">
-                            Selecione...
-                        </option>
 
-                        <option value="Corte">
-                            Corte
-                        </option>
+                    <label class="size-option">
 
-                        <option value="Costura">
-                            Costura
-                        </option>
+                        <input
+                            type="radio"
+                            name="tamanho"
+                            value="M">
 
-                        <option value="Colagem">
-                            Colagem
-                        </option>
+                        <span>M</span>
 
-                    </select>
+                    </label>
+
+
+
+                    <label class="size-option">
+
+                        <input
+                            type="radio"
+                            name="tamanho"
+                            value="G">
+
+                        <span>G</span>
+
+                    </label>
+
+
+
+                    <label class="size-option">
+
+                        <input
+                            type="radio"
+                            name="tamanho"
+                            value="GG">
+
+                        <span>GG</span>
+
+                    </label>
+
+
+
+                    <label class="size-option">
+
+                        <input
+                            type="radio"
+                            name="tamanho"
+                            value="XG">
+
+                        <span>XG</span>
+
+                    </label>
 
                 </div>
 
-
-                <!-- PRODUTO -->
-                <div class="form-group">
-
-                    <label for="produto">
-                        Modelo do produto <span>*</span>
-                    </label>
-
-                    <select
-                        id="produto"
-                        name="produto"
-                        required
-                    >
-
-                        <option value="">
-                            Selecione...
-                        </option>
-
-                        <option value="Camiseta Básica">
-                            Camiseta Básica
-                        </option>
-
-                        <option value="Shorts Esportivo">
-                            Shorts Esportivo
-                        </option>
-
-                    </select>
-
-                </div>
+            </div>
 
 
-                <!-- GÊNERO -->
-                <div class="form-group">
 
-                    <label>
-                        Gênero <span>*</span>
-                    </label>
+            <!-- QUANTIDADE -->
 
-                    <div class="radio-group">
+            <div class="form-group">
 
-                        <label class="radio-option">
+                <label for="quantidade">
 
-                            <input
-                                type="radio"
-                                name="genero"
-                                value="Masculino"
-                                required
-                            >
+                    Quantidade
+                    <span>*</span>
 
-                            <span>Masculino</span>
-
-                        </label>
+                </label>
 
 
-                        <label class="radio-option">
-
-                            <input
-                                type="radio"
-                                name="genero"
-                                value="Feminino"
-                            >
-
-                            <span>Feminino</span>
-
-                        </label>
-
-                    </div>
-
-                </div>
+                <div class="quantity-container">
 
 
-                <!-- TAMANHO -->
-                <div class="form-group">
+                    <button
+                        type="button"
+                        class="quantity-btn"
+                        id="btn-menos">
 
-                    <label>
-                        Tamanho <span>*</span>
-                    </label>
+                        −
 
-                    <div class="size-group">
+                    </button>
 
-                        <label class="size-option">
-                            <input
-                                type="radio"
-                                name="tamanho"
-                                value="P"
-                                required
-                            >
-                            <span>P</span>
-                        </label>
-
-                        <label class="size-option">
-                            <input
-                                type="radio"
-                                name="tamanho"
-                                value="M"
-                            >
-                            <span>M</span>
-                        </label>
-
-                        <label class="size-option">
-                            <input
-                                type="radio"
-                                name="tamanho"
-                                value="G"
-                            >
-                            <span>G</span>
-                        </label>
-
-                        <label class="size-option">
-                            <input
-                                type="radio"
-                                name="tamanho"
-                                value="GG"
-                            >
-                            <span>GG</span>
-                        </label>
-
-                        <label class="size-option">
-                            <input
-                                type="radio"
-                                name="tamanho"
-                                value="XG"
-                            >
-                            <span>XG</span>
-                        </label>
-
-                    </div>
-
-                </div>
-
-
-                <!-- COR -->
-                <div class="form-group">
-
-                    <label for="cor">
-                        Cor <span>*</span>
-                    </label>
-
-                    <select
-                        id="cor"
-                        name="cor"
-                        required
-                    >
-
-                        <option value="">
-                            Selecione...
-                        </option>
-
-                        <option value="Preto">
-                            Preto
-                        </option>
-
-                        <option value="Branco">
-                            Branco
-                        </option>
-
-                        <option value="Azul">
-                            Azul
-                        </option>
-
-                        <option value="Vermelho">
-                            Vermelho
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <!-- QUANTIDADE -->
-                <div class="form-group">
-
-                    <label for="quantidade">
-                        Quantidade produzida <span>*</span>
-                    </label>
 
                     <input
                         type="number"
                         id="quantidade"
-                        name="quantidade"
                         min="1"
-                        placeholder="Ex: 45"
-                        required
-                    >
+                        value="1">
 
-                </div>
-
-
-                <!-- OBSERVAÇÃO -->
-                <div class="form-group">
-
-                    <label for="observacao">
-                        Observações (opcional)
-                    </label>
-
-                    <textarea
-                        id="observacao"
-                        name="observacao"
-                        rows="3"
-                        placeholder="Alguma observação sobre este registro..."
-                    ></textarea>
-
-                </div>
-
-
-                <!-- BOTÕES -->
-                <div class="buttons">
 
                     <button
-                        type="submit"
-                        class="btn-save"
-                    >
-                        Salvar Registro
+                        type="button"
+                        class="quantity-btn"
+                        id="btn-mais">
+
+                        +
+
                     </button>
 
-                    <button
-                        type="reset"
-                        class="btn-cancel"
-                    >
-                        Limpar
-                    </button>
 
                 </div>
 
-            </form>
-
-        </main>
-
-    </div>
+            </div>
 
 
-    <!-- DATA ATUAL -->
-    <script>
 
-        const campoData =
-            document.getElementById("data_producao");
+            <!-- ADICIONAR -->
 
-        const hoje =
-            new Date().toISOString().split("T")[0];
+            <button
+                type="button"
+                class="btn-add"
+                id="btn-adicionar">
 
-        campoData.value = hoje;
+                + Adicionar item
 
-    </script>
+            </button>
+
+
+        </section>
+
+
+
+        <!-- ==================================================
+             ITENS ADICIONADOS
+        =================================================== -->
+
+        <section
+            class="production-card"
+            id="card-itens">
+
+
+            <!-- CABEÇALHO -->
+
+            <div class="items-header">
+
+                <div>
+
+                    <span class="items-icon">
+                        ♧
+                    </span>
+
+                    <strong>
+                        Itens adicionados
+                    </strong>
+
+                </div>
+
+
+                <span
+                    class="items-count"
+                    id="contador-itens">
+
+                    0
+
+                </span>
+
+            </div>
+
+
+
+            <!-- LISTA -->
+
+            <div
+                id="lista-itens"
+                class="items-list">
+
+
+                <div
+                    id="mensagem-vazia"
+                    class="empty-message">
+
+                    Nenhum item adicionado ainda.
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- TOTAL -->
+
+            <div class="total-container">
+
+                <span>
+                    Total de peças
+                </span>
+
+
+                <strong id="total-pecas">
+                    0
+                </strong>
+
+            </div>
+
+
+
+            <!-- OBSERVAÇÃO -->
+
+            <div class="form-group observation-group">
+
+                <label for="observacao">
+
+                    Observações
+                    <small>
+                        (opcional)
+                    </small>
+
+                </label>
+
+
+                <textarea
+                    id="observacao"
+                    rows="3"
+                    placeholder="Alguma observação sobre esta produção..."></textarea>
+
+            </div>
+
+
+
+            <!-- ENVIAR -->
+
+            <button
+                type="button"
+                class="btn-send"
+                id="btn-enviar">
+
+                ✓ Enviar produção
+
+            </button>
+
+
+            <!-- CANCELAR -->
+
+            <button
+                type="button"
+                class="btn-cancel"
+                id="btn-cancelar">
+
+                Cancelar
+
+            </button>
+
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+
+<!-- ==================================================
+     JAVASCRIPT
+=================================================== -->
+
+<script
+    src="{{ url_for('static', filename='js/producao.js') }}">
+</script>
+
 
 </body>
 
