@@ -1,0 +1,172 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #eef3f8;
+    color: #17365d;
+}
+
+
+/* CARDS DE RESUMO */
+
+.funcionario-card {
+    border: none;
+    border-radius: 12px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    height: 100%;
+}
+
+.funcionario-card .card-body {
+    padding: 22px;
+}
+
+.funcionario-card h2 {
+    color: #52657d;
+    font-size: 14px;
+}
+
+
+/* NÚMEROS DOS CARDS */
+
+.funcionario-number {
+    font-size: 32px;
+    font-weight: bold;
+
+    color: #17365d;
+
+    margin-bottom: 0;
+}
+
+
+/* TABELA */
+
+.registros-card {
+    border: none;
+    border-radius: 12px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.registros-card .card-body {
+    padding: 22px;
+}
+
+.registros-card h2 {
+    color: #17365d;
+    font-weight: bold;
+}
+
+
+/* BOTÃO NOVO RELATÓRIO */
+
+.btn-novo-relatorio {
+    background: #ff7215;
+
+    color: white;
+
+    border: none;
+
+    padding: 11px 22px;
+
+    border-radius: 8px;
+
+    font-weight: bold;
+
+    transition: 0.2s;
+}
+
+.btn-novo-relatorio:hover {
+    background: #e85f08;
+    color: white;
+}
+
+
+/* TABELA */
+
+.table thead th {
+    color: #52657d;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    border-bottom: 1px solid #d5dfeb;
+}
+
+.table tbody td {
+    color: #17365d;
+
+    vertical-align: middle;
+}
+
+
+/* CELULAR */
+
+@media (max-width: 768px) {
+
+    .btn-novo-relatorio {
+        width: 100%;
+    }
+}
+
+/* MODAL NOVO RELATÓRIO */
+
+.modal-content {
+    border: none;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.modal-header {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 18px 22px;
+}
+
+.modal-title {
+    color: #17365d;
+    font-weight: bold;
+}
+
+.modal-body {
+    padding: 22px;
+}
+
+.modal-body label {
+    color: #17365d;
+    font-weight: 500;
+}
+
+.modal-body .form-control,
+.modal-body .form-select {
+    border-radius: 8px;
+    border: 1px solid #d5dfeb;
+    padding: 10px 12px;
+}
+
+.modal-body .form-control:focus,
+.modal-body .form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+.modal-body textarea {
+    resize: vertical;
+}
+
+.modal-body .btn-secondary {
+    border-radius: 8px;
+}
+
+.modal-body .btn-primary {
+    background: #ff7215;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.modal-body .btn-primary:hover {
+    background: #e85f08;
+}
