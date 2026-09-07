@@ -13,11 +13,15 @@
     <title>Área do Funcionário</title>
 
 
+    <!-- BOOTSTRAP -->
+
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
 
+
+    <!-- CSS DO PROJETO -->
 
     <link
         rel="stylesheet"
@@ -29,6 +33,10 @@
 
 <body>
 
+
+<!-- ================================================= -->
+<!-- CONTAINER PRINCIPAL -->
+<!-- ================================================= -->
 
 <div class="container mt-5">
 
@@ -69,7 +77,6 @@
     </div>
 
 
-
     <!-- ================================================= -->
     <!-- CARDS -->
     <!-- ================================================= -->
@@ -77,7 +84,7 @@
     <div class="row g-3 mt-3">
 
 
-        <!-- HOJE -->
+        <!-- PRODUÇÃO DE HOJE -->
 
         <div class="col-md-6">
 
@@ -112,8 +119,7 @@
         </div>
 
 
-
-        <!-- MÊS -->
+        <!-- PRODUÇÃO DO MÊS -->
 
         <div class="col-md-6">
 
@@ -149,7 +155,6 @@
 
 
     </div>
-
 
 
     <!-- ================================================= -->
@@ -193,6 +198,10 @@
                                 Quantidade
                             </th>
 
+                            <th>
+                                Detalhes
+                            </th>
+
                         </tr>
 
                     </thead>
@@ -205,12 +214,17 @@
 
                         <tr>
 
+
+                            <!-- DATA -->
+
                             <td>
 
                                 {{ registro[1].strftime('%d/%m/%Y') }}
 
                             </td>
 
+
+                            <!-- PRODUTO -->
 
                             <td>
 
@@ -219,6 +233,8 @@
                             </td>
 
 
+                            <!-- ETAPA -->
+
                             <td>
 
                                 {{ registro[3] }}
@@ -226,18 +242,31 @@
                             </td>
 
 
+                            <!-- QUANTIDADE -->
+
                             <td>
 
-                                {{ registro[4] }}
+                                {{ registro[5] }}
 
                             </td>
 
 
+                            <!-- DETALHES -->
+
                             <td>
 
-                                {{ registro[6] }}
+                               <button
+                                    type="button"
+                                    class="btn btn-sm btn-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalDetalhes"
+                                    onclick="abrirDetalhes('{{ registro[0] }}')"
+                                >
+                                    Detalhes
+                                </button>
 
                             </td>
+
 
                         </tr>
 
@@ -270,7 +299,6 @@
     </div>
 
 
-
     <!-- ================================================= -->
     <!-- BOTÃO NOVO RELATÓRIO -->
     <!-- ================================================= -->
@@ -291,9 +319,8 @@
     </div>
 
 
-
     <!-- ================================================= -->
-    <!-- MODAL -->
+    <!-- MODAL NOVO RELATÓRIO -->
     <!-- ================================================= -->
 
     <div
@@ -303,9 +330,7 @@
         aria-hidden="true"
     >
 
-
         <div class="modal-dialog modal-lg">
-
 
             <div class="modal-content">
 
@@ -329,7 +354,6 @@
                     ></button>
 
                 </div>
-
 
 
                 <!-- CORPO -->
@@ -362,7 +386,6 @@
                             >
 
                         </div>
-
 
 
                         <!-- ETAPA -->
@@ -417,7 +440,6 @@
                         </div>
 
 
-
                         <!-- PRODUTO -->
 
                         <div class="mb-3">
@@ -445,34 +467,15 @@
                                 </option>
 
 
-                                <option value="Camiseta Básica">
+                                <option value="Lenços">
 
-                                    Camiseta Básica
-
-                                </option>
-
-
-                                <option value="Shorts Esportivo">
-
-                                    Shorts Esportivo
+                                    Lenços
 
                                 </option>
 
                             </select>
 
                         </div>
-
-
-
-                        <!-- COR -->
-
-                        <div class="mb-3">
-
-                            <label
-                                for="cor"
-                                class="form-label"
-                            >
-
 
 
                         <!-- GÊNERO -->
@@ -487,6 +490,9 @@
 
 
                             <div>
+
+
+                                <!-- MASCULINO -->
 
                                 <div
                                     class="form-check form-check-inline"
@@ -513,6 +519,7 @@
                                 </div>
 
 
+                                <!-- FEMININO -->
 
                                 <div
                                     class="form-check form-check-inline"
@@ -538,10 +545,10 @@
 
                                 </div>
 
+
                             </div>
 
                         </div>
-
 
 
                         <!-- TAMANHO -->
@@ -609,7 +616,6 @@
                         </div>
 
 
-
                         <!-- QUANTIDADE -->
 
                         <div class="mb-3">
@@ -635,8 +641,7 @@
                         </div>
 
 
-
-                        <!-- BOTÃO ADICIONAR -->
+                        <!-- ADICIONAR ITEM -->
 
                         <div class="mb-4">
 
@@ -651,7 +656,6 @@
                             </button>
 
                         </div>
-
 
 
                         <!-- ================================================= -->
@@ -692,9 +696,13 @@
                                 <strong>
 
                                     Total:
+
                                     <span id="totalItens">
+
                                         0
+
                                     </span>
+
                                     peças
 
                                 </strong>
@@ -702,7 +710,6 @@
                             </div>
 
                         </div>
-
 
 
                         <!-- OBSERVAÇÃO -->
@@ -729,7 +736,6 @@
                         </div>
 
 
-
                         <!-- MENSAGEM -->
 
                         <div
@@ -738,12 +744,12 @@
                         ></div>
 
 
-
                         <!-- BOTÕES -->
 
                         <div
                             class="d-flex gap-2 justify-content-end"
                         >
+
 
                             <button
                                 type="button"
@@ -766,6 +772,7 @@
 
                             </button>
 
+
                         </div>
 
 
@@ -781,22 +788,128 @@
 
 
 </div>
+<!-- FIM DO CONTAINER -->
 
 
+<!-- ================================================= -->
+<!-- MODAL DETALHES -->
+<!-- ================================================= -->
 
-<!-- ===================================================== -->
-<!-- BOOTSTRAP -->
-<!-- ===================================================== -->
+<div
+    class="modal fade"
+    id="modalDetalhes"
+    tabindex="-1"
+    aria-labelledby="modalDetalhesLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5
+                    class="modal-title"
+                    id="modalDetalhesLabel"
+                >
+                    Detalhes da produção
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fechar"
+                ></button>
+
+            </div>
+
+            <div class="modal-body">
+
+                <div id="detalhesCarregando" class="text-center">
+                    Carregando...
+                </div>
+
+                <div id="detalhesConteudo" style="display: none;">
+
+                    <div class="row mb-3">
+
+                        <div class="col-md-4">
+                            <strong>Data:</strong>
+                            <span id="detalheData"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <strong>Etapa:</strong>
+                            <span id="detalheEtapa"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <strong>Produto:</strong>
+                            <span id="detalheProduto"></span>
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <div id="detalhesGeneros"></div>
+
+                    <hr>
+
+                    <div class="text-end">
+
+                        <h5>
+                            Total do relatório:
+                            <strong id="detalheTotal"></strong>
+                            peças
+                        </h5>
+
+                    </div>
+
+                </div>
+
+                <div
+                    id="detalhesErro"
+                    class="alert alert-danger"
+                    style="display: none;"
+                >
+                    Não foi possível carregar os detalhes.
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Fechar
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+</div>
+
+
+<!-- ================================================= -->
+<!-- BOOTSTRAP JS -->
+<!-- ================================================= -->
 
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
 ></script>
 
 
-
-<!-- ===================================================== -->
-<!-- JAVASCRIPT -->
-<!-- ===================================================== -->
+<!-- ================================================= -->
+<!-- JAVASCRIPT DO PROJETO -->
+<!-- ================================================= -->
 
 <script
     src="{{ url_for('static', filename='js/inicio_funcionario.js') }}"

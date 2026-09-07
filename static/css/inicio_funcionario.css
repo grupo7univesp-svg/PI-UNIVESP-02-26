@@ -170,3 +170,37 @@ body {
 .modal-body .btn-primary:hover {
     background: #e85f08;
 }
+/* =========================================================
+   MODAL DE DETALHES
+   ========================================================= */
+
+#modalDetalhes {
+    z-index: 2000;
+}
+
+#modalDetalhes .modal-content {
+    border: none;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+#modalDetalhes .modal-header {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 18px 22px;
+}
+
+#modalDetalhes .modal-title {
+    color: #17365d;
+    font-weight: bold;
+}
+
+#modalDetalhes .modal-body {
+    padding: 22px;
+    color: #17365d;
+}
+
+#modalDetalhes .modal-footer {
+    padding: 15px 22px;
+    border-top: 1px solid #e5e7eb;
+}

@@ -372,56 +372,36 @@ def inicio_funcionario():
 
         cursor.execute(
             """
-            SELECT
-                relatorio_id,
-                data_producao,
-                produto,
-                etapa,
-                observacao,
-                quantidade
+           SELECT
+            relatorio_id,
+            MAX(data_producao) AS data_producao,
+            MAX(produto) AS produto,
+            MAX(etapa) AS etapa,
+            MAX(observacao) AS observacao,
 
-            FROM
-            (
-                SELECT DISTINCT ON (relatorio_id)
+            SUM(
+                COALESCE(quantidade_p, 0) +
+                COALESCE(quantidade_m, 0) +
+                COALESCE(quantidade_g, 0) +
+                COALESCE(quantidade_gg, 0) +
+                COALESCE(quantidade_xg, 0)
+            ) AS quantidade
 
-                    relatorio_id,
+        FROM producoes
 
-                    data_producao,
+        WHERE usuario_id = %s
 
-                    produto,
+        GROUP BY relatorio_id
 
-                    etapa,
+        ORDER BY data_producao DESC
 
-                    observacao,
-
-                    (
-                        COALESCE(quantidade_p, 0) +
-                        COALESCE(quantidade_m, 0) +
-                        COALESCE(quantidade_g, 0) +
-                        COALESCE(quantidade_gg, 0) +
-                        COALESCE(quantidade_xg, 0)
-                    ) AS quantidade
-
-                FROM producoes
-
-                WHERE usuario_id = %s
-
-                ORDER BY
-                    relatorio_id,
-                    data_producao DESC
-
-            ) AS relatorios
-
-            ORDER BY
-                data_producao DESC
-
-            LIMIT 5
+        LIMIT 5
             """,
             (usuario_id,)
         )
 
         ultimos_registros = cursor.fetchall()
-
+        print(ultimos_registros)
 
         return render_template(
             "inicio_funcionario.html",
@@ -431,6 +411,8 @@ def inicio_funcionario():
             producao_mes=producao_mes,
 
             ultimos_registros=ultimos_registros
+
+            
         )
 
 
@@ -454,6 +436,122 @@ def inicio_funcionario():
             cursor.close()
 
         conn.close()
+
+
+# =========================================================
+# Detalhes relatorio
+# =========================================================
+@app.route("/api/producoes/relatorio/<relatorio_id>")
+def detalhes_relatorio(relatorio_id):
+
+    conn = get_connection()
+
+    try:
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT
+                relatorio_id,
+                data_producao,
+                etapa,
+                produto,
+                genero,
+                quantidade_p,
+                quantidade_m,
+                quantidade_g,
+                quantidade_gg,
+                quantidade_xg,
+                observacao
+            FROM producoes
+            WHERE relatorio_id = %s
+            ORDER BY
+                CASE
+                    WHEN genero = 'Masculino' THEN 1
+                    WHEN genero = 'Feminino' THEN 2
+                    ELSE 3
+                END
+        """, (relatorio_id,))
+
+        registros = cursor.fetchall()
+
+        if not registros:
+            return jsonify({
+                "erro": "Relatório não encontrado."
+            }), 404
+
+        dados = []
+
+        total_geral = 0
+
+        for registro in registros:
+
+            (
+                relatorio_id,
+                data_producao,
+                etapa,
+                produto,
+                genero,
+                quantidade_p,
+                quantidade_m,
+                quantidade_g,
+                quantidade_gg,
+                quantidade_xg,
+                observacao
+            ) = registro
+
+            quantidade_p = quantidade_p or 0
+            quantidade_m = quantidade_m or 0
+            quantidade_g = quantidade_g or 0
+            quantidade_gg = quantidade_gg or 0
+            quantidade_xg = quantidade_xg or 0
+
+            total_genero = (
+                quantidade_p +
+                quantidade_m +
+                quantidade_g +
+                quantidade_gg +
+                quantidade_xg
+            )
+
+            total_geral += total_genero
+
+            dados.append({
+                "genero": genero,
+                "quantidades": {
+                    "P": quantidade_p,
+                    "M": quantidade_m,
+                    "G": quantidade_g,
+                    "GG": quantidade_gg,
+                    "XG": quantidade_xg
+                },
+                "total": total_genero
+            })
+
+        return jsonify({
+            "relatorio_id": str(relatorio_id),
+            "data": registros[0][1].strftime("%d/%m/%Y"),
+            "etapa": registros[0][2],
+            "produto": registros[0][3],
+            "observacao": registros[0][10],
+            "total_geral": total_geral,
+            "generos": dados
+        })
+
+    except Exception as e:
+
+        print("Erro ao buscar detalhes:", e)
+
+        return jsonify({
+            "erro": "Erro ao buscar detalhes do relatório."
+        }), 500
+
+    finally:
+        conn.close()
+
+
+
+
+
 
 
 # =========================================================

@@ -28,6 +28,9 @@ const mensagem =
 // =========================================================
 // ADICIONAR ITEM
 // =========================================================
+// =========================================================
+// =========================================================
+
 
 function adicionarItem() {
 
@@ -551,6 +554,133 @@ function mostrarSucesso(texto) {
     `;
 
 }
+
+
+
+async function abrirDetalhes(relatorioId) {
+
+    const carregando = document.getElementById("detalhesCarregando");
+    const conteudo = document.getElementById("detalhesConteudo");
+    const erro = document.getElementById("detalhesErro");
+
+    const data = document.getElementById("detalheData");
+    const etapa = document.getElementById("detalheEtapa");
+    const produto = document.getElementById("detalheProduto");
+    const total = document.getElementById("detalheTotal");
+    const generos = document.getElementById("detalhesGeneros");
+
+    // Estado inicial
+    carregando.style.display = "block";
+    conteudo.style.display = "none";
+    erro.style.display = "none";
+
+    generos.innerHTML = "";
+
+    try {
+
+        const resposta = await fetch(
+            `/api/producoes/relatorio/${relatorioId}`
+        );
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao buscar relatório.");
+        }
+
+        const dados = await resposta.json();
+
+        // Informações principais
+        data.textContent = dados.data;
+        etapa.textContent = dados.etapa;
+        produto.textContent = dados.produto;
+
+        // Total geral
+        total.textContent = dados.total_geral;
+
+        // Gêneros
+        dados.generos.forEach(genero => {
+
+            const quantidades = genero.quantidades;
+
+            const bloco = document.createElement("div");
+
+            bloco.className = "mb-4";
+
+            bloco.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">
+                        ${genero.genero}
+                    </h5>
+
+                    <strong>
+                        Total: ${genero.total} peças
+                    </strong>
+                </div>
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-sm">
+
+                        <thead>
+                            <tr>
+                                <th>Tamanho</th>
+                                <th>Quantidade</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>P</td>
+                                <td>${quantidades.P}</td>
+                            </tr>
+
+                            <tr>
+                                <td>M</td>
+                                <td>${quantidades.M}</td>
+                            </tr>
+
+                            <tr>
+                                <td>G</td>
+                                <td>${quantidades.G}</td>
+                            </tr>
+
+                            <tr>
+                                <td>GG</td>
+                                <td>${quantidades.GG}</td>
+                            </tr>
+
+                            <tr>
+                                <td>XG</td>
+                                <td>${quantidades.XG}</td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+            `;
+
+            generos.appendChild(bloco);
+        });
+
+        carregando.style.display = "none";
+        conteudo.style.display = "block";
+
+    } catch (e) {
+
+        console.error(e);
+
+        carregando.style.display = "none";
+        erro.style.display = "block";
+    }
+}
+
+
+
+
+
+
 
 
 // =========================================================

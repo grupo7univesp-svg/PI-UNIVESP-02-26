@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Registrar Produção</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/producao.css') }}">
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- ==================================================
+         CABEÇALHO
+    =================================================== -->
+
+    <header class="header">
+
+        <button
+            class="menu-btn"
+            type="button"
+            aria-label="Abrir menu">
+
+            ☰
+
+        </button>
+
+
+        <div
+            class="user-avatar"
+            aria-label="Usuário">
+
+            AP
+
+        </div>
+
+    </header>
+
+
+
+    <!-- ==================================================
+         CONTEÚDO
+    =================================================== -->
+
+    <main class="container">
+
+
+        <!-- TÍTULO -->
+
+        <div class="page-title">
+
+            <h1>
+                Registrar Produção
+            </h1>
+
+            <p>
+                Adicione os itens produzidos e envie tudo de uma vez.
+            </p>
+
+        </div>
+
+
+
+        <!-- ==================================================
+             INFORMAÇÕES DA PRODUÇÃO
+        =================================================== -->
+
+        <section class="production-card">
+
+            <div class="card-title">
+
+                INFORMAÇÕES DA PRODUÇÃO
+
+            </div>
+
+
+            <!-- DATA -->
+
+            <div class="form-group">
+
+                <label for="data_producao">
+
+                    Data
+                    <span>*</span>
+
+                </label>
+
+
+                <input
+                    type="date"
+                    id="data_producao"
+                    required>
+
+            </div>
+
+
+
+            <!-- ETAPA -->
+
+            <div class="form-group">
+
+                <label for="etapa">
+
+                    Etapa
+                    <span>*</span>
+
+                </label>
+
+
+                <select
+                    id="etapa"
+                    required>
+
+                    <option value="">
+                        Selecione...
+                    </option>
+
+                    <option value="Corte">
+                        Corte
+                    </option>
+
+                    <option value="Costura">
+                        Costura
+                    </option>
+
+                    <option value="Colagem">
+                        Colagem
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!-- PRODUTO -->
+
+            <div class="form-group">
+
+                <label for="produto">
+
+                    Modelo
+                    <span>*</span>
+
+                </label>
+
+
+                <select
+                    id="produto"
+                    required>
+
+                    <option value="">
+                        Selecione...
+                    </option>
+
+                    <option value="Lenços">
+                        Lenços
+                    </option>
+
+                  
+                </select>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ==================================================
+             ADICIONAR ITEM
+        =================================================== -->
+
+        <section class="production-card">
+
+
+            <div class="card-title">
+
+                ADICIONAR ITEM
+
+            </div>
+
+
+
+            <!-- GÊNERO -->
+
+            <div class="form-group">
+
+                <label>
+
+                    Gênero
+                    <span>*</span>
+
+                </label>
+
+
+                <div class="gender-group">
+
+
+                    <label class="gender-option">
+
+                        <input
+                            type="radio"
+                            name="genero"
+                            value="Masculino">
+
+                        <span>
+                            ♂ Masculino
+                        </span>
+
+                    </label>
+
+
+
+                    <label class="gender-option">
+
+                        <input
+                            type="radio"
+                            name="genero"
+                            value="Feminino">
+
+                        <span>
+                            ♀ Feminino
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- TAMANHO -->
+
+            <div class="form-group">
+
+                <label>
+
+                    Tamanho
+                    <span>*</span>
+
+                </label>
+
+
+                <div class="size-group">
+
+
+                    <label class="size-option">
+
+                        <input
+                            type="radio"
+                            name="tamanho"
+                            value="P">
+
+                        <span>P</span>
+
+                    </label>
+
+
+
+                    <label class="size-option">
+
+                        <input
+                            type="radio"
+                            name="tamanho"
+                            value="M">
+
+                        <span>M</span>
+
+                    </label>
+
+
+
+                    <label class="size-option">
+
+                        <input
+                            type="radio"
+                            name="tamanho"
+                            value="G">
+
+                        <span>G</span>
+
+                    </label>
+
+
+
+                    <label class="size-option">
+
+                        <input
+                            type="radio"
+                            name="tamanho"
+                            value="GG">
+
+                        <span>GG</span>
+
+                    </label>
+
+
+
+                    <label class="size-option">
+
+                        <input
+                            type="radio"
+                            name="tamanho"
+                            value="XG">
+
+                        <span>XG</span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- QUANTIDADE -->
+
+            <div class="form-group">
+
+                <label for="quantidade">
+
+                    Quantidade
+                    <span>*</span>
+
+                </label>
+
+
+                <div class="quantity-container">
+
+
+                    <button
+                        type="button"
+                        class="quantity-btn"
+                        id="btn-menos">
+
+                        −
+
+                    </button>
+
+
+                    <input
+                        type="number"
+                        id="quantidade"
+                        min="1"
+                        value="1">
+
+
+                    <button
+                        type="button"
+                        class="quantity-btn"
+                        id="btn-mais">
+
+                        +
+
+                    </button>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ADICIONAR -->
+
+            <button
+                type="button"
+                class="btn-add"
+                id="btn-adicionar">
+
+                + Adicionar item
+
+            </button>
+
+
+        </section>
+
+
+
+        <!-- ==================================================
+             ITENS ADICIONADOS
+        =================================================== -->
+
+        <section
+            class="production-card"
+            id="card-itens">
+
+
+            <!-- CABEÇALHO -->
+
+            <div class="items-header">
+
+                <div>
+
+                    <span class="items-icon">
+                        ♧
+                    </span>
+
+                    <strong>
+                        Itens adicionados
+                    </strong>
+
+                </div>
+
+
+                <span
+                    class="items-count"
+                    id="contador-itens">
+
+                    0
+
+                </span>
+
+            </div>
+
+
+
+            <!-- LISTA -->
+
+            <div
+                id="lista-itens"
+                class="items-list">
+
+
+                <div
+                    id="mensagem-vazia"
+                    class="empty-message">
+
+                    Nenhum item adicionado ainda.
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- TOTAL -->
+
+            <div class="total-container">
+
+                <span>
+                    Total de peças
+                </span>
+
+
+                <strong id="total-pecas">
+                    0
+                </strong>
+
+            </div>
+
+
+
+            <!-- OBSERVAÇÃO -->
+
+            <div class="form-group observation-group">
+
+                <label for="observacao">
+
+                    Observações
+                    <small>
+                        (opcional)
+                    </small>
+
+                </label>
+
+
+                <textarea
+                    id="observacao"
+                    rows="3"
+                    placeholder="Alguma observação sobre esta produção..."></textarea>
+
+            </div>
+
+
+
+            <!-- ENVIAR -->
+
+            <button
+                type="button"
+                class="btn-send"
+                id="btn-enviar">
+
+                ✓ Enviar produção
+
+            </button>
+
+
+            <!-- CANCELAR -->
+
+            <button
+                type="button"
+                class="btn-cancel"
+                id="btn-cancelar">
+
+                Cancelar
+
+            </button>
+
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+
+<!-- ==================================================
+     JAVASCRIPT
+=================================================== -->
+
+<script
+    src="{{ url_for('static', filename='js/producao.js') }}">
+</script>
+
+
+</body>
+
+</html>
