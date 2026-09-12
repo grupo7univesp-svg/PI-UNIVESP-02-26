@@ -204,3 +204,169 @@ body {
     padding: 15px 22px;
     border-top: 1px solid #e5e7eb;
 }
+
+/* =========================================================
+   SELEÇÃO DE TAMANHO
+   ========================================================= */
+
+.tamanhos-opcoes {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tamanho-btn {
+    width: 48px;
+    height: 42px;
+
+    border: 1px solid #d5dfeb;
+    border-radius: 8px;
+
+    background: white;
+    color: #17365d;
+
+    font-weight: normal;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.tamanho-btn:hover {
+    border-color: #17365d;
+}
+
+.tamanho-btn.selecionado {
+    background: #17365d;
+    color: white;
+    border-color: #17365d;
+}
+
+/* =========================================================
+   SELEÇÃO DE COR
+   ========================================================= */
+
+.cores-opcoes {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.cor-btn {
+    width: 32px;
+    height: 32px;
+
+    border-radius: 50%;
+
+    border: 1px solid #d5dfeb;
+
+    padding: 0;
+
+    cursor: pointer;
+
+    position: relative;
+
+    transition: 0.2s;
+}
+
+.cor-btn:hover:not(.selecionado) {
+    transform: scale(1.08);
+}
+
+.cor-btn.selecionado {
+    outline: 2px solid #17365d;
+    outline-offset: 3px;
+
+        box-shadow:
+        0 0 0 2px white,
+        0 0 0 4px #17365d;
+
+    transform: scale(1.05);
+}
+
+.cor-btn.selecionado::after {
+    content: "✓";
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    font-size: 16px;
+    font-weight: bold;
+
+    color: white;
+}
+
+.cor-btn.branco {
+    background: white;
+    border: 1px solid #64748b;
+}
+
+.cor-btn.branco.selecionado::after {
+    color: #17365d;
+}
+
+.cor-btn.preto {
+    background: #000000;
+}
+
+.cor-btn.azul-marinho {
+    background: #00008B;
+}
+
+.cor-btn.azul {
+    background: #0000FF;
+}
+
+.cor-btn.cinza {
+    background: #808080;
+}
+
+.cor-btn.vermelho {
+    background: #FF0000;
+}
+
+.cor-btn.marrom {
+    background: #654321;
+}
+
+.cor-btn.verde {
+    background: #00FF00;
+}
+
+.cor-btn.amarelo {
+    background: #FFFF00;
+}
+
+.cor-btn.rosa {
+    background: #FF1493;
+}
+
+.cor-btn.roxo {
+    background: #8B008B;
+}
+
+.cor-selecionada-texto {
+    font-size: 14px;
+    color: #52657d;
+
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+}
+
+#indicadorCor {
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+
+    border: 1px solid #94a3b8;
+
+    display: none;
+}

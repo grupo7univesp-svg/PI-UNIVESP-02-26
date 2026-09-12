@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS producoes (
     data_producao DATE NOT NULL,
     etapa VARCHAR(30) NOT NULL,
     produto VARCHAR(120) NOT NULL,
+    cor VARCHAR(50),
     observacao TEXT DEFAULT '',
     genero VARCHAR(20) NOT NULL,
     quantidade_p INTEGER NOT NULL DEFAULT 0,

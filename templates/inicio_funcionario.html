@@ -5,28 +5,19 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Área do Funcionário</title>
 
 
     <!-- BOOTSTRAP -->
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
 
     <!-- CSS DO PROJETO -->
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/inicio_funcionario.css') }}"
-    >
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/inicio_funcionario.css') }}">
 
 </head>
 
@@ -34,83 +25,253 @@
 <body>
 
 
-<!-- ================================================= -->
-<!-- CONTAINER PRINCIPAL -->
-<!-- ================================================= -->
-
-<div class="container mt-5">
-
-
     <!-- ================================================= -->
-    <!-- CABEÇALHO -->
+    <!-- CONTAINER PRINCIPAL -->
     <!-- ================================================= -->
 
-    <div
-        class="d-flex justify-content-between align-items-center mb-4"
-    >
+    <div class="container mt-5">
 
-        <div>
 
-            <h1>
-                Área do Funcionário
-            </h1>
+        <!-- ================================================= -->
+        <!-- CABEÇALHO -->
+        <!-- ================================================= -->
 
-            <p class="text-muted mb-0">
+        <div class="d-flex justify-content-between align-items-center mb-4">
 
-                Acompanhe sua produção e registre
-                novos relatórios.
+            <div>
 
-            </p>
+                <h1>
+                    Área do Funcionário
+                </h1>
+
+                <p class="text-muted mb-0">
+
+                    Acompanhe sua produção e registre
+                    novos relatórios.
+
+                </p>
+
+            </div>
+
+
+            <a href="{{ url_for('sair') }}" class="btn btn-outline-secondary">
+
+                Sair
+
+            </a>
 
         </div>
 
 
-        <a
-            href="{{ url_for('sair') }}"
-            class="btn btn-outline-secondary"
-        >
+        <!-- ================================================= -->
+        <!-- CARDS -->
+        <!-- ================================================= -->
 
-            Sair
-
-        </a>
-
-    </div>
+        <div class="row g-3 mt-3">
 
 
-    <!-- ================================================= -->
-    <!-- CARDS -->
-    <!-- ================================================= -->
+            <!-- PRODUÇÃO DE HOJE -->
 
-    <div class="row g-3 mt-3">
+            <div class="col-md-6">
 
+                <div class="card funcionario-card">
 
-        <!-- PRODUÇÃO DE HOJE -->
+                    <div class="card-body">
 
-        <div class="col-md-6">
+                        <h2 class="h6">
 
-            <div class="card funcionario-card">
+                            Produção de hoje
 
-                <div class="card-body">
-
-                    <h2 class="h6">
-
-                        Produção de hoje
-
-                    </h2>
+                        </h2>
 
 
-                    <p class="funcionario-number">
+                        <p class="funcionario-number">
 
-                        {{ producao_hoje }}
+                            {{ producao_hoje }}
 
-                    </p>
+                        </p>
 
 
-                    <small class="text-muted">
+                        <small class="text-muted">
 
-                        peças produzidas
+                            peças produzidas
 
-                    </small>
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- PRODUÇÃO DO MÊS -->
+
+            <div class="col-md-6">
+
+                <div class="card funcionario-card">
+
+                    <div class="card-body">
+
+                        <h2 class="h6">
+
+                            Produção no mês
+
+                        </h2>
+
+
+                        <p class="funcionario-number">
+
+                            {{ producao_mes }}
+
+                        </p>
+
+
+                        <small class="text-muted">
+
+                            peças produzidas
+
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- ÚLTIMOS REGISTROS -->
+        <!-- ================================================= -->
+
+        <div class="card registros-card mt-4">
+
+            <div class="card-body">
+
+
+                <h2 class="h5 mb-3">
+
+                    Últimos registros
+
+                </h2>
+
+
+                <div class="table-responsive">
+
+
+                    <table class="table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Data
+                                </th>
+
+                                <th>
+                                    Produto
+                                </th>
+
+                                <th>
+                                    Etapa
+                                </th>
+
+                                <th>
+                                    Quantidade
+                                </th>
+
+                                <th>
+                                    Detalhes
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+
+                            {% for registro in ultimos_registros %}
+
+                            <tr>
+
+
+                                <!-- DATA -->
+
+                                <td>
+
+                                    {{ registro[1].strftime('%d/%m/%Y') }}
+
+                                </td>
+
+
+                                <!-- PRODUTO -->
+
+                                <td>
+
+                                    {{ registro[2] }}
+
+                                </td>
+
+
+                                <!-- ETAPA -->
+
+                                <td>
+
+                                    {{ registro[3] }}
+
+                                </td>
+
+
+                                <!-- QUANTIDADE -->
+
+                                <td>
+
+                                    {{ registro[5] }}
+
+                                </td>
+
+
+                                <!-- DETALHES -->
+
+                                <td>
+
+                                    <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#modalDetalhes" onclick="abrirDetalhes('{{ registro[0] }}')">
+                                        Detalhes
+                                    </button>
+
+                                </td>
+
+
+                            </tr>
+
+
+                            {% else %}
+
+
+                            <tr>
+
+                                <td colspan="5">
+
+                                    Nenhum registro encontrado.
+
+                                </td>
+
+                            </tr>
+
+
+                            {% endfor %}
+
+
+                        </tbody>
+
+                    </table>
 
                 </div>
 
@@ -119,801 +280,529 @@
         </div>
 
 
-        <!-- PRODUÇÃO DO MÊS -->
+        <!-- ================================================= -->
+        <!-- BOTÃO NOVO RELATÓRIO -->
+        <!-- ================================================= -->
 
-        <div class="col-md-6">
+        <div class="mt-4">
 
-            <div class="card funcionario-card">
+            <button type="button" class="btn btn-novo-relatorio" data-bs-toggle="modal"
+                data-bs-target="#modalNovoRelatorio">
 
-                <div class="card-body">
+                Novo relatório
 
-                    <h2 class="h6">
-
-                        Produção no mês
-
-                    </h2>
-
-
-                    <p class="funcionario-number">
-
-                        {{ producao_mes }}
-
-                    </p>
-
-
-                    <small class="text-muted">
-
-                        peças produzidas
-
-                    </small>
-
-                </div>
-
-            </div>
+            </button>
 
         </div>
 
 
-    </div>
+        <!-- ================================================= -->
+        <!-- MODAL NOVO RELATÓRIO -->
+        <!-- ================================================= -->
+
+        <div class="modal fade" id="modalNovoRelatorio" tabindex="-1" aria-hidden="true">
+
+            <div class="modal-dialog modal-lg">
+
+                <div class="modal-content">
 
 
-    <!-- ================================================= -->
-    <!-- ÚLTIMOS REGISTROS -->
-    <!-- ================================================= -->
+                    <!-- CABEÇALHO -->
 
-    <div class="card registros-card mt-4">
+                    <div class="modal-header">
 
-        <div class="card-body">
+                        <h2 class="modal-title fs-5">
 
+                            Novo relatório
 
-            <h2 class="h5 mb-3">
-
-                Últimos registros
-
-            </h2>
+                        </h2>
 
 
-            <div class="table-responsive">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+
+                    </div>
 
 
-                <table class="table">
+                    <!-- CORPO -->
 
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Data
-                            </th>
-
-                            <th>
-                                Produto
-                            </th>
-
-                            <th>
-                                Etapa
-                            </th>
-
-                            <th>
-                                Quantidade
-                            </th>
-
-                            <th>
-                                Detalhes
-                            </th>
-
-                        </tr>
-
-                    </thead>
+                    <div class="modal-body">
 
 
-                    <tbody>
-
-
-                        {% for registro in ultimos_registros %}
-
-                        <tr>
+                        <form id="formProducao">
 
 
                             <!-- DATA -->
 
-                            <td>
+                            <div class="mb-3">
 
-                                {{ registro[1].strftime('%d/%m/%Y') }}
+                                <label for="data_producao" class="form-label">
 
-                            </td>
+                                    Data da produção
+
+                                </label>
 
 
-                            <!-- PRODUTO -->
+                                <input type="date" class="form-control" id="data_producao" required>
 
-                            <td>
-
-                                {{ registro[2] }}
-
-                            </td>
+                            </div>
 
 
                             <!-- ETAPA -->
 
-                            <td>
+                            <div class="mb-3">
 
-                                {{ registro[3] }}
+                                <label for="etapa" class="form-label">
 
-                            </td>
+                                    Etapa de produção
 
+                                </label>
+
+
+                                <select class="form-select" id="etapa" required>
+
+                                    <option value="">
+
+                                        Selecione...
+
+                                    </option>
+
+
+                                    <option value="Corte">
+
+                                        Corte
+
+                                    </option>
+
+
+                                    <option value="Costura">
+
+                                        Costura
+
+                                    </option>
+
+
+                                    <option value="Colagem">
+
+                                        Colagem
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- PRODUTO -->
+
+                            <div class="mb-3">
+
+                                <label for="produto" class="form-label">
+
+                                    Modelo do produto
+
+                                </label>
+
+
+                                <select class="form-select" id="produto" required>
+
+                                    <option value="">
+
+                                        Selecione...
+
+                                    </option>
+
+
+                                    <option value="Lenços">
+
+                                        Lenços
+
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- GÊNERO -->
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+
+                                    Gênero
+
+                                </label>
+
+
+                                <div>
+
+
+                                    <!-- MASCULINO -->
+
+                                    <div class="form-check form-check-inline">
+
+                                        <input class="form-check-input" type="radio" name="genero" id="genero_masculino"
+                                            value="Masculino">
+
+
+                                        <label class="form-check-label" for="genero_masculino">
+
+                                            Masculino
+
+                                        </label>
+
+                                    </div>
+
+
+                                    <!-- FEMININO -->
+
+                                    <div class="form-check form-check-inline">
+
+                                        <input class="form-check-input" type="radio" name="genero" id="genero_feminino"
+                                            value="Feminino">
+
+
+                                        <label class="form-check-label" for="genero_feminino">
+
+                                            Feminino
+
+                                        </label>
+
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- TAMANHO -->
+
+                            <!-- TAMANHO -->
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+                                    Tamanho
+                                </label>
+
+                                <div class="tamanhos-opcoes">
+
+                                    <button type="button" class="tamanho-btn" data-tamanho="P">
+                                        P
+                                    </button>
+
+                                    <button type="button" class="tamanho-btn" data-tamanho="M">
+                                        M
+                                    </button>
+
+                                    <button type="button" class="tamanho-btn" data-tamanho="G">
+                                        G
+                                    </button>
+
+                                    <button type="button" class="tamanho-btn" data-tamanho="GG">
+                                        GG
+                                    </button>
+
+                                    <button type="button" class="tamanho-btn" data-tamanho="XG">
+                                        XG
+                                    </button>
+
+                                </div>
+
+                                <!-- Guarda o tamanho escolhido -->
+                                <input type="hidden" id="tamanho" value="">
+
+                            </div>
+
+                            <!-- COR -->
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+                                    Cor
+                                </label>
+
+                                <div class="cores-opcoes">
+
+                                    <button type="button" class="cor-btn branco" data-cor="Branco" title="Branco">
+                                    </button>
+
+                                    <button type="button" class="cor-btn preto" data-cor="Preto" title="Preto">
+                                    </button>
+
+                                    <button type="button" class="cor-btn azul-marinho" data-cor="Azul-marinho"
+                                        title="Azul-marinho">
+                                    </button>
+
+                                    <button type="button" class="cor-btn azul" data-cor="Azul" title="Azul">
+                                    </button>
+
+                                    <button type="button" class="cor-btn cinza" data-cor="Cinza" title="Cinza">
+                                    </button>
+
+                                    <button type="button" class="cor-btn vermelho" data-cor="Vermelho" title="Vermelho">
+                                    </button>
+
+                                    <button type="button" class="cor-btn marrom" data-cor="Marrom" title="Marrom">
+                                    </button>
+
+                                    <button type="button" class="cor-btn verde" data-cor="Verde" title="Verde">
+                                    </button>
+
+                                    <button type="button" class="cor-btn amarelo" data-cor="Amarelo" title="Amarelo">
+                                    </button>
+
+                                    <button type="button" class="cor-btn rosa" data-cor="Rosa" title="Rosa">
+                                    </button>
+
+                                    <button type="button" class="cor-btn roxo" data-cor="Roxo" title="Roxo">
+                                    </button>
+
+                                </div>
+
+                                <div class="cor-selecionada-texto mt-2">
+                                    <span id="indicadorCor"></span>
+                                    <span id="nomeCorSelecionada">
+                                        Nenhuma cor selecionada
+                                    </span>
+                                </div>
+
+                                <input type="hidden" id="cor" value="">
+
+                            </div>
 
                             <!-- QUANTIDADE -->
 
-                            <td>
+                            <div class="mb-3">
 
-                                {{ registro[5] }}
+                                <label for="quantidade" class="form-label">
 
-                            </td>
+                                    Quantidade produzida
+
+                                </label>
 
 
-                            <!-- DETALHES -->
+                                <input type="number" class="form-control" id="quantidade" min="1" placeholder="Ex: 45">
 
-                            <td>
+                            </div>
 
-                               <button
-                                    type="button"
-                                    class="btn btn-sm btn-primary"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalDetalhes"
-                                    onclick="abrirDetalhes('{{ registro[0] }}')"
-                                >
-                                    Detalhes
+
+                            <!-- ADICIONAR ITEM -->
+
+                            <div class="mb-4">
+
+                                <button type="button" class="btn btn-secondary" id="btnAdicionar">
+
+                                    Adicionar item
+
                                 </button>
 
-                            </td>
+                            </div>
 
 
-                        </tr>
+                            <!-- ================================================= -->
+                            <!-- CARRINHO -->
+                            <!-- ================================================= -->
+
+                            <div class="mb-4">
 
 
-                        {% else %}
+                                <h3 class="h6">
+
+                                    Itens do relatório
+
+                                </h3>
 
 
-                        <tr>
+                                <div id="listaItens" class="border rounded p-3">
 
-                            <td colspan="5">
+                                    <p class="text-muted mb-0" id="mensagemCarrinho">
 
-                                Nenhum registro encontrado.
+                                        Nenhum item adicionado.
 
-                            </td>
+                                    </p>
 
-                        </tr>
-
-
-                        {% endfor %}
+                                </div>
 
 
-                    </tbody>
+                                <div class="text-end mt-2">
 
-                </table>
+                                    <strong>
+
+                                        Total:
+
+                                        <span id="totalItens">
+
+                                            0
+
+                                        </span>
+
+                                        peças
+
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- OBSERVAÇÃO -->
+
+                            <div class="mb-3">
+
+                                <label for="observacao" class="form-label">
+
+                                    Observações
+
+                                </label>
+
+
+                                <textarea class="form-control" id="observacao" rows="3"
+                                    placeholder="Alguma observação sobre este relatório..."></textarea>
+
+                            </div>
+
+
+                            <!-- MENSAGEM -->
+
+                            <div id="mensagem" class="mb-3"></div>
+
+
+                            <!-- BOTÕES -->
+
+                            <div class="d-flex gap-2 justify-content-end">
+
+
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+
+                                    Cancelar
+
+                                </button>
+
+
+                                <button type="submit" class="btn btn-primary" id="btnSalvar">
+
+                                    Salvar relatório
+
+                                </button>
+
+
+                            </div>
+
+
+                        </form>
+
+                    </div>
+
+                </div>
 
             </div>
 
         </div>
 
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- BOTÃO NOVO RELATÓRIO -->
-    <!-- ================================================= -->
-
-    <div class="mt-4">
-
-        <button
-            type="button"
-            class="btn btn-novo-relatorio"
-            data-bs-toggle="modal"
-            data-bs-target="#modalNovoRelatorio"
-        >
-
-            Novo relatório
-
-        </button>
 
     </div>
+    <!-- FIM DO CONTAINER -->
 
 
     <!-- ================================================= -->
-    <!-- MODAL NOVO RELATÓRIO -->
+    <!-- MODAL DETALHES -->
     <!-- ================================================= -->
 
-    <div
-        class="modal fade"
-        id="modalNovoRelatorio"
-        tabindex="-1"
-        aria-hidden="true"
-    >
-
-        <div class="modal-dialog modal-lg">
+    <div class="modal fade" id="modalDetalhes" tabindex="-1" aria-labelledby="modalDetalhesLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
 
             <div class="modal-content">
 
-
-                <!-- CABEÇALHO -->
-
                 <div class="modal-header">
 
-                    <h2 class="modal-title fs-5">
+                    <h5 class="modal-title" id="modalDetalhesLabel">
+                        Detalhes da produção
+                    </h5>
 
-                        Novo relatório
-
-                    </h2>
-
-
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Fechar"
-                    ></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
 
                 </div>
-
-
-                <!-- CORPO -->
 
                 <div class="modal-body">
 
-
-                    <form id="formProducao">
-
-
-                        <!-- DATA -->
-
-                        <div class="mb-3">
-
-                            <label
-                                for="data_producao"
-                                class="form-label"
-                            >
-
-                                Data da produção
-
-                            </label>
-
-
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="data_producao"
-                                required
-                            >
-
-                        </div>
-
-
-                        <!-- ETAPA -->
-
-                        <div class="mb-3">
-
-                            <label
-                                for="etapa"
-                                class="form-label"
-                            >
-
-                                Etapa de produção
-
-                            </label>
-
-
-                            <select
-                                class="form-select"
-                                id="etapa"
-                                required
-                            >
-
-                                <option value="">
-
-                                    Selecione...
-
-                                </option>
-
-
-                                <option value="Corte">
-
-                                    Corte
-
-                                </option>
-
-
-                                <option value="Costura">
-
-                                    Costura
-
-                                </option>
-
-
-                                <option value="Colagem">
-
-                                    Colagem
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- PRODUTO -->
-
-                        <div class="mb-3">
-
-                            <label
-                                for="produto"
-                                class="form-label"
-                            >
-
-                                Modelo do produto
-
-                            </label>
-
-
-                            <select
-                                class="form-select"
-                                id="produto"
-                                required
-                            >
-
-                                <option value="">
-
-                                    Selecione...
-
-                                </option>
-
-
-                                <option value="Lenços">
-
-                                    Lenços
-
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <!-- GÊNERO -->
-
-                        <div class="mb-3">
-
-                            <label class="form-label">
-
-                                Gênero
-
-                            </label>
-
-
-                            <div>
-
-
-                                <!-- MASCULINO -->
-
-                                <div
-                                    class="form-check form-check-inline"
-                                >
-
-                                    <input
-                                        class="form-check-input"
-                                        type="radio"
-                                        name="genero"
-                                        id="genero_masculino"
-                                        value="Masculino"
-                                    >
-
-
-                                    <label
-                                        class="form-check-label"
-                                        for="genero_masculino"
-                                    >
-
-                                        Masculino
-
-                                    </label>
-
-                                </div>
-
-
-                                <!-- FEMININO -->
-
-                                <div
-                                    class="form-check form-check-inline"
-                                >
-
-                                    <input
-                                        class="form-check-input"
-                                        type="radio"
-                                        name="genero"
-                                        id="genero_feminino"
-                                        value="Feminino"
-                                    >
-
-
-                                    <label
-                                        class="form-check-label"
-                                        for="genero_feminino"
-                                    >
-
-                                        Feminino
-
-                                    </label>
-
-                                </div>
-
-
+                    <div id="detalhesCarregando" class="text-center">
+                        Carregando...
+                    </div>
+
+                    <div id="detalhesConteudo" style="display: none;">
+
+                        <div class="row mb-3">
+
+                            <div class="col-md-4">
+                                <strong>Data:</strong>
+                                <span id="detalheData"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <strong>Etapa:</strong>
+                                <span id="detalheEtapa"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <strong>Produto:</strong>
+                                <span id="detalheProduto"></span>
                             </div>
 
                         </div>
 
+                        <hr>
 
-                        <!-- TAMANHO -->
+                        <div id="detalhesGeneros"></div>
 
-                        <div class="mb-3">
+                        <hr>
 
-                            <label
-                                for="tamanho"
-                                class="form-label"
-                            >
+                        <div class="text-end">
 
-                                Tamanho
-
-                            </label>
-
-
-                            <select
-                                class="form-select"
-                                id="tamanho"
-                            >
-
-                                <option value="">
-
-                                    Selecione...
-
-                                </option>
-
-
-                                <option value="P">
-
-                                    P
-
-                                </option>
-
-
-                                <option value="M">
-
-                                    M
-
-                                </option>
-
-
-                                <option value="G">
-
-                                    G
-
-                                </option>
-
-
-                                <option value="GG">
-
-                                    GG
-
-                                </option>
-
-
-                                <option value="XG">
-
-                                    XG
-
-                                </option>
-
-                            </select>
+                            <h5>
+                                Total do relatório:
+                                <strong id="detalheTotal"></strong>
+                                peças
+                            </h5>
 
                         </div>
 
+                    </div>
 
-                        <!-- QUANTIDADE -->
+                    <div id="detalhesErro" class="alert alert-danger" style="display: none;">
+                        Não foi possível carregar os detalhes.
+                    </div>
 
-                        <div class="mb-3">
+                </div>
 
-                            <label
-                                for="quantidade"
-                                class="form-label"
-                            >
+                <div class="modal-footer">
 
-                                Quantidade produzida
-
-                            </label>
-
-
-                            <input
-                                type="number"
-                                class="form-control"
-                                id="quantidade"
-                                min="1"
-                                placeholder="Ex: 45"
-                            >
-
-                        </div>
-
-
-                        <!-- ADICIONAR ITEM -->
-
-                        <div class="mb-4">
-
-                            <button
-                                type="button"
-                                class="btn btn-secondary"
-                                id="btnAdicionar"
-                            >
-
-                                Adicionar item
-
-                            </button>
-
-                        </div>
-
-
-                        <!-- ================================================= -->
-                        <!-- CARRINHO -->
-                        <!-- ================================================= -->
-
-                        <div class="mb-4">
-
-
-                            <h3 class="h6">
-
-                                Itens do relatório
-
-                            </h3>
-
-
-                            <div
-                                id="listaItens"
-                                class="border rounded p-3"
-                            >
-
-                                <p
-                                    class="text-muted mb-0"
-                                    id="mensagemCarrinho"
-                                >
-
-                                    Nenhum item adicionado.
-
-                                </p>
-
-                            </div>
-
-
-                            <div
-                                class="text-end mt-2"
-                            >
-
-                                <strong>
-
-                                    Total:
-
-                                    <span id="totalItens">
-
-                                        0
-
-                                    </span>
-
-                                    peças
-
-                                </strong>
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- OBSERVAÇÃO -->
-
-                        <div class="mb-3">
-
-                            <label
-                                for="observacao"
-                                class="form-label"
-                            >
-
-                                Observações
-
-                            </label>
-
-
-                            <textarea
-                                class="form-control"
-                                id="observacao"
-                                rows="3"
-                                placeholder="Alguma observação sobre este relatório..."
-                            ></textarea>
-
-                        </div>
-
-
-                        <!-- MENSAGEM -->
-
-                        <div
-                            id="mensagem"
-                            class="mb-3"
-                        ></div>
-
-
-                        <!-- BOTÕES -->
-
-                        <div
-                            class="d-flex gap-2 justify-content-end"
-                        >
-
-
-                            <button
-                                type="button"
-                                class="btn btn-secondary"
-                                data-bs-dismiss="modal"
-                            >
-
-                                Cancelar
-
-                            </button>
-
-
-                            <button
-                                type="submit"
-                                class="btn btn-primary"
-                                id="btnSalvar"
-                            >
-
-                                Salvar relatório
-
-                            </button>
-
-
-                        </div>
-
-
-                    </form>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Fechar
+                    </button>
 
                 </div>
 
             </div>
 
         </div>
-
+    </div>
     </div>
 
 
-</div>
-<!-- FIM DO CONTAINER -->
+    <!-- ================================================= -->
+    <!-- BOOTSTRAP JS -->
+    <!-- ================================================= -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 
-<!-- ================================================= -->
-<!-- MODAL DETALHES -->
-<!-- ================================================= -->
+    <!-- ================================================= -->
+    <!-- JAVASCRIPT DO PROJETO -->
+    <!-- ================================================= -->
 
-<div
-    class="modal fade"
-    id="modalDetalhes"
-    tabindex="-1"
-    aria-labelledby="modalDetalhesLabel"
-    aria-hidden="true"
->
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-                <h5
-                    class="modal-title"
-                    id="modalDetalhesLabel"
-                >
-                    Detalhes da produção
-                </h5>
-
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Fechar"
-                ></button>
-
-            </div>
-
-            <div class="modal-body">
-
-                <div id="detalhesCarregando" class="text-center">
-                    Carregando...
-                </div>
-
-                <div id="detalhesConteudo" style="display: none;">
-
-                    <div class="row mb-3">
-
-                        <div class="col-md-4">
-                            <strong>Data:</strong>
-                            <span id="detalheData"></span>
-                        </div>
-
-                        <div class="col-md-4">
-                            <strong>Etapa:</strong>
-                            <span id="detalheEtapa"></span>
-                        </div>
-
-                        <div class="col-md-4">
-                            <strong>Produto:</strong>
-                            <span id="detalheProduto"></span>
-                        </div>
-
-                    </div>
-
-                    <hr>
-
-                    <div id="detalhesGeneros"></div>
-
-                    <hr>
-
-                    <div class="text-end">
-
-                        <h5>
-                            Total do relatório:
-                            <strong id="detalheTotal"></strong>
-                            peças
-                        </h5>
-
-                    </div>
-
-                </div>
-
-                <div
-                    id="detalhesErro"
-                    class="alert alert-danger"
-                    style="display: none;"
-                >
-                    Não foi possível carregar os detalhes.
-                </div>
-
-            </div>
-
-            <div class="modal-footer">
-
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                >
-                    Fechar
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-</div>
-</div>
-
-
-<!-- ================================================= -->
-<!-- BOOTSTRAP JS -->
-<!-- ================================================= -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-></script>
-
-
-<!-- ================================================= -->
-<!-- JAVASCRIPT DO PROJETO -->
-<!-- ================================================= -->
-
-<script
-    src="{{ url_for('static', filename='js/inicio_funcionario.js') }}"
-></script>
+    <script src="{{ url_for('static', filename='js/inicio_funcionario.js') }}"></script>
 
 
 </body>

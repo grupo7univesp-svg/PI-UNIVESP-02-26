@@ -4,6 +4,7 @@ import psycopg2
 from psycopg2 import OperationalError
 import os
 import uuid
+from datetime import date, timedelta
 
 
 app = Flask(__name__)
@@ -87,13 +88,87 @@ def sair():
         url_for("login")
     )
 
-
 # =========================================================
 # DASHBOARD ADMINISTRADOR
 # =========================================================
 
 @app.route("/dashboard-adm")
 def dashboard_adm():
+
+    # -------------------------------------------------
+    # FILTRO POR PERÍODO
+    # -------------------------------------------------
+
+    periodo = request.args.get(
+        "periodo",
+        ""
+    )
+
+    data_inicio_texto = request.args.get(
+        "data_inicio",
+        ""
+    )
+
+    data_fim_texto = request.args.get(
+        "data_fim",
+        ""
+    )
+
+    hoje = date.today()
+
+    data_inicio = None
+    data_fim = None
+
+
+    if periodo == "hoje":
+
+        data_inicio = hoje
+        data_fim = hoje
+
+
+    elif periodo == "semana":
+
+        data_inicio = hoje - timedelta(
+            days=hoje.weekday()
+        )
+
+        data_fim = hoje
+
+
+    elif periodo == "mes":
+
+        data_inicio = hoje.replace(
+            day=1
+        )
+
+        data_fim = hoje
+
+
+    elif periodo == "personalizado":
+
+        try:
+
+            if data_inicio_texto:
+
+                data_inicio = date.fromisoformat(
+                    data_inicio_texto
+                )
+
+            if data_fim_texto:
+
+                data_fim = date.fromisoformat(
+                    data_fim_texto
+                )
+
+        except ValueError:
+
+            data_inicio = None
+            data_fim = None
+
+
+    # -------------------------------------------------
+    # CONEXÃO
+    # -------------------------------------------------
 
     conn = get_connection()
 
@@ -105,6 +180,7 @@ def dashboard_adm():
         )
 
     cursor = None
+
 
     try:
 
@@ -189,12 +265,42 @@ def dashboard_adm():
 
 
         # -------------------------------------------------
+        # FILTRO DA PRODUÇÃO POR FUNCIONÁRIO
+        # -------------------------------------------------
+
+        condicao_data = ""
+        parametros = []
+
+
+        if data_inicio is not None:
+
+            condicao_data += """
+                AND producoes.data_producao >= %s
+            """
+
+            parametros.append(
+                data_inicio
+            )
+
+
+        if data_fim is not None:
+
+            condicao_data += """
+                AND producoes.data_producao <= %s
+            """
+
+            parametros.append(
+                data_fim
+            )
+
+
+        # -------------------------------------------------
         # PRODUÇÃO POR FUNCIONÁRIO
         # -------------------------------------------------
 
-        cursor.execute(
-            """
+        query_funcionarios = f"""
             SELECT
+                usuarios.id,
                 usuarios.nome,
 
                 COALESCE(
@@ -216,6 +322,7 @@ def dashboard_adm():
 
             LEFT JOIN producoes
                 ON usuarios.id = producoes.usuario_id
+                {condicao_data}
 
             WHERE usuarios.ativo = TRUE
 
@@ -225,11 +332,20 @@ def dashboard_adm():
 
             ORDER BY
                 usuarios.nome
-            """
+        """
+
+
+        cursor.execute(
+            query_funcionarios,
+            parametros
         )
 
         producao_funcionarios = cursor.fetchall()
 
+
+        # -------------------------------------------------
+        # CARREGA O HTML
+        # -------------------------------------------------
 
         return render_template(
             "dashboard_adm.html",
@@ -240,7 +356,13 @@ def dashboard_adm():
 
             funcionarios_ativos=funcionarios_ativos,
 
-            producao_funcionarios=producao_funcionarios
+            producao_funcionarios=producao_funcionarios,
+
+            periodo=periodo,
+
+            data_inicio=data_inicio_texto,
+
+            data_fim=data_fim_texto
         )
 
 
@@ -250,7 +372,9 @@ def dashboard_adm():
             "Erro ao carregar Dashboard ADM:"
         )
 
-        print(repr(erro))
+        print(
+            repr(erro)
+        )
 
         return (
             "Erro ao carregar Dashboard ADM.",
@@ -264,8 +388,6 @@ def dashboard_adm():
             cursor.close()
 
         conn.close()
-
-
 # =========================================================
 # INÍCIO DO FUNCIONÁRIO
 # =========================================================
@@ -455,6 +577,7 @@ def detalhes_relatorio(relatorio_id):
                 data_producao,
                 etapa,
                 produto,
+                cor,
                 genero,
                 quantidade_p,
                 quantidade_m,
@@ -490,6 +613,7 @@ def detalhes_relatorio(relatorio_id):
                 data_producao,
                 etapa,
                 produto,
+                cor,
                 genero,
                 quantidade_p,
                 quantidade_m,
@@ -517,6 +641,7 @@ def detalhes_relatorio(relatorio_id):
 
             dados.append({
                 "genero": genero,
+                "cor": cor,
                 "quantidades": {
                     "P": quantidade_p,
                     "M": quantidade_m,
@@ -532,7 +657,7 @@ def detalhes_relatorio(relatorio_id):
             "data": registros[0][1].strftime("%d/%m/%Y"),
             "etapa": registros[0][2],
             "produto": registros[0][3],
-            "observacao": registros[0][10],
+            "observacao": registros[0][11],
             "total_geral": total_geral,
             "generos": dados
         })
@@ -548,11 +673,215 @@ def detalhes_relatorio(relatorio_id):
     finally:
         conn.close()
 
+# =========================================================
+# RELATÓRIOS POR FUNCIONÁRIO
+# =========================================================
+
+@app.route("/api/funcionarios/<int:usuario_id>/relatorios")
+def relatorios_funcionario(usuario_id):
+
+    # -------------------------------------------------
+    # FILTRO POR PERÍODO
+    # -------------------------------------------------
+
+    periodo = request.args.get(
+        "periodo",
+        ""
+    )
+
+    data_inicio_texto = request.args.get(
+        "data_inicio",
+        ""
+    )
+
+    data_fim_texto = request.args.get(
+        "data_fim",
+        ""
+    )
+
+    hoje = date.today()
+
+    data_inicio = None
+    data_fim = None
 
 
+    if periodo == "hoje":
+
+        data_inicio = hoje
+        data_fim = hoje
 
 
+    elif periodo == "semana":
 
+        data_inicio = hoje - timedelta(
+            days=hoje.weekday()
+        )
+
+        data_fim = hoje
+
+
+    elif periodo == "mes":
+
+        data_inicio = hoje.replace(
+            day=1
+        )
+
+        data_fim = hoje
+
+
+    elif periodo == "personalizado":
+
+        try:
+
+            if data_inicio_texto:
+                data_inicio = date.fromisoformat(
+                    data_inicio_texto
+                )
+
+            if data_fim_texto:
+                data_fim = date.fromisoformat(
+                    data_fim_texto
+                )
+
+        except ValueError:
+
+            data_inicio = None
+            data_fim = None
+
+
+    # -------------------------------------------------
+    # CONEXÃO
+    # -------------------------------------------------
+
+    conn = get_connection()
+
+    if conn is None:
+
+        return jsonify({
+            "erro": "Não foi possível conectar ao banco."
+        }), 500
+
+
+    cursor = None
+
+
+    try:
+
+        cursor = conn.cursor()
+
+
+        # -------------------------------------------------
+        # MONTA O FILTRO DE DATA
+        # -------------------------------------------------
+
+        condicao_data = ""
+        parametros = [
+            usuario_id
+        ]
+
+
+        if data_inicio is not None:
+
+            condicao_data += """
+                AND data_producao >= %s
+            """
+
+            parametros.append(
+                data_inicio
+            )
+
+
+        if data_fim is not None:
+
+            condicao_data += """
+                AND data_producao <= %s
+            """
+
+            parametros.append(
+                data_fim
+            )
+
+
+        # -------------------------------------------------
+        # BUSCA OS RELATÓRIOS
+        # -------------------------------------------------
+
+        query = f"""
+            SELECT
+                relatorio_id,
+                MAX(data_producao) AS data_producao,
+                MAX(produto) AS produto,
+                MAX(etapa) AS etapa,
+
+                SUM(
+                    COALESCE(quantidade_p, 0) +
+                    COALESCE(quantidade_m, 0) +
+                    COALESCE(quantidade_g, 0) +
+                    COALESCE(quantidade_gg, 0) +
+                    COALESCE(quantidade_xg, 0)
+                ) AS quantidade
+
+            FROM producoes
+
+            WHERE usuario_id = %s
+
+            {condicao_data}
+
+            GROUP BY relatorio_id
+
+            ORDER BY data_producao DESC
+        """
+
+
+        cursor.execute(
+            query,
+            parametros
+        )
+
+
+        registros = cursor.fetchall()
+
+        relatorios = []
+
+
+        for registro in registros:
+
+            relatorios.append({
+                "relatorio_id": str(registro[0]),
+                "data": registro[1].strftime("%d/%m/%Y"),
+                "produto": registro[2],
+                "etapa": registro[3],
+                "quantidade": registro[4]
+            })
+
+
+        return jsonify(
+            relatorios
+        )
+
+
+    except Exception as erro:
+
+        print(
+            "Erro ao buscar relatórios do funcionário:"
+        )
+
+        print(
+            repr(erro)
+        )
+
+        return jsonify({
+            "erro":
+            "Não foi possível buscar os relatórios."
+        }), 500
+
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        conn.close()
 
 # =========================================================
 # TELA DE PRODUÇÃO
@@ -680,28 +1009,8 @@ def api_producoes():
 
 
     # -----------------------------------------------------
-    # ESTRUTURA DE TAMANHOS
+    # ESTRUTURA DOS ITENS
     # -----------------------------------------------------
-
-    masculino = {
-
-        "P": 0,
-        "M": 0,
-        "G": 0,
-        "GG": 0,
-        "XG": 0
-    }
-
-
-    feminino = {
-
-        "P": 0,
-        "M": 0,
-        "G": 0,
-        "GG": 0,
-        "XG": 0
-    }
-
 
     tamanhos_validos = [
         "P",
@@ -711,11 +1020,23 @@ def api_producoes():
         "XG"
     ]
 
-
     generos_validos = [
         "Masculino",
         "Feminino"
     ]
+
+    # Aqui serão agrupadas as peças por gênero + cor.
+    #
+    # Exemplo:
+    #
+    # ("Masculino", "Preto")
+    # P = 5
+    # M = 3
+    #
+    # ("Feminino", "Marrom")
+    # G = 4
+
+    grupos = {}
 
 
     # -----------------------------------------------------
@@ -732,6 +1053,10 @@ def api_producoes():
 
             tamanho = item.get(
                 "tamanho"
+            )
+
+            cor = item.get(
+                "cor"
             )
 
             quantidade = int(
@@ -765,6 +1090,17 @@ def api_producoes():
 
 
             # ---------------------------------------------
+            # VALIDA COR
+            # ---------------------------------------------
+
+            if not cor:
+
+                return jsonify({
+                    "erro": "Cor inválida."
+                }), 400
+
+
+            # ---------------------------------------------
             # VALIDA QUANTIDADE
             # ---------------------------------------------
 
@@ -777,16 +1113,30 @@ def api_producoes():
 
 
             # ---------------------------------------------
-            # SOMA
+            # CRIA O GRUPO GÊNERO + COR
             # ---------------------------------------------
 
-            if genero == "Masculino":
+            chave = (
+                genero,
+                cor
+            )
 
-                masculino[tamanho] += quantidade
+            if chave not in grupos:
 
-            else:
+                grupos[chave] = {
+                    "P": 0,
+                    "M": 0,
+                    "G": 0,
+                    "GG": 0,
+                    "XG": 0
+                }
 
-                feminino[tamanho] += quantidade
+
+            # ---------------------------------------------
+            # SOMA A QUANTIDADE AO TAMANHO
+            # ---------------------------------------------
+
+            grupos[chave][tamanho] += quantidade
 
 
     except (
@@ -834,6 +1184,7 @@ def api_producoes():
                 data_producao,
                 etapa,
                 produto,
+                cor,
                 observacao,
                 genero,
                 quantidade_p,
@@ -856,82 +1207,39 @@ def api_producoes():
                 %s,
                 %s,
                 %s,
+                %s,
                 %s
             )
 
         """
 
 
+               # -------------------------------------------------
+        # SALVA CADA GRUPO GÊNERO + COR
         # -------------------------------------------------
-        # MASCULINO
-        # -------------------------------------------------
 
-        cursor.execute(
-            query,
+        for chave, quantidades in grupos.items():
 
-            (
-                relatorio_id,
+            genero, cor = chave
 
-                usuario_id,
-
-                data_producao,
-
-                etapa,
-
-                produto,
-
-
-                observacao,
-
-                "Masculino",
-
-                masculino["P"],
-
-                masculino["M"],
-
-                masculino["G"],
-
-                masculino["GG"],
-
-                masculino["XG"]
+            cursor.execute(
+                query,
+                (
+                    relatorio_id,
+                    usuario_id,
+                    data_producao,
+                    etapa,
+                    produto,
+                    cor,
+                    observacao,
+                    genero,
+                    quantidades["P"],
+                    quantidades["M"],
+                    quantidades["G"],
+                    quantidades["GG"],
+                    quantidades["XG"]
+                )
             )
-        )
-
-
-        # -------------------------------------------------
-        # FEMININO
-        # -------------------------------------------------
-
-        cursor.execute(
-            query,
-
-            (
-                relatorio_id,
-
-                usuario_id,
-
-                data_producao,
-
-                etapa,
-
-                produto,
-
-
-                observacao,
-
-                "Feminino",
-
-                feminino["P"],
-
-                feminino["M"],
-
-                feminino["G"],
-
-                feminino["GG"],
-
-                feminino["XG"]
-            )
-        )
 
 
         # -------------------------------------------------

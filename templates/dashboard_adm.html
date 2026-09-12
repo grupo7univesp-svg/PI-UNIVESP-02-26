@@ -103,7 +103,100 @@
 
         </div>
 
+        <!-- FILTROS -->
 
+        <div class="card table-card mt-4">
+
+            <div class="card-body">
+
+                <h2 class="h5 mb-3">
+                    Filtrar produção
+                </h2>
+
+                <form method="GET" action="{{ url_for('dashboard_adm') }}">
+
+                    <div class="row g-3 align-items-end">
+
+                        <!-- PERÍODO -->
+
+                        <div id="colunaPeriodo" class="col-md-8">
+
+                            <label for="periodo" class="form-label">
+                                Período
+                            </label>
+
+                            <select class="form-select" id="periodo" name="periodo">
+
+                                <option value="" {% if periodo=="" %}selected{% endif %}>
+                                    Todos os registros
+                                </option>
+
+                                <option value="hoje" {% if periodo=="hoje" %}selected{% endif %}>
+                                    Hoje
+                                </option>
+
+                                <option value="semana" {% if periodo=="semana" %}selected{% endif %}>
+                                    Esta semana
+                                </option>
+
+                                <option value="mes" {% if periodo=="mes" %}selected{% endif %}>
+                                    Este mês
+                                </option>
+
+                                <option value="personalizado" {% if periodo=="personalizado" %}selected{% endif %}>
+                                    Período personalizado
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- DATA INICIAL -->
+
+                        <div id="colunaDataInicio" class="col-md-3" style="display: none;">
+
+                            <label for="data_inicio" class="form-label">
+                                Data inicial
+                            </label>
+
+                            <input type="date" class="form-control" id="data_inicio" name="data_inicio"
+                                value="{{ data_inicio }}">
+
+                        </div>
+
+
+                        <!-- DATA FINAL -->
+
+                        <div id="colunaDataFim" class="col-md-3" style="display: none;">
+
+                            <label for="data_fim" class="form-label">
+                                Data final
+                            </label>
+
+                            <input type="date" class="form-control" id="data_fim" name="data_fim"
+                                value="{{ data_fim }}">
+
+                        </div>
+
+
+                        <!-- BOTÃO -->
+
+                        <div class="col-md-4">
+
+                            <button type="submit" class="btn btn-primary w-100">
+                                Filtrar
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
         <!-- PRODUÇÃO POR FUNCIONÁRIO -->
 
         <div class="card table-card mt-4">
@@ -123,6 +216,7 @@
                                 <th>Funcionário</th>
                                 <th>Produção</th>
                                 <th>Último registro</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
 
@@ -132,19 +226,20 @@
 
                             <tr>
 
-                                <td>
-                                    {{ funcionario[0] }}
-                                </td>
 
                                 <td>
                                     {{ funcionario[1] }}
                                 </td>
 
                                 <td>
+                                    {{ funcionario[2] }}
+                                </td>
 
-                                    {% if funcionario[2] %}
+                                <td>
 
-                                    {{ funcionario[2].strftime('%d/%m/%Y') }}
+                                    {% if funcionario[3] %}
+
+                                    {{ funcionario[3].strftime('%d/%m/%Y') }}
 
                                     {% else %}
 
@@ -154,13 +249,20 @@
 
                                 </td>
 
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-primary"
+                                        onclick="abrirDetalhesFuncionario('{{ funcionario[0] }}')">
+                                        Detalhes
+                                    </button>
+                                </td>
+
                             </tr>
 
                             {% else %}
 
                             <tr>
 
-                                <td colspan="3">
+                                <td colspan="4">
                                     Nenhum funcionário encontrado.
                                 </td>
 
@@ -221,8 +323,528 @@
 
     </div>
 
+    <!-- MODAL RELATÓRIOS DO FUNCIONÁRIO -->
+
+    <div class="modal fade" id="modalFuncionario" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Relatórios do funcionário
+                    </h5>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div id="funcionarioCarregando">
+                        Carregando...
+                    </div>
+
+                    <div id="funcionarioErro" class="alert alert-danger" style="display: none;">
+                        Não foi possível carregar os relatórios.
+                    </div>
+
+                    <div id="funcionarioConteudo" style="display: none;">
+
+                        <div class="table-responsive">
+
+                            <table class="table">
+
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Produto</th>
+                                        <th>Etapa</th>
+                                        <th>Quantidade</th>
+                                        <th>Detalhes</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="listaRelatoriosFuncionario">
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Fechar
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL DETALHES DO RELATÓRIO -->
+
+    <div class="modal fade" id="modalDetalhesRelatorio" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Detalhes do relatório
+                    </h5>
+
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <div id="relatorioCarregando">
+                        Carregando...
+                    </div>
+
+                    <div id="relatorioErro" class="alert alert-danger" style="display: none;">
+                        Não foi possível carregar os detalhes.
+                    </div>
+
+                    <div id="relatorioConteudo" style="display: none;">
+
+                        <div class="row mb-3">
+
+                            <div class="col-md-4">
+                                <strong>Data:</strong>
+                                <span id="relatorioData"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <strong>Etapa:</strong>
+                                <span id="relatorioEtapa"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <strong>Produto:</strong>
+                                <span id="relatorioProduto"></span>
+                            </div>
+
+                        </div>
+
+                        <hr>
+
+                        <div id="relatorioGeneros"></div>
+
+                        <hr>
+
+                        <div class="text-end">
+
+                            <strong>
+                                Total do relatório:
+                                <span id="relatorioTotal"></span>
+                                peças
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Fechar
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+    <script>
+
+        // =========================================================
+        // RELATÓRIOS DO FUNCIONÁRIO
+        // =========================================================
+
+        async function abrirDetalhesFuncionario(usuarioId) {
+
+            const modal =
+                new bootstrap.Modal(
+                    document.getElementById("modalFuncionario")
+                );
+
+            const carregando =
+                document.getElementById("funcionarioCarregando");
+
+            const conteudo =
+                document.getElementById("funcionarioConteudo");
+
+            const erro =
+                document.getElementById("funcionarioErro");
+
+            const lista =
+                document.getElementById("listaRelatoriosFuncionario");
+
+
+            carregando.style.display = "block";
+            conteudo.style.display = "none";
+            erro.style.display = "none";
+
+            lista.innerHTML = "";
+
+            modal.show();
+
+
+            try {
+
+                const periodo =
+                    document.getElementById("periodo").value;
+
+                const dataInicio =
+                    document.getElementById("data_inicio").value;
+
+                const dataFim =
+                    document.getElementById("data_fim").value;
+
+
+                const parametros =
+                    new URLSearchParams();
+
+                if (periodo) {
+                    parametros.append(
+                        "periodo",
+                        periodo
+                    );
+                }
+
+                if (dataInicio) {
+                    parametros.append(
+                        "data_inicio",
+                        dataInicio
+                    );
+                }
+
+                if (dataFim) {
+                    parametros.append(
+                        "data_fim",
+                        dataFim
+                    );
+                }
+
+
+                const resposta =
+                    await fetch(
+                        `/api/funcionarios/${usuarioId}/relatorios?${parametros.toString()}`
+                    );
+
+                if (!resposta.ok) {
+
+                    throw new Error(
+                        "Erro ao buscar relatórios."
+                    );
+
+                }
+
+                const relatorios =
+                    await resposta.json();
+
+
+                if (relatorios.length === 0) {
+
+                    lista.innerHTML = `
+                    <tr>
+                        <td colspan="5">
+                            Nenhum relatório encontrado.
+                        </td>
+                    </tr>
+                `;
+
+                } else {
+
+                    relatorios.forEach(function (relatorio) {
+
+                        const linha =
+                            document.createElement("tr");
+
+                        linha.innerHTML = `
+                        <td>
+                            ${relatorio.data}
+                        </td>
+
+                        <td>
+                            ${relatorio.produto}
+                        </td>
+
+                        <td>
+                            ${relatorio.etapa}
+                        </td>
+
+                        <td>
+                            ${relatorio.quantidade}
+                        </td>
+
+                        <td>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-primary"
+                                onclick="abrirDetalhesRelatorio('${relatorio.relatorio_id}')"
+                            >
+                                Detalhes
+                            </button>
+                        </td>
+                    `;
+
+                        lista.appendChild(linha);
+
+                    });
+
+                }
+
+
+                carregando.style.display = "none";
+                conteudo.style.display = "block";
+
+            }
+            catch (e) {
+
+                console.error(e);
+
+                carregando.style.display = "none";
+                erro.style.display = "block";
+
+            }
+
+        }
+
+
+        // =========================================================
+        // DETALHES DE UM RELATÓRIO
+        // =========================================================
+
+        async function abrirDetalhesRelatorio(relatorioId) {
+
+            const modal =
+                new bootstrap.Modal(
+                    document.getElementById("modalDetalhesRelatorio")
+                );
+
+            const carregando =
+                document.getElementById("relatorioCarregando");
+
+            const conteudo =
+                document.getElementById("relatorioConteudo");
+
+            const erro =
+                document.getElementById("relatorioErro");
+
+            const data =
+                document.getElementById("relatorioData");
+
+            const etapa =
+                document.getElementById("relatorioEtapa");
+
+            const produto =
+                document.getElementById("relatorioProduto");
+
+            const total =
+                document.getElementById("relatorioTotal");
+
+            const generos =
+                document.getElementById("relatorioGeneros");
+
+
+            carregando.style.display = "block";
+            conteudo.style.display = "none";
+            erro.style.display = "none";
+
+            generos.innerHTML = "";
+
+            modal.show();
+
+
+            try {
+
+                const resposta =
+                    await fetch(
+                        `/api/producoes/relatorio/${relatorioId}`
+                    );
+
+                if (!resposta.ok) {
+
+                    throw new Error(
+                        "Erro ao buscar relatório."
+                    );
+
+                }
+
+                const dados =
+                    await resposta.json();
+
+
+                data.textContent =
+                    dados.data;
+
+                etapa.textContent =
+                    dados.etapa;
+
+                produto.textContent =
+                    dados.produto;
+
+                total.textContent =
+                    dados.total_geral;
+
+
+                dados.generos.forEach(function (grupo) {
+
+                    const quantidades =
+                        grupo.quantidades;
+
+                    const bloco =
+                        document.createElement("div");
+
+                    bloco.className =
+                        "mb-4";
+
+                    bloco.innerHTML = `
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+
+                        <h5 class="mb-0">
+                            ${grupo.genero} - ${grupo.cor}
+                        </h5>
+
+                        <strong>
+                            Total: ${grupo.total} peças
+                        </strong>
+
+                    </div>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-bordered table-sm">
+
+                            <thead>
+                                <tr>
+                                    <th>Tamanho</th>
+                                    <th>Quantidade</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <tr>
+                                    <td>P</td>
+                                    <td>${quantidades.P}</td>
+                                </tr>
+
+                                <tr>
+                                    <td>M</td>
+                                    <td>${quantidades.M}</td>
+                                </tr>
+
+                                <tr>
+                                    <td>G</td>
+                                    <td>${quantidades.G}</td>
+                                </tr>
+
+                                <tr>
+                                    <td>GG</td>
+                                    <td>${quantidades.GG}</td>
+                                </tr>
+
+                                <tr>
+                                    <td>XG</td>
+                                    <td>${quantidades.XG}</td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                `;
+
+                    generos.appendChild(bloco);
+
+                });
+
+
+                carregando.style.display =
+                    "none";
+
+                conteudo.style.display =
+                    "block";
+
+            }
+            catch (e) {
+
+                console.error(e);
+
+                carregando.style.display =
+                    "none";
+
+                erro.style.display =
+                    "block";
+
+            }
+
+        }
+
+        const campoPeriodo =
+            document.getElementById("periodo");
+
+        const colunaPeriodo =
+            document.getElementById("colunaPeriodo");
+
+        const colunaDataInicio =
+            document.getElementById("colunaDataInicio");
+
+        const colunaDataFim =
+            document.getElementById("colunaDataFim");
+
+
+        function atualizarCamposPeriodo() {
+
+            if (campoPeriodo.value === "personalizado") {
+
+                colunaPeriodo.className = "col-md-2";
+
+                colunaDataInicio.style.display = "block";
+                colunaDataFim.style.display = "block";
+
+            } else {
+
+                colunaPeriodo.className = "col-md-8";
+
+                colunaDataInicio.style.display = "none";
+                colunaDataFim.style.display = "none";
+
+            }
+
+        }
+
+
+        atualizarCamposPeriodo();
+
+
+        campoPeriodo.addEventListener(
+            "change",
+            atualizarCamposPeriodo
+        );
     </script>
 
 </body>

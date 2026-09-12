@@ -24,6 +24,84 @@ const totalItens =
 const mensagem =
     document.getElementById("mensagem");
 
+// =========================================================
+// SELEÇÃO DE TAMANHO
+// =========================================================
+
+const botoesTamanho =
+    document.querySelectorAll(".tamanho-btn");
+
+const campoTamanho =
+    document.getElementById("tamanho");
+
+
+botoesTamanho.forEach(function (botao) {
+
+    botao.addEventListener("click", function () {
+
+        // Remove a seleção dos outros botões
+        botoesTamanho.forEach(function (outroBotao) {
+
+            outroBotao.classList.remove("selecionado");
+
+        });
+
+
+        // Marca o botão clicado
+        botao.classList.add("selecionado");
+
+
+        // Guarda o valor no campo oculto
+        campoTamanho.value =
+            botao.dataset.tamanho;
+
+    });
+
+});
+
+// =========================================================
+// SELEÇÃO DE COR
+// =========================================================
+
+const botoesCor =
+    document.querySelectorAll(".cor-btn");
+
+const campoCor =
+    document.getElementById("cor");
+
+const nomeCorSelecionada =
+    document.getElementById("nomeCorSelecionada");
+
+const indicadorCor =
+    document.getElementById("indicadorCor");
+
+
+botoesCor.forEach(function (botao) {
+
+    botao.addEventListener("click", function () {
+
+        botoesCor.forEach(function (outraCor) {
+
+            outraCor.classList.remove("selecionado");
+
+        });
+
+        botao.classList.add("selecionado");
+
+        campoCor.value =
+            botao.dataset.cor;
+
+        nomeCorSelecionada.textContent =
+            botao.dataset.cor + " selecionado";
+
+        indicadorCor.style.display = "inline-block";
+
+        indicadorCor.style.backgroundColor =
+            window.getComputedStyle(botao).backgroundColor;
+
+    });
+
+});
 
 // =========================================================
 // ADICIONAR ITEM
@@ -43,6 +121,8 @@ function adicionarItem() {
     const tamanhoElement =
         document.getElementById("tamanho");
 
+    const corElement =
+        document.getElementById("cor");
 
     const quantidadeElement =
         document.getElementById("quantidade");
@@ -70,6 +150,19 @@ function adicionarItem() {
 
         alert(
             "Selecione o tamanho."
+        );
+
+        return;
+    }
+
+    // -----------------------------------------------------
+    // VALIDA COR
+    // -----------------------------------------------------
+
+    if (!corElement.value) {
+
+        alert(
+            "Selecione a cor."
         );
 
         return;
@@ -111,6 +204,9 @@ function adicionarItem() {
         tamanho:
             tamanhoElement.value,
 
+        cor:
+            corElement.value,
+
         quantidade:
             quantidade
 
@@ -140,6 +236,26 @@ function adicionarItem() {
     quantidadeElement.value = "";
 
     tamanhoElement.value = "";
+
+    corElement.value = "";
+
+    botoesCor.forEach(function (botao) {
+
+        botao.classList.remove("selecionado");
+
+    });
+
+    nomeCorSelecionada.textContent =
+        "Nenhuma cor selecionada";
+
+    indicadorCor.style.display =
+        "none";
+
+    botoesTamanho.forEach(function (botao) {
+
+        botao.classList.remove("selecionado");
+
+    });
 
     generoElement.checked = false;
 
@@ -186,7 +302,7 @@ function atualizarCarrinho() {
 
 
     itens.forEach(
-        function(item, index) {
+        function (item, index) {
 
             total +=
                 item.quantidade;
@@ -213,18 +329,27 @@ function atualizarCarrinho() {
                     </span>
 
                     Tamanho
-                    <strong>
-                        ${item.tamanho}
-                    </strong>
+<strong>
+    ${item.tamanho}
+</strong>
 
-                    <span class="text-muted">
-                        -
-                    </span>
+<span class="text-muted">
+    -
+</span>
 
-                    <strong>
-                        ${item.quantidade}
-                    </strong>
-                    peças
+Cor
+<strong>
+    ${item.cor}
+</strong>
+
+<span class="text-muted">
+    -
+</span>
+
+<strong>
+    ${item.quantidade}
+</strong>
+peças
 
                 </div>
 
@@ -362,7 +487,7 @@ async function enviarRelatorio() {
     }
 
 
-   
+
 
     // -----------------------------------------------------
     // VALIDA ITENS
@@ -484,7 +609,7 @@ async function enviarRelatorio() {
         // -------------------------------------------------
 
         setTimeout(
-            function() {
+            function () {
 
                 window.location.reload();
 
@@ -608,7 +733,7 @@ async function abrirDetalhes(relatorioId) {
             bloco.innerHTML = `
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h5 class="mb-0">
-                        ${genero.genero}
+                         ${genero.genero} - ${genero.cor}
                     </h5>
 
                     <strong>
@@ -699,7 +824,7 @@ btnAdicionar.addEventListener(
 
 form.addEventListener(
     "submit",
-    function(event) {
+    function (event) {
 
         event.preventDefault();
 
@@ -715,7 +840,7 @@ form.addEventListener(
 
 document.addEventListener(
     "DOMContentLoaded",
-    function() {
+    function () {
 
         const campoData =
             document.getElementById(
