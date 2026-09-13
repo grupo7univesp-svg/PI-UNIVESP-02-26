@@ -81,6 +81,32 @@ body {
 }
 
 
+/* SETAS DAS SANFONAS */
+
+.seta-sanfona {
+    width: 10px;
+    height: 10px;
+
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+
+    transform: rotate(45deg);
+    transform-origin: center center;
+
+    transition: transform 0.15s ease;
+}
+
+.botao-sanfona {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
 /* CELULAR */
 
 @media (max-width: 768px) {

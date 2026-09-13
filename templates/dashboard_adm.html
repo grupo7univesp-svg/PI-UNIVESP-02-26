@@ -9,6 +9,8 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard_adm.css') }}">
 </head>
 
@@ -28,23 +30,17 @@
                 </p>
             </div>
 
-<div class="d-flex gap-2">
+            <div class="d-flex gap-2">
 
-    <a
-        href="{{ url_for('funcionarios') }}"
-        class="btn btn-primary"
-    >
-        Gerenciar funcionários
-    </a>
+                <a href="{{ url_for('funcionarios') }}" class="btn btn-primary">
+                    Gerenciar funcionários
+                </a>
 
-    <a
-        href="{{ url_for('sair') }}"
-        class="btn btn-outline-secondary"
-    >
-        Sair
-    </a>
+                <a href="{{ url_for('sair') }}" class="btn btn-outline-secondary">
+                    Sair
+                </a>
 
-</div>
+            </div>
 
         </div>
 
@@ -257,25 +253,19 @@
 
                         <div id="colunaBotao" class="col-md-3">
 
-    <div class="d-flex gap-2">
+                            <div class="d-flex gap-2">
 
-        <button
-            type="submit"
-            class="btn btn-primary flex-fill"
-        >
-            Filtrar
-        </button>
+                                <button type="submit" class="btn btn-primary flex-fill">
+                                    Filtrar
+                                </button>
 
-        <a
-            href="{{ url_for('dashboard_adm') }}"
-            class="btn btn-outline-secondary flex-fill"
-        >
-            Limpar filtros
-        </a>
+                                <a href="{{ url_for('dashboard_adm') }}" class="btn btn-outline-secondary flex-fill">
+                                    Limpar filtros
+                                </a>
 
-    </div>
+                            </div>
 
-</div>
+                        </div>
 
                     </div>
 
@@ -290,76 +280,90 @@
 
             <div class="card-body">
 
-                <h2 class="h5 mb-3">
-                    Produção por funcionário
-                </h2>
+                <div class="d-flex justify-content-between align-items-center mb-3">
 
-                <div class="table-responsive">
+                    <h2 class="h5 mb-0">
+                        Produção por funcionário
+                    </h2>
 
-                    <table class="table">
+                    <button id="botaoProducaoFuncionario" class="btn btn-sm btn-outline-secondary botao-sanfona"
+                        type="button" data-bs-toggle="collapse" data-bs-target="#collapseProducaoFuncionario"
+                        aria-expanded="true" aria-controls="collapseProducaoFuncionario"
+                        title="Abrir ou fechar Produção por funcionário">
+                        <span class="seta-sanfona"></span>
+                    </button>
 
-                        <thead>
-                            <tr>
-                                <th>Funcionário</th>
-                                <th>Produção</th>
-                                <th>Último registro</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
+                </div>
 
-                        <tbody>
+                <div class="collapse show" id="collapseProducaoFuncionario">
+                    <div class="table-responsive">
 
-                            {% for funcionario in producao_funcionarios %}
+                        <table class="table">
 
-                            <tr>
+                            <thead>
+                                <tr>
+                                    <th>Funcionário</th>
+                                    <th>Produção</th>
+                                    <th>Último registro</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                {% for funcionario in producao_funcionarios %}
+
+                                <tr>
 
 
-                                <td>
-                                    {{ funcionario[1] }}
-                                </td>
+                                    <td>
+                                        {{ funcionario[1] }}
+                                    </td>
 
-                                <td>
-                                    {{ funcionario[2] }}
-                                </td>
+                                    <td>
+                                        {{ funcionario[2] }}
+                                    </td>
 
-                                <td>
+                                    <td>
 
-                                    {% if funcionario[3] %}
+                                        {% if funcionario[3] %}
 
-                                    {{ funcionario[3].strftime('%d/%m/%Y') }}
+                                        {{ funcionario[3].strftime('%d/%m/%Y') }}
 
-                                    {% else %}
+                                        {% else %}
 
-                                    Nenhum registro
+                                        Nenhum registro
 
-                                    {% endif %}
+                                        {% endif %}
 
-                                </td>
+                                    </td>
 
-                                <td>
-                                    <button type="button" class="btn btn-sm btn-primary"
-                                        onclick="abrirDetalhesFuncionario('{{ funcionario[0] }}')">
-                                        Detalhes
-                                    </button>
-                                </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-primary"
+                                            onclick="abrirDetalhesFuncionario('{{ funcionario[0] }}')">
+                                            Detalhes
+                                        </button>
+                                    </td>
 
-                            </tr>
+                                </tr>
 
-                            {% else %}
+                                {% else %}
 
-                            <tr>
+                                <tr>
 
-                                <td colspan="4">
-                                    Nenhum funcionário encontrado.
-                                </td>
+                                    <td colspan="4">
+                                        Nenhum funcionário encontrado.
+                                    </td>
 
-                            </tr>
+                                </tr>
 
-                            {% endfor %}
+                                {% endfor %}
 
-                        </tbody>
+                            </tbody>
 
-                    </table>
+                        </table>
+
+                    </div>
 
                 </div>
 
@@ -373,48 +377,57 @@
 
             <div class="card-body">
 
-                <h2 class="h5 mb-3">
-                    Resumo por produto
-                </h2>
+                <div class="d-flex justify-content-between align-items-center mb-3">
 
-                <div class="table-responsive">
+                    <h2 class="h5 mb-0">
+                        Resumo por produto
+                    </h2>
 
-                    <table class="table">
+                    <button id="botaoResumoProduto" class="btn btn-sm btn-outline-secondary botao-sanfona" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#collapseResumoProduto" aria-expanded="false"
+                        aria-controls="collapseResumoProduto" title="Abrir ou fechar Resumo por produto">
+                        <span class="seta-sanfona"></span>
+                    </button>
 
-                        <thead>
-                            <tr>
-                                <th>Produto</th>
-                                <th>Quantidade produzida</th>
-                            </tr>
-                        </thead>
+                </div>
 
-                        <tbody>
+                <div class="collapse" id="collapseResumoProduto">
 
-                            {% for produto in resumo_produtos %}
+                    <div class="table-responsive">
 
-                            <tr>
-                                <td>
-                                    {{ produto[0] }}
-                                </td>
+                        <table class="table">
 
-                                <td>
-                                    {{ produto[1] }}
-                                </td>
-                            </tr>
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th>Quantidade produzida</th>
+                                </tr>
+                            </thead>
 
-                            {% else %}
+                            <tbody>
 
-                            <tr>
-                                <td colspan="2">
-                                    Nenhum produto encontrado.
-                                </td>
-                            </tr>
+                                {% for produto in resumo_produtos %}
 
-                            {% endfor %}
+                                <tr>
+                                    <td>{{ produto[0] }}</td>
+                                    <td>{{ produto[1] }}</td>
+                                </tr>
 
-                        </tbody>
+                                {% else %}
 
-                    </table>
+                                <tr>
+                                    <td colspan="2">
+                                        Nenhum produto encontrado.
+                                    </td>
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 
@@ -428,53 +441,67 @@
 
             <div class="card-body">
 
-                <h2 class="h5 mb-3">
-                    Resumo por cor e tamanho
-                </h2>
+                <div class="d-flex justify-content-between align-items-center mb-3">
 
-                <div class="table-responsive">
+                    <h2 class="h5 mb-0">
+                        Resumo por cor e tamanho
+                    </h2>
 
-                    <table class="table">
+                    <button id="botaoResumoCor" class="btn btn-sm btn-outline-secondary botao-sanfona" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#collapseResumoCor" aria-expanded="false"
+                        aria-controls="collapseResumoCor" title="Abrir ou fechar Resumo por cor e tamanho">
+                        <span class="seta-sanfona"></span>
+                    </button>
 
-                        <thead>
-                            <tr>
-                                <th>Cor</th>
-                                <th>P</th>
-                                <th>M</th>
-                                <th>G</th>
-                                <th>GG</th>
-                                <th>XG</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
+                </div>
 
-                        <tbody>
+                <div class="collapse" id="collapseResumoCor">
 
-                            {% for cor in resumo_cores %}
+                    <div class="table-responsive">
 
-                            <tr>
-                                <td>{{ cor[0] }}</td>
-                                <td>{{ cor[1] }}</td>
-                                <td>{{ cor[2] }}</td>
-                                <td>{{ cor[3] }}</td>
-                                <td>{{ cor[4] }}</td>
-                                <td>{{ cor[5] }}</td>
-                                <td>{{ cor[6] }}</td>
-                            </tr>
+                        <table class="table">
 
-                            {% else %}
+                            <thead>
+                                <tr>
+                                    <th>Cor</th>
+                                    <th>P</th>
+                                    <th>M</th>
+                                    <th>G</th>
+                                    <th>GG</th>
+                                    <th>XG</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
 
-                            <tr>
-                                <td colspan="7">
-                                    Nenhum registro encontrado.
-                                </td>
-                            </tr>
+                            <tbody>
 
-                            {% endfor %}
+                                {% for cor in resumo_cores %}
 
-                        </tbody>
+                                <tr>
+                                    <td>{{ cor[0] }}</td>
+                                    <td>{{ cor[1] }}</td>
+                                    <td>{{ cor[2] }}</td>
+                                    <td>{{ cor[3] }}</td>
+                                    <td>{{ cor[4] }}</td>
+                                    <td>{{ cor[5] }}</td>
+                                    <td>{{ cor[6] }}</td>
+                                </tr>
 
-                    </table>
+                                {% else %}
+
+                                <tr>
+                                    <td colspan="7">
+                                        Nenhum registro encontrado.
+                                    </td>
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 
@@ -488,59 +515,81 @@
 
             <div class="card-body">
 
-                <h2 class="h5 mb-3">
-                    Resumo para pagamento
-                </h2>
+                <div class="d-flex justify-content-between align-items-center mb-3">
 
-                <div class="table-responsive">
+                    <h2 class="h5 mb-0">
+                        Resumo para pagamento
+                    </h2>
 
-                    <table class="table">
+                    <div class="d-flex gap-2">
 
-                        <thead>
-                            <tr>
-                                <th>Funcionário</th>
-                                <th>Quantidade produzida</th>
-                                <th>Valor estimado</th>
-                            </tr>
-                        </thead>
+                        <button id="botaoMostrarValores" class="btn btn-sm btn-outline-secondary" type="button"
+                            title="Mostrar valores" aria-label="Mostrar valores">
+                            <i class="bi bi-eye"></i>
+                        </button>
 
-                        <tbody>
+                        <button id="botaoResumoPagamento" class="btn btn-sm btn-outline-secondary botao-sanfona"
+                            type="button" data-bs-toggle="collapse" data-bs-target="#collapseResumoPagamento"
+                            aria-expanded="false" aria-controls="collapseResumoPagamento"
+                            title="Abrir ou fechar Resumo para pagamento">
+                            <span class="seta-sanfona"></span>
+                        </button>
 
-                            {% for funcionario in producao_funcionarios %}
+                    </div>
 
-                            <tr>
-                                <td>
-                                    {{ funcionario[1] }}
-                                </td>
+                </div>
 
-                                <td>
-                                    {{ funcionario[2] }}
-                                </td>
+                <div class="collapse" id="collapseResumoPagamento">
 
-                                <td>
-                                    A definir
-                                </td>
-                            </tr>
+                    <div class="table-responsive">
 
-                            {% else %}
+                        <table class="table">
 
-                            <tr>
-                                <td colspan="3">
-                                    Nenhum funcionário encontrado.
-                                </td>
-                            </tr>
+                            <thead>
+                                <tr>
+                                    <th>Funcionário</th>
+                                    <th>Quantidade produzida</th>
+                                    <th>Valor estimado</th>
+                                </tr>
+                            </thead>
 
-                            {% endfor %}
+                            <tbody>
 
-                        </tbody>
+                                {% for funcionario in producao_funcionarios %}
 
-                    </table>
+                                <tr>
+                                    <td>{{ funcionario[1] }}</td>
+                                    <td>{{ funcionario[2] }}</td>
+                                    <td>
+                                        <span class="valor-pagamento" data-valor="A definir">
+                                            ••••••••
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                {% else %}
+
+                                <tr>
+                                    <td colspan="3">
+                                        Nenhum funcionário encontrado.
+                                    </td>
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 
             </div>
 
         </div>
+
+
 
     </div>
 
@@ -1102,6 +1151,182 @@
             "change",
             atualizarCamposPeriodo
         );
+
+
+        // =========================================================
+        // SANFONAS - TROCA AUTOMÁTICA DAS SETAS
+        // =========================================================
+
+        function configurarSanfona(
+            collapseId,
+            botaoId
+        ) {
+
+            const collapse =
+                document.getElementById(
+                    collapseId
+                );
+
+            const botao =
+                document.getElementById(
+                    botaoId
+                );
+
+            const seta =
+                botao.querySelector(
+                    ".seta-sanfona"
+                );
+
+            // A seta fechada começa em 45° (apontando para baixo).
+            // A seta aberta começa em 225° (apontando para cima).
+            // A cada abertura/fechamento somamos 180°,
+            // fazendo a animação girar sempre para a direita.
+            let anguloAtual =
+                collapse.classList.contains("show")
+                    ? 225
+                    : 45;
+
+            seta.style.transform =
+                `rotate(${anguloAtual}deg)`;
+
+            collapse.addEventListener(
+                "shown.bs.collapse",
+                function () {
+
+                    anguloAtual += 180;
+
+                    seta.style.transform =
+                        `rotate(${anguloAtual}deg)`;
+
+                    botao.setAttribute(
+                        "aria-expanded",
+                        "true"
+                    );
+
+                }
+            );
+
+            collapse.addEventListener(
+                "hidden.bs.collapse",
+                function () {
+
+                    anguloAtual += 180;
+
+                    seta.style.transform =
+                        `rotate(${anguloAtual}deg)`;
+
+                    botao.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                }
+            );
+
+        }
+
+
+        configurarSanfona(
+            "collapseProducaoFuncionario",
+            "botaoProducaoFuncionario"
+        );
+
+        configurarSanfona(
+            "collapseResumoProduto",
+            "botaoResumoProduto"
+        );
+
+        configurarSanfona(
+            "collapseResumoCor",
+            "botaoResumoCor"
+        );
+
+        configurarSanfona(
+            "collapseResumoPagamento",
+            "botaoResumoPagamento"
+        );
+
+
+        // =========================================================
+        // MOSTRAR / OCULTAR VALORES DO PAGAMENTO
+        // =========================================================
+
+        const botaoMostrarValores =
+            document.getElementById(
+                "botaoMostrarValores"
+            );
+
+        const iconeOlho =
+            botaoMostrarValores.querySelector("i");
+
+        let valoresVisiveis = false;
+
+
+        botaoMostrarValores.addEventListener(
+            "click",
+            function () {
+
+                valoresVisiveis =
+                    !valoresVisiveis;
+
+
+                const valores =
+                    document.querySelectorAll(
+                        ".valor-pagamento"
+                    );
+
+
+                valores.forEach(
+                    function (valor) {
+
+                        if (valoresVisiveis) {
+
+                            valor.textContent =
+                                valor.dataset.valor;
+
+                        } else {
+
+                            valor.textContent =
+                                "********";
+
+                        }
+
+                    }
+                );
+
+
+                if (valoresVisiveis) {
+
+                    iconeOlho.className =
+                        "bi bi-eye-slash";
+
+                    botaoMostrarValores.title =
+                        "Ocultar valores";
+
+                    botaoMostrarValores.setAttribute(
+                        "aria-label",
+                        "Ocultar valores"
+                    );
+
+                } else {
+
+                    iconeOlho.className =
+                        "bi bi-eye";
+
+                    botaoMostrarValores.title =
+                        "Mostrar valores";
+
+                    botaoMostrarValores.setAttribute(
+                        "aria-label",
+                        "Mostrar valores"
+                    );
+
+                }
+
+            }
+
+        );
+
     </script>
 
 </body>
