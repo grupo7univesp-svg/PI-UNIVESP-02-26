@@ -28,12 +28,28 @@
                 </p>
             </div>
 
-            <a href="{{ url_for('sair') }}" class="btn btn-outline-secondary">
-                Sair
-            </a>
+<div class="d-flex gap-2">
+
+    <a
+        href="{{ url_for('funcionarios') }}"
+        class="btn btn-primary"
+    >
+        Gerenciar funcionários
+    </a>
+
+    <a
+        href="{{ url_for('sair') }}"
+        class="btn btn-outline-secondary"
+    >
+        Sair
+    </a>
+
+</div>
 
         </div>
 
+
+        <!-- CARDS DE RESUMO -->
 
         <!-- CARDS DE RESUMO -->
 
@@ -44,15 +60,15 @@
                     <div class="card-body">
 
                         <h2 class="h6">
-                            Produção de hoje
+                            Produção filtrada
                         </h2>
 
                         <p class="dashboard-number">
-                            {{ producao_hoje }}
+                            {{ producao_filtrada }}
                         </p>
 
                         <small class="text-muted">
-                            peças produzidas
+                            peças no resultado atual
                         </small>
 
                     </div>
@@ -65,15 +81,15 @@
                     <div class="card-body">
 
                         <h2 class="h6">
-                            Produção no mês
+                            Funcionários no resultado
                         </h2>
 
                         <p class="dashboard-number">
-                            {{ producao_mes }}
+                            {{ funcionarios_filtrados }}
                         </p>
 
                         <small class="text-muted">
-                            peças produzidas
+                            funcionários com produção
                         </small>
 
                     </div>
@@ -86,15 +102,15 @@
                     <div class="card-body">
 
                         <h2 class="h6">
-                            Funcionários
+                            Produtos no resultado
                         </h2>
 
                         <p class="dashboard-number">
-                            {{ funcionarios_ativos }}
+                            {{ produtos_filtrados }}
                         </p>
 
                         <small class="text-muted">
-                            funcionários cadastrados
+                            produtos diferentes
                         </small>
 
                     </div>
@@ -117,9 +133,66 @@
 
                     <div class="row g-3 align-items-end">
 
+                        <!-- FUNCIONÁRIO -->
+
+                        <div id="colunaFuncionario" class="col-md-4">
+
+                            <label for="funcionario" class="form-label">
+                                Funcionário
+                            </label>
+
+                            <select class="form-select" id="funcionario" name="funcionario">
+
+                                <option value="" {% if funcionario_id=="" %}selected{% endif %}>
+                                    Todos os funcionários
+                                </option>
+
+                                {% for funcionario in funcionarios_filtro %}
+
+                                <option value="{{ funcionario[0] }}" {% if funcionario_id==funcionario[0]|string
+                                    %}selected{% endif %}>
+                                    {{ funcionario[1] }}
+                                </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+                        <!-- ETAPA -->
+
+                        <div id="colunaEtapa" class="col-md-3">
+
+                            <label for="etapa" class="form-label">
+                                Etapa
+                            </label>
+
+                            <select class="form-select" id="etapa" name="etapa">
+
+                                <option value="" {% if etapa=="" %}selected{% endif %}>
+                                    Todas as etapas
+                                </option>
+
+                                <option value="Corte" {% if etapa=="Corte" %}selected{% endif %}>
+                                    Corte
+                                </option>
+
+                                <option value="Costura" {% if etapa=="Costura" %}selected{% endif %}>
+                                    Costura
+                                </option>
+
+                                <option value="Colagem" {% if etapa=="Colagem" %}selected{% endif %}>
+                                    Colagem
+                                </option>
+
+                            </select>
+
+                        </div>
+
                         <!-- PERÍODO -->
 
-                        <div id="colunaPeriodo" class="col-md-8">
+                        <div id="colunaPeriodo" class="col-md-4">
 
                             <label for="periodo" class="form-label">
                                 Período
@@ -154,7 +227,7 @@
 
                         <!-- DATA INICIAL -->
 
-                        <div id="colunaDataInicio" class="col-md-3" style="display: none;">
+                        <div id="colunaDataInicio" class="col-md-2" style="display: none;">
 
                             <label for="data_inicio" class="form-label">
                                 Data inicial
@@ -168,7 +241,7 @@
 
                         <!-- DATA FINAL -->
 
-                        <div id="colunaDataFim" class="col-md-3" style="display: none;">
+                        <div id="colunaDataFim" class="col-md-2" style="display: none;">
 
                             <label for="data_fim" class="form-label">
                                 Data final
@@ -182,13 +255,27 @@
 
                         <!-- BOTÃO -->
 
-                        <div class="col-md-4">
+                        <div id="colunaBotao" class="col-md-3">
 
-                            <button type="submit" class="btn btn-primary w-100">
-                                Filtrar
-                            </button>
+    <div class="d-flex gap-2">
 
-                        </div>
+        <button
+            type="submit"
+            class="btn btn-primary flex-fill"
+        >
+            Filtrar
+        </button>
+
+        <a
+            href="{{ url_for('dashboard_adm') }}"
+            class="btn btn-outline-secondary flex-fill"
+        >
+            Limpar filtros
+        </a>
+
+    </div>
+
+</div>
 
                     </div>
 
@@ -280,6 +367,120 @@
 
         </div>
 
+        <!-- RESUMO POR PRODUTO -->
+
+        <div class="card table-card mt-4">
+
+            <div class="card-body">
+
+                <h2 class="h5 mb-3">
+                    Resumo por produto
+                </h2>
+
+                <div class="table-responsive">
+
+                    <table class="table">
+
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Quantidade produzida</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for produto in resumo_produtos %}
+
+                            <tr>
+                                <td>
+                                    {{ produto[0] }}
+                                </td>
+
+                                <td>
+                                    {{ produto[1] }}
+                                </td>
+                            </tr>
+
+                            {% else %}
+
+                            <tr>
+                                <td colspan="2">
+                                    Nenhum produto encontrado.
+                                </td>
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RESUMO POR COR E TAMANHO -->
+
+        <div class="card table-card mt-4">
+
+            <div class="card-body">
+
+                <h2 class="h5 mb-3">
+                    Resumo por cor e tamanho
+                </h2>
+
+                <div class="table-responsive">
+
+                    <table class="table">
+
+                        <thead>
+                            <tr>
+                                <th>Cor</th>
+                                <th>P</th>
+                                <th>M</th>
+                                <th>G</th>
+                                <th>GG</th>
+                                <th>XG</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for cor in resumo_cores %}
+
+                            <tr>
+                                <td>{{ cor[0] }}</td>
+                                <td>{{ cor[1] }}</td>
+                                <td>{{ cor[2] }}</td>
+                                <td>{{ cor[3] }}</td>
+                                <td>{{ cor[4] }}</td>
+                                <td>{{ cor[5] }}</td>
+                                <td>{{ cor[6] }}</td>
+                            </tr>
+
+                            {% else %}
+
+                            <tr>
+                                <td colspan="7">
+                                    Nenhum registro encontrado.
+                                </td>
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
 
         <!-- RESUMO PARA PAGAMENTO -->
 
@@ -305,11 +506,31 @@
 
                         <tbody>
 
+                            {% for funcionario in producao_funcionarios %}
+
                             <tr>
-                                <td>-</td>
-                                <td>0</td>
-                                <td>R$ 0,00</td>
+                                <td>
+                                    {{ funcionario[1] }}
+                                </td>
+
+                                <td>
+                                    {{ funcionario[2] }}
+                                </td>
+
+                                <td>
+                                    A definir
+                                </td>
                             </tr>
+
+                            {% else %}
+
+                            <tr>
+                                <td colspan="3">
+                                    Nenhum funcionário encontrado.
+                                </td>
+                            </tr>
+
+                            {% endfor %}
 
                         </tbody>
 
@@ -514,6 +735,9 @@
                 const periodo =
                     document.getElementById("periodo").value;
 
+                const etapa =
+                    document.getElementById("etapa").value;
+
                 const dataInicio =
                     document.getElementById("data_inicio").value;
 
@@ -528,6 +752,13 @@
                     parametros.append(
                         "periodo",
                         periodo
+                    );
+                }
+
+                if (etapa) {
+                    parametros.append(
+                        "etapa",
+                        etapa
                     );
                 }
 
@@ -819,16 +1050,42 @@
 
         function atualizarCamposPeriodo() {
 
+            const colunaFuncionario =
+                document.getElementById("colunaFuncionario");
+
+            const colunaEtapa =
+                document.getElementById("colunaEtapa");
+
+            const colunaPeriodo =
+                document.getElementById("colunaPeriodo");
+
+            const colunaDataInicio =
+                document.getElementById("colunaDataInicio");
+
+            const colunaDataFim =
+                document.getElementById("colunaDataFim");
+
+            const colunaBotao =
+                document.getElementById("colunaBotao");
+
             if (campoPeriodo.value === "personalizado") {
 
+                colunaFuncionario.className = "col-md-2";
+                colunaEtapa.className = "col-md-2";
                 colunaPeriodo.className = "col-md-2";
+                colunaDataInicio.className = "col-md-2";
+                colunaDataFim.className = "col-md-2";
+                colunaBotao.className = "col-md-2";
 
                 colunaDataInicio.style.display = "block";
                 colunaDataFim.style.display = "block";
 
             } else {
 
-                colunaPeriodo.className = "col-md-8";
+                colunaFuncionario.className = "col-md-3";
+                colunaEtapa.className = "col-md-3";
+                colunaPeriodo.className = "col-md-3";
+                colunaBotao.className = "col-md-3";
 
                 colunaDataInicio.style.display = "none";
                 colunaDataFim.style.display = "none";

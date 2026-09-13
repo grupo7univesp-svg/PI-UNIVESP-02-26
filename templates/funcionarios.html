@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Gerenciar funcionários</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+</head>
+
+<body>
+
+    <div class="container mt-5">
+
+        <!-- CABEÇALHO -->
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <div>
+
+                <h1>
+                    Gerenciar funcionários
+                </h1>
+
+                <p class="text-muted">
+                    Cadastre e gerencie os funcionários da empresa.
+                </p>
+
+            </div>
+
+            <a
+                href="{{ url_for('dashboard_adm') }}"
+                class="btn btn-outline-secondary"
+            >
+                Voltar ao Dashboard
+            </a>
+
+        </div>
+
+
+        <!-- ADICIONAR FUNCIONÁRIO -->
+
+        <div class="card mt-4">
+
+            <div class="card-body">
+
+                <h2 class="h5 mb-3">
+                    Adicionar funcionário
+                </h2>
+
+                <form
+                    method="POST"
+                    action="{{ url_for('adicionar_funcionario') }}"
+                >
+
+                    <div class="row g-3 align-items-end">
+
+                        <div class="col-md-9">
+
+                            <label
+                                for="nome"
+                                class="form-label"
+                            >
+                                Nome do funcionário
+                            </label>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="nome"
+                                name="nome"
+                                required
+                            >
+
+                        </div>
+
+                        <div class="col-md-3">
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary w-100"
+                            >
+                                Adicionar
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- FUNCIONÁRIOS CADASTRADOS -->
+
+        <div class="card mt-4">
+
+            <div class="card-body">
+
+                <h2 class="h5 mb-3">
+                    Funcionários cadastrados
+                </h2>
+
+                <div class="table-responsive">
+
+                    <table class="table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Nome
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Ações
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {% for funcionario in lista_funcionarios %}
+
+                            <tr>
+
+                                <!-- NOME -->
+
+                                <td>
+                                    {{ funcionario[1] }}
+                                </td>
+
+
+                                <!-- STATUS -->
+
+                                <td>
+
+                                    {% if funcionario[2] %}
+
+                                    <span class="badge text-bg-success">
+                                        Ativo
+                                    </span>
+
+                                    {% else %}
+
+                                    <span class="badge text-bg-secondary">
+                                        Inativo
+                                    </span>
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- AÇÕES -->
+
+                                <td>
+
+                                    <!-- EDITAR -->
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-primary me-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalEditarFuncionario"
+                                        data-id="{{ funcionario[0] }}"
+                                        data-nome="{{ funcionario[1] }}"
+                                        onclick="prepararEdicaoFuncionario(this)"
+                                    >
+                                        Editar
+                                    </button>
+
+
+                                    <!-- ATIVAR / DESATIVAR -->
+
+                                    {% if funcionario[2] %}
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('alterar_status_funcionario', funcionario_id=funcionario[0]) }}"
+                                        style="display: inline;"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                        >
+                                            Desativar
+                                        </button>
+
+                                    </form>
+
+                                    {% else %}
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('alterar_status_funcionario', funcionario_id=funcionario[0]) }}"
+                                        style="display: inline;"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-outline-success"
+                                        >
+                                            Ativar
+                                        </button>
+
+                                    </form>
+
+                                    {% endif %}
+
+
+                                    <!-- EXCLUIR -->
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('excluir_funcionario', funcionario_id=funcionario[0]) }}"
+                                        style="display: inline;"
+                                        onsubmit="return confirm('Tem certeza que deseja excluir este funcionário? Todos os registros de produção dele também serão excluídos. Esta ação não poderá ser desfeita.');"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-danger ms-2"
+                                        >
+                                            Excluir
+                                        </button>
+
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                            {% else %}
+
+                            <tr>
+
+                                <td colspan="3">
+                                    Nenhum funcionário cadastrado.
+                                </td>
+
+                            </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MODAL EDITAR FUNCIONÁRIO -->
+
+    <div
+        class="modal fade"
+        id="modalEditarFuncionario"
+        tabindex="-1"
+        aria-hidden="true"
+    >
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Editar funcionário
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Fechar"
+                    >
+                    </button>
+
+                </div>
+
+
+                <form
+                    method="POST"
+                    id="formEditarFuncionario"
+                >
+
+                    <div class="modal-body">
+
+                        <label
+                            for="nomeEditar"
+                            class="form-label"
+                        >
+                            Nome do funcionário
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="nomeEditar"
+                            name="nome"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancelar
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Salvar
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BOOTSTRAP -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    >
+    </script>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+
+        function prepararEdicaoFuncionario(botao) {
+
+            const funcionarioId =
+                botao.getAttribute("data-id");
+
+            const funcionarioNome =
+                botao.getAttribute("data-nome");
+
+
+            document.getElementById(
+                "nomeEditar"
+            ).value = funcionarioNome;
+
+
+            document.getElementById(
+                "formEditarFuncionario"
+            ).action =
+                `/funcionarios/${funcionarioId}/editar`;
+
+        }
+
+    </script>
+
+</body>
+
+</html>

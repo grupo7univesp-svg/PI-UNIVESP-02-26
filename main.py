@@ -95,12 +95,24 @@ def sair():
 @app.route("/dashboard-adm")
 def dashboard_adm():
 
+    
+
     # -------------------------------------------------
     # FILTRO POR PERÍODO
     # -------------------------------------------------
 
     periodo = request.args.get(
         "periodo",
+        ""
+    )
+
+    funcionario_id = request.args.get(
+        "funcionario",
+        ""
+    )
+
+    etapa = request.args.get(
+        "etapa",
         ""
     )
 
@@ -265,10 +277,33 @@ def dashboard_adm():
 
 
         # -------------------------------------------------
+        # LISTA DE FUNCIONÁRIOS PARA O FILTRO
+        # -------------------------------------------------
+
+        cursor.execute(
+            """
+            SELECT
+                id,
+                nome
+
+            FROM usuarios
+
+            WHERE ativo = TRUE
+
+            ORDER BY nome
+            """
+        )
+
+        funcionarios_filtro = cursor.fetchall()
+
+
+        # -------------------------------------------------
         # FILTRO DA PRODUÇÃO POR FUNCIONÁRIO
         # -------------------------------------------------
 
         condicao_data = ""
+        condicao_funcionario = ""
+        condicao_etapa = ""
         parametros = []
 
 
@@ -293,6 +328,25 @@ def dashboard_adm():
                 data_fim
             )
 
+        if etapa:
+
+            condicao_etapa = """
+                AND producoes.etapa = %s
+            """
+
+            parametros.append(
+                etapa
+            )
+
+        if funcionario_id:
+
+            condicao_funcionario = """
+                AND usuarios.id = %s
+            """
+
+            parametros.append(
+                funcionario_id
+            )
 
         # -------------------------------------------------
         # PRODUÇÃO POR FUNCIONÁRIO
@@ -323,8 +377,10 @@ def dashboard_adm():
             LEFT JOIN producoes
                 ON usuarios.id = producoes.usuario_id
                 {condicao_data}
+                {condicao_etapa}
 
             WHERE usuarios.ativo = TRUE
+            {condicao_funcionario}
 
             GROUP BY
                 usuarios.id,
@@ -342,6 +398,213 @@ def dashboard_adm():
 
         producao_funcionarios = cursor.fetchall()
 
+                # -------------------------------------------------
+        # CARDS COM BASE NOS FILTROS
+        # -------------------------------------------------
+
+        producao_filtrada = sum(
+            funcionario[2] or 0
+            for funcionario in producao_funcionarios
+        )
+
+        funcionarios_filtrados = sum(
+            1
+            for funcionario in producao_funcionarios
+            if (funcionario[2] or 0) > 0
+        )
+
+                # -------------------------------------------------
+        # RESUMO POR PRODUTO
+        # -------------------------------------------------
+
+        parametros_produtos = []
+
+        condicao_produto_data = ""
+        condicao_produto_funcionario = ""
+        condicao_produto_etapa = ""
+
+
+        if data_inicio is not None:
+
+            condicao_produto_data += """
+                AND producoes.data_producao >= %s
+            """
+
+            parametros_produtos.append(
+                data_inicio
+            )
+
+
+        if data_fim is not None:
+
+            condicao_produto_data += """
+                AND producoes.data_producao <= %s
+            """
+
+            parametros_produtos.append(
+                data_fim
+            )
+
+
+        if funcionario_id:
+
+            condicao_produto_funcionario = """
+                AND producoes.usuario_id = %s
+            """
+
+            parametros_produtos.append(
+                funcionario_id
+            )
+
+
+        if etapa:
+
+            condicao_produto_etapa = """
+                AND producoes.etapa = %s
+            """
+
+            parametros_produtos.append(
+                etapa
+            )
+
+
+        query_produtos = f"""
+            SELECT
+                produto,
+
+                SUM(
+                    COALESCE(quantidade_p, 0) +
+                    COALESCE(quantidade_m, 0) +
+                    COALESCE(quantidade_g, 0) +
+                    COALESCE(quantidade_gg, 0) +
+                    COALESCE(quantidade_xg, 0)
+                ) AS quantidade
+
+            FROM producoes
+
+            WHERE 1 = 1
+
+            {condicao_produto_data}
+
+            {condicao_produto_funcionario}
+
+            {condicao_produto_etapa}
+
+            GROUP BY produto
+
+            ORDER BY quantidade DESC
+        """
+
+
+        cursor.execute(
+            query_produtos,
+            parametros_produtos
+        )
+
+        resumo_produtos = cursor.fetchall()
+
+        produtos_filtrados = len(resumo_produtos)
+
+                # -------------------------------------------------
+        # RESUMO POR COR E TAMANHO
+        # -------------------------------------------------
+
+        parametros_cores = []
+
+        condicao_cor_data = ""
+        condicao_cor_funcionario = ""
+        condicao_cor_etapa = ""
+
+
+        if data_inicio is not None:
+
+            condicao_cor_data += """
+                AND producoes.data_producao >= %s
+            """
+
+            parametros_cores.append(
+                data_inicio
+            )
+
+
+        if data_fim is not None:
+
+            condicao_cor_data += """
+                AND producoes.data_producao <= %s
+            """
+
+            parametros_cores.append(
+                data_fim
+            )
+
+
+        if etapa:
+
+            condicao_cor_etapa = """
+                AND producoes.etapa = %s
+            """
+
+            parametros_cores.append(
+                etapa
+            )
+
+
+        if funcionario_id:
+
+            condicao_cor_funcionario = """
+                AND producoes.usuario_id = %s
+            """
+
+            parametros_cores.append(
+                funcionario_id
+            )
+
+
+        query_cores = f"""
+            SELECT
+                cor,
+
+                SUM(COALESCE(quantidade_p, 0)) AS total_p,
+
+                SUM(COALESCE(quantidade_m, 0)) AS total_m,
+
+                SUM(COALESCE(quantidade_g, 0)) AS total_g,
+
+                SUM(COALESCE(quantidade_gg, 0)) AS total_gg,
+
+                SUM(COALESCE(quantidade_xg, 0)) AS total_xg,
+
+                SUM(
+                    COALESCE(quantidade_p, 0) +
+                    COALESCE(quantidade_m, 0) +
+                    COALESCE(quantidade_g, 0) +
+                    COALESCE(quantidade_gg, 0) +
+                    COALESCE(quantidade_xg, 0)
+                ) AS total
+
+            FROM producoes
+
+            WHERE 1 = 1
+
+            {condicao_cor_data}
+
+            {condicao_cor_etapa}
+
+            {condicao_cor_funcionario}
+
+            GROUP BY cor
+
+            ORDER BY total DESC
+        """
+
+
+        cursor.execute(
+            query_cores,
+            parametros_cores
+        )
+
+        resumo_cores = cursor.fetchall()
+
 
         # -------------------------------------------------
         # CARREGA O HTML
@@ -356,7 +619,23 @@ def dashboard_adm():
 
             funcionarios_ativos=funcionarios_ativos,
 
+            funcionarios_filtro=funcionarios_filtro,
+
             producao_funcionarios=producao_funcionarios,
+
+            resumo_produtos=resumo_produtos,
+
+            resumo_cores=resumo_cores,
+
+            producao_filtrada=producao_filtrada,
+
+            funcionarios_filtrados=funcionarios_filtrados,
+
+            produtos_filtrados=produtos_filtrados,
+
+            funcionario_id=funcionario_id,
+
+            etapa=etapa,
 
             periodo=periodo,
 
@@ -388,6 +667,359 @@ def dashboard_adm():
             cursor.close()
 
         conn.close()
+
+# =========================================================
+# GERENCIAR FUNCIONÁRIOS
+# =========================================================
+
+@app.route("/funcionarios")
+def funcionarios():
+
+    conn = get_connection()
+
+    if conn is None:
+        return (
+            "Não foi possível conectar ao banco.",
+            500
+        )
+
+    cursor = None
+
+    try:
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT
+                id,
+                nome,
+                ativo
+
+            FROM usuarios
+
+            ORDER BY nome
+            """
+        )
+
+        lista_funcionarios = cursor.fetchall()
+
+        return render_template(
+            "funcionarios.html",
+            lista_funcionarios=lista_funcionarios
+        )
+
+    except Exception as erro:
+
+        print(
+            "Erro ao carregar funcionários:"
+        )
+
+        print(
+            repr(erro)
+        )
+
+        return (
+            "Erro ao carregar funcionários.",
+            500
+        )
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        conn.close()
+
+# =========================================================
+# ADICIONAR FUNCIONÁRIO
+# =========================================================
+
+@app.route("/funcionarios/adicionar", methods=["POST"])
+def adicionar_funcionario():
+
+    nome = request.form.get(
+        "nome",
+        ""
+    ).strip()
+
+    if not nome:
+        return redirect(
+            url_for("funcionarios")
+        )
+
+    conn = get_connection()
+
+    if conn is None:
+        return (
+            "Não foi possível conectar ao banco.",
+            500
+        )
+
+    cursor = None
+
+    try:
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            INSERT INTO usuarios
+                (nome, ativo)
+
+            VALUES
+                (%s, TRUE)
+            """,
+            (nome,)
+        )
+
+        conn.commit()
+
+        return redirect(
+            url_for("funcionarios")
+        )
+
+    except Exception as erro:
+
+        conn.rollback()
+
+        print(
+            "Erro ao adicionar funcionário:"
+        )
+
+        print(
+            repr(erro)
+        )
+
+        return (
+            "Erro ao adicionar funcionário.",
+            500
+        )
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        conn.close()
+
+# =========================================================
+# ATIVAR / DESATIVAR FUNCIONÁRIO
+# =========================================================
+
+@app.route(
+    "/funcionarios/<int:funcionario_id>/status",
+    methods=["POST"]
+)
+def alterar_status_funcionario(funcionario_id):
+
+    conn = get_connection()
+
+    if conn is None:
+        return (
+            "Não foi possível conectar ao banco.",
+            500
+        )
+
+    cursor = None
+
+    try:
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            UPDATE usuarios
+
+            SET ativo = NOT ativo
+
+            WHERE id = %s
+            """,
+            (funcionario_id,)
+        )
+
+        conn.commit()
+
+        return redirect(
+            url_for("funcionarios")
+        )
+
+    except Exception as erro:
+
+        conn.rollback()
+
+        print(
+            "Erro ao alterar status do funcionário:"
+        )
+
+        print(
+            repr(erro)
+        )
+
+        return (
+            "Erro ao alterar status do funcionário.",
+            500
+        )
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        conn.close()
+
+# =========================================================
+# EDITAR FUNCIONÁRIO
+# =========================================================
+
+@app.route(
+    "/funcionarios/<int:funcionario_id>/editar",
+    methods=["POST"]
+)
+def editar_funcionario(funcionario_id):
+
+    nome = request.form.get(
+        "nome",
+        ""
+    ).strip()
+
+    if not nome:
+        return redirect(
+            url_for("funcionarios")
+        )
+
+    conn = get_connection()
+
+    if conn is None:
+        return (
+            "Não foi possível conectar ao banco.",
+            500
+        )
+
+    cursor = None
+
+    try:
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            UPDATE usuarios
+
+            SET nome = %s
+
+            WHERE id = %s
+            """,
+            (
+                nome,
+                funcionario_id
+            )
+        )
+
+        conn.commit()
+
+        return redirect(
+            url_for("funcionarios")
+        )
+
+    except Exception as erro:
+
+        conn.rollback()
+
+        print(
+            "Erro ao editar funcionário:"
+        )
+
+        print(
+            repr(erro)
+        )
+
+        return (
+            "Erro ao editar funcionário.",
+            500
+        )
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        conn.close()
+
+# =========================================================
+# EXCLUIR FUNCIONÁRIO
+# =========================================================
+
+@app.route(
+    "/funcionarios/<int:funcionario_id>/excluir",
+    methods=["POST"]
+)
+def excluir_funcionario(funcionario_id):
+
+    conn = get_connection()
+
+    if conn is None:
+        return (
+            "Não foi possível conectar ao banco.",
+            500
+        )
+
+    cursor = None
+
+    try:
+
+        cursor = conn.cursor()
+
+        # EXCLUI AS PRODUÇÕES DO FUNCIONÁRIO
+
+        cursor.execute(
+            """
+            DELETE FROM producoes
+            WHERE usuario_id = %s
+            """,
+            (funcionario_id,)
+        )
+
+        # EXCLUI O FUNCIONÁRIO
+
+        cursor.execute(
+            """
+            DELETE FROM usuarios
+            WHERE id = %s
+            """,
+            (funcionario_id,)
+        )
+
+        conn.commit()
+
+        return redirect(
+            url_for("funcionarios")
+        )
+
+    except Exception as erro:
+
+        conn.rollback()
+
+        print(
+            "Erro ao excluir funcionário:"
+        )
+
+        print(
+            repr(erro)
+        )
+
+        return (
+            "Erro ao excluir funcionário.",
+            500
+        )
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        conn.close()
+
 # =========================================================
 # INÍCIO DO FUNCIONÁRIO
 # =========================================================
@@ -689,6 +1321,11 @@ def relatorios_funcionario(usuario_id):
         ""
     )
 
+    etapa = request.args.get(
+        "etapa",
+        ""
+    )
+
     data_inicio_texto = request.args.get(
         "data_inicio",
         ""
@@ -775,6 +1412,8 @@ def relatorios_funcionario(usuario_id):
         # -------------------------------------------------
 
         condicao_data = ""
+        condicao_etapa = ""
+
         parametros = [
             usuario_id
         ]
@@ -799,6 +1438,16 @@ def relatorios_funcionario(usuario_id):
 
             parametros.append(
                 data_fim
+            )
+
+        if etapa:
+
+            condicao_etapa = """
+                AND etapa = %s
+            """
+
+            parametros.append(
+                etapa
             )
 
 
@@ -826,6 +1475,8 @@ def relatorios_funcionario(usuario_id):
             WHERE usuario_id = %s
 
             {condicao_data}
+
+            {condicao_etapa}
 
             GROUP BY relatorio_id
 
