@@ -16,6 +16,7 @@
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/funcionarios.css') }}">
 
 </head>
 
@@ -72,9 +73,9 @@
                                 for="nome"
                                 class="form-label"
                             >
-                                Nome do funcionário
+                                Nome do funcionário:
                             </label>
-
+                            
                             <input
                                 type="text"
                                 class="form-control"
@@ -83,9 +84,122 @@
                                 required
                             >
 
+                            <div class="row">
+                            <div class="col-md-4"><label
+                                for="nome"
+                                class="form-label"
+                            >
+                                Usuario:
+                            </label>
+                            
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="user"
+                                name="usuario"
+                                required
+                            ></div>
+                            <div class="col-md-4"><label
+                                for="nome"
+                                class="form-label"
+                            >
+                                Senha de acesso:
+                            </label>
+                            
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="password"
+                                name="senha"
+                                required
+                            ></div>
+                            </div>
+
+                                                                <label
+                                    for="funcoes"
+                                    class="form-label"
+                                >
+                                    Funções do funcionário:
+                                </label>
+
+                                <select
+                                    name="funcoes"
+                                    id="funcoes"
+                                    class="form-select"
+                                    multiple
+                                    size="3"
+                                    required
+                                    aria-describedby="ajuda-funcoes"
+                                >
+                                    <option value="cortar">Corte</option>
+                                    <option value="costurar">Costura</option>
+                                    <option value="colagem">Colagem</option>
+                                </select>
+
+                                <div
+                                    id="ajuda-funcoes"
+                                    class="form-text"
+                                >
+                                    Segure Ctrl (Windows/Linux) ou Command (Mac) para selecionar várias funções.
+                                </div>
+                                <br>
+                                 <br>
+
+                            <div class="row">
+                            <div class="col-md-4">  <label
+                                for="nome"
+                                class="form-label"
+                            >
+
+                                Valor para Corte:
+                            </label>
+                            
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="valorcorte"
+                                name="valor_corte"
+                                step="0.01" min="0"
+                                required
+                            ></div>
+                            <div class="col-md-4">  <label
+                                for="nome"
+                                class="form-label"
+                            >
+
+                                Valor para costura:
+                            </label>
+                            
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="valorcostura"
+                                name="valor_costura"
+                                step="0.01" min="0"
+                                required
+                            ></div>
+                            <div class="col-md-4">  <label
+                                for="nome"
+                                class="form-label"
+                            >
+
+                                Valor para colagem:
+                            </label>
+                            
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="valorcolagem"
+                                name="valor_colagem"
+                                step="0.01" min="0"
+                                required
+                            ></div>
+                        </div>
+                          
+
                         </div>
 
-                        <div class="col-md-3">
+                       
 
                             <button
                                 type="submit"
@@ -94,7 +208,7 @@
                                 Adicionar
                             </button>
 
-                        </div>
+                        
 
                     </div>
 

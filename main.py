@@ -737,11 +737,18 @@ def funcionarios():
 
 @app.route("/funcionarios/adicionar", methods=["POST"])
 def adicionar_funcionario():
+    nome = request.form.get("nome", "").strip()
+    usuario = request.form.get("usuario", "").strip()
+    senha = request.form.get("senha", "").strip()
+    
+    funcoes = request.form.getlist("funcoes")
 
-    nome = request.form.get(
-        "nome",
-        ""
-    ).strip()
+    valorcorte = float(request.form.get("valor_corte") or 0)
+    valorcostura = float(request.form.get("valor_costura") or 0)
+    valorcolagem = float(request.form.get("valor_colagem") or 0)
+
+    print(nome,usuario,senha, valorcolagem,valorcorte,valorcostura,funcoes)
+
 
     if not nome:
         return redirect(
@@ -764,15 +771,29 @@ def adicionar_funcionario():
 
         cursor.execute(
             """
-            INSERT INTO usuarios
-                (nome, ativo)
-
-            VALUES
-                (%s, TRUE)
-            """,
-            (nome,)
-        )
-
+         
+                INSERT INTO usuarios
+                    (
+                        nome,
+                        usuario,
+                        senha_hash,
+                        ativo,
+                        valor_corte,
+                        valor_costura,
+                        valor_colagem
+                    )
+                VALUES
+                    (%s, %s, %s, TRUE, %s, %s, %s)
+                """,
+                (
+                    nome,
+                    usuario,
+                    senha,
+                    valorcorte,
+                    valorcostura,
+                    valorcolagem
+                )
+            )
         conn.commit()
 
         return redirect(
