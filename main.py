@@ -5,19 +5,24 @@ from psycopg2 import OperationalError
 import os
 import uuid
 from datetime import date, timedelta
+from dotenv import load_dotenv 
 
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv( "FLASK_SECRET_KEY", "chave-temporaria-do-projeto" ) 
 # ========================================================= # CONEXÃO COM O BANCO # =========================================================
 def get_connection():
     """Abre uma nova conexão PostgreSQL usando variáveis de ambiente."""
-    database_url = os.getenv("DATABASE_URL")
     try:
-        if database_url:
-            return psycopg2.connect(database_url)
 
-        return psycopg2.connect( host="aws-0-sa-east-1.pooler.supabase.com", database="postgres", user="postgres.ytfbetitkfnxgvxcfoew", password="Univesp@201", port=5432, sslmode="require" ) 
+        return psycopg2.connect( 
+            host=os.getenv("DB_HOST"),
+            database=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            port=os.getenv("DB_PORT"),
+            sslmode="require")
     except OperationalError as erro:
         print("Erro na conexão com o banco:", erro)
         return None
@@ -29,7 +34,7 @@ def get_connection():
 
 @app.route("/")
 def login():
-
+   
     return render_template("login.html")
 
 
