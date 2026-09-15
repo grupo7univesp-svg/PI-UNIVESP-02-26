@@ -1515,7 +1515,6 @@ def excluir_funcionario(
 
         conn.close()
 
-
 # =========================================================
 # INÍCIO DO FUNCIONÁRIO
 # =========================================================
@@ -1526,11 +1525,9 @@ def inicio_funcionario():
 
     usuario_id = session.get("usuario_id")
 
-
     conn = get_connection()
 
     if conn is None:
-
         return (
             "Não foi possível conectar ao banco.",
             500
@@ -1538,10 +1535,40 @@ def inicio_funcionario():
 
     cursor = None
 
-
     try:
 
         cursor = conn.cursor()
+
+
+        # -------------------------------------------------
+        # PERMISSÕES DO FUNCIONÁRIO
+        # -------------------------------------------------
+
+        cursor.execute(
+            """
+            SELECT
+                pode_corte,
+                pode_costura,
+                pode_colagem
+            FROM usuarios
+            WHERE id = %s
+              AND ativo = TRUE
+            """,
+            (usuario_id,)
+        )
+
+        permissoes = cursor.fetchone()
+
+        if permissoes is None:
+            session.clear()
+
+            return redirect(
+                url_for("login")
+            )
+
+        pode_corte = permissoes[0]
+        pode_costura = permissoes[1]
+        pode_colagem = permissoes[2]
 
 
         # -------------------------------------------------
@@ -1647,6 +1674,10 @@ def inicio_funcionario():
         ultimos_registros = cursor.fetchall()
 
 
+        # -------------------------------------------------
+        # CARREGA A PÁGINA
+        # -------------------------------------------------
+
         return render_template(
             "inicio_funcionario.html",
 
@@ -1654,7 +1685,12 @@ def inicio_funcionario():
 
             producao_mes=producao_mes,
 
-            ultimos_registros=ultimos_registros
+            ultimos_registros=ultimos_registros,
+
+            # Permissões enviadas para o HTML
+            pode_corte=pode_corte,
+            pode_costura=pode_costura,
+            pode_colagem=pode_colagem
         )
 
 
@@ -1680,8 +1716,6 @@ def inicio_funcionario():
             cursor.close()
 
         conn.close()
-
-
 # =========================================================
 # DETALHES DO RELATÓRIO
 # =========================================================
