@@ -2,13 +2,8 @@
 <html lang="pt-BR">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Gerenciar funcionários</title>
 
@@ -16,374 +11,351 @@
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/funcionarios.css') }}">
 
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/funcionarios.css') }}"
+    >
 </head>
 
 <body>
 
-    <div class="container mt-5">
+<div class="container mt-5">
 
-        <!-- CABEÇALHO -->
+    <!-- CABEÇALHO -->
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-            <div>
+        <div>
+            <h1>Gerenciar funcionários</h1>
 
-                <h1>
-                    Gerenciar funcionários
-                </h1>
-
-                <p class="text-muted">
-                    Cadastre e gerencie os funcionários da empresa.
-                </p>
-
-            </div>
-
-            <a
-                href="{{ url_for('dashboard_adm') }}"
-                class="btn btn-outline-secondary"
-            >
-                Voltar ao Dashboard
-            </a>
-
+            <p class="text-muted">
+                Cadastre e gerencie os funcionários da empresa.
+            </p>
         </div>
 
+        <a
+            href="{{ url_for('dashboard_adm') }}"
+            class="btn btn-outline-secondary"
+        >
+            Voltar ao Dashboard
+        </a>
 
-        <!-- ADICIONAR FUNCIONÁRIO -->
+    </div>
 
-        <div class="card mt-4">
 
-            <div class="card-body">
+    <!-- ADICIONAR FUNCIONÁRIO -->
 
-                <h2 class="h5 mb-3">
-                    Adicionar funcionário
-                </h2>
+    <div class="card mt-4">
 
-                <form
-                    method="POST"
-                    action="{{ url_for('adicionar_funcionario') }}"
-                >
+        <div class="card-body">
 
-                    <div class="row g-3 align-items-end">
+            <h2 class="h5 mb-3">
+                Adicionar funcionário
+            </h2>
 
-                        <div class="col-md-9">
+            <form
+                method="POST"
+                action="{{ url_for('adicionar_funcionario') }}"
+            >
 
-                            <label
-                                for="nome"
-                                class="form-label"
-                            >
-                                Nome do funcionário:
-                            </label>
-                            
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="nome"
-                                name="nome"
-                                required
-                            >
+                <div class="row g-3">
 
-                            <div class="row">
-                            <div class="col-md-4"><label
-                                for="nome"
-                                class="form-label"
-                            >
-                                Usuario:
-                            </label>
-                            
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="user"
-                                name="usuario"
-                                required
-                            ></div>
-                            <div class="col-md-4"><label
-                                for="nome"
-                                class="form-label"
-                            >
-                                Senha de acesso:
-                            </label>
-                            
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="password"
-                                name="senha"
-                                required
-                            ></div>
-                            </div>
+                    <div class="col-md-9">
 
-                                                                <label
-                                    for="funcoes"
-                                    class="form-label"
-                                >
-                                    Funções do funcionário:
-                                </label>
+                        <label for="nome" class="form-label">
+                            Nome do funcionário:
+                        </label>
 
-                                <select
-                                    name="funcoes"
-                                    id="funcoes"
-                                    class="form-select"
-                                    multiple
-                                    size="3"
-                                    required
-                                    aria-describedby="ajuda-funcoes"
-                                >
-                                    <option value="cortar">Corte</option>
-                                    <option value="costurar">Costura</option>
-                                    <option value="colagem">Colagem</option>
-                                </select>
-
-                                <div
-                                    id="ajuda-funcoes"
-                                    class="form-text"
-                                >
-                                    Segure Ctrl (Windows/Linux) ou Command (Mac) para selecionar várias funções.
-                                </div>
-                                <br>
-                                 <br>
-
-                            <div class="row">
-                            <div class="col-md-4">  <label
-                                for="nome"
-                                class="form-label"
-                            >
-
-                                Valor para Corte:
-                            </label>
-                            
-                            <input
-                                type="number"
-                                class="form-control"
-                                id="valorcorte"
-                                name="valor_corte"
-                                step="0.01" min="0"
-                                required
-                            ></div>
-                            <div class="col-md-4">  <label
-                                for="nome"
-                                class="form-label"
-                            >
-
-                                Valor para costura:
-                            </label>
-                            
-                            <input
-                                type="number"
-                                class="form-control"
-                                id="valorcostura"
-                                name="valor_costura"
-                                step="0.01" min="0"
-                                required
-                            ></div>
-                            <div class="col-md-4">  <label
-                                for="nome"
-                                class="form-label"
-                            >
-
-                                Valor para colagem:
-                            </label>
-                            
-                            <input
-                                type="number"
-                                class="form-control"
-                                id="valorcolagem"
-                                name="valor_colagem"
-                                step="0.01" min="0"
-                                required
-                            ></div>
-                        </div>
-                          
-
-                        </div>
-
-                       
-
-                            <button
-                                type="submit"
-                                class="btn btn-primary w-100"
-                            >
-                                Adicionar
-                            </button>
-
-                        
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="nome"
+                            name="nome"
+                            required
+                        >
 
                     </div>
 
-                </form>
 
-            </div>
+                    <div class="col-md-4">
+
+                        <label for="user" class="form-label">
+                            Usuário:
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="user"
+                            name="usuario"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <label for="password" class="form-label">
+                            Senha de acesso:
+                        </label>
+
+                        <input
+                            type="password"
+                            class="form-control"
+                            id="password"
+                            name="senha"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="col-md-9">
+
+                        <label for="funcoes" class="form-label">
+                            Funções do funcionário:
+                        </label>
+
+                        <select
+                            name="funcoes"
+                            id="funcoes"
+                            class="form-select"
+                            multiple
+                            size="3"
+                            required
+                            aria-describedby="ajuda-funcoes"
+                        >
+                            <option value="cortar">Corte</option>
+                            <option value="costurar">Costura</option>
+                            <option value="colagem">Colagem</option>
+                        </select>
+
+                        <div
+                            id="ajuda-funcoes"
+                            class="form-text"
+                        >
+                            Segure Ctrl (Windows/Linux) ou Command (Mac)
+                            para selecionar várias funções.
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <label for="valorcorte" class="form-label">
+                            Valor para Corte:
+                        </label>
+
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="valorcorte"
+                            name="valor_corte"
+                            step="0.01"
+                            min="0"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <label for="valorcostura" class="form-label">
+                            Valor para Costura:
+                        </label>
+
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="valorcostura"
+                            name="valor_costura"
+                            step="0.01"
+                            min="0"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="col-md-4">
+
+                        <label for="valorcolagem" class="form-label">
+                            Valor para Colagem:
+                        </label>
+
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="valorcolagem"
+                            name="valor_colagem"
+                            step="0.01"
+                            min="0"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <div class="mt-4">
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Adicionar
+                    </button>
+
+                </div>
+
+            </form>
 
         </div>
 
-
-        <!-- FUNCIONÁRIOS CADASTRADOS -->
-
-        <div class="card mt-4">
-
-            <div class="card-body">
-
-                <h2 class="h5 mb-3">
-                    Funcionários cadastrados
-                </h2>
-
-                <div class="table-responsive">
-
-                    <table class="table">
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Nome
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Ações
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            {% for funcionario in lista_funcionarios %}
-
-                            <tr>
-
-                                <!-- NOME -->
-
-                                <td>
-                                    {{ funcionario[1] }}
-                                </td>
+    </div>
 
 
-                                <!-- STATUS -->
+    <!-- FUNCIONÁRIOS CADASTRADOS -->
 
-                                <td>
+    <div class="card mt-4">
 
-                                    {% if funcionario[2] %}
+        <div class="card-body">
+
+            <h2 class="h5 mb-3">
+                Funcionários cadastrados
+            </h2>
+
+            <div class="table-responsive">
+
+                <table class="table">
+
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                    {% for funcionario in lista_funcionarios %}
+
+                        <tr>
+
+                            <td>
+                                {{ funcionario[1] }}
+                            </td>
+
+                            <td>
+
+                                {% if funcionario[2] %}
 
                                     <span class="badge text-bg-success">
                                         Ativo
                                     </span>
 
-                                    {% else %}
+                                {% else %}
 
                                     <span class="badge text-bg-secondary">
                                         Inativo
                                     </span>
 
-                                    {% endif %}
+                                {% endif %}
 
-                                </td>
-
-
-                                <!-- AÇÕES -->
-
-                                <td>
-
-                                    <!-- EDITAR -->
-
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-outline-primary me-2"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalEditarFuncionario"
-                                        data-id="{{ funcionario[0] }}"
-                                        data-nome="{{ funcionario[1] }}"
-                                        onclick="prepararEdicaoFuncionario(this)"
-                                    >
-                                        Editar
-                                    </button>
+                            </td>
 
 
-                                    <!-- ATIVAR / DESATIVAR -->
+                            <td>
 
-                                    {% if funcionario[2] %}
+                                <!-- EDITAR -->
+
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-primary me-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEditarFuncionario"
+                                    data-id="{{ funcionario[0] }}"
+                                    data-nome="{{ funcionario[1] }}"
+                                    onclick="prepararEdicaoFuncionario(this)"
+                                >
+                                    Editar
+                                </button>
+
+
+                                <!-- ATIVAR / DESATIVAR -->
+
+                                {% if funcionario[2] %}
 
                                     <form
                                         method="POST"
                                         action="{{ url_for('alterar_status_funcionario', funcionario_id=funcionario[0]) }}"
                                         style="display: inline;"
                                     >
-
                                         <button
                                             type="submit"
                                             class="btn btn-sm btn-outline-danger"
                                         >
                                             Desativar
                                         </button>
-
                                     </form>
 
-                                    {% else %}
+                                {% else %}
 
                                     <form
                                         method="POST"
                                         action="{{ url_for('alterar_status_funcionario', funcionario_id=funcionario[0]) }}"
                                         style="display: inline;"
                                     >
-
                                         <button
                                             type="submit"
                                             class="btn btn-sm btn-outline-success"
                                         >
                                             Ativar
                                         </button>
-
                                     </form>
 
-                                    {% endif %}
+                                {% endif %}
 
 
-                                    <!-- EXCLUIR -->
+                                <!-- EXCLUIR -->
 
-                                    <form
-                                        method="POST"
-                                        action="{{ url_for('excluir_funcionario', funcionario_id=funcionario[0]) }}"
-                                        style="display: inline;"
-                                        onsubmit="return confirm('Tem certeza que deseja excluir este funcionário? Todos os registros de produção dele também serão excluídos. Esta ação não poderá ser desfeita.');"
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('excluir_funcionario', funcionario_id=funcionario[0]) }}"
+                                    style="display: inline;"
+                                    onsubmit="return confirm('Tem certeza que deseja excluir este funcionário? Todos os registros de produção dele também serão excluídos. Esta ação não poderá ser desfeita.');"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="btn btn-sm btn-danger ms-2"
                                     >
+                                        Excluir
+                                    </button>
+                                </form>
 
-                                        <button
-                                            type="submit"
-                                            class="btn btn-sm btn-danger ms-2"
-                                        >
-                                            Excluir
-                                        </button>
+                            </td>
 
-                                    </form>
+                        </tr>
 
-                                </td>
+                    {% else %}
 
-                            </tr>
+                        <tr>
+                            <td colspan="3">
+                                Nenhum funcionário cadastrado.
+                            </td>
+                        </tr>
 
-                            {% else %}
+                    {% endfor %}
 
-                            <tr>
+                    </tbody>
 
-                                <td colspan="3">
-                                    Nenhum funcionário cadastrado.
-                                </td>
-
-                            </tr>
-
-                            {% endfor %}
-
-                        </tbody>
-
-                    </table>
-
-                </div>
+                </table>
 
             </div>
 
@@ -391,215 +363,255 @@
 
     </div>
 
-
-    <!-- MODAL EDITAR FUNCIONÁRIO -->
-
-    <div
-        class="modal fade"
-        id="modalEditarFuncionario"
-        tabindex="-1"
-        aria-hidden="true"
-    >
-
-        <div class="modal-dialog modal-dialog-centered">
-
-            <div class="modal-content">
-
-                <div class="modal-header">
-
-                    <h5 class="modal-title">
-                        Editar funcionário
-                    </h5>
-
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Fechar"
-                    >
-                    </button>
-
-                </div>
+</div>
 
 
-                <form
-                    method="POST"
-                    id="formEditarFuncionario"
+<!-- MODAL EDITAR FUNCIONÁRIO -->
+
+<div
+    class="modal fade"
+    id="modalEditarFuncionario"
+    tabindex="-1"
+    aria-labelledby="tituloModalEditarFuncionario"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5
+                    class="modal-title"
+                    id="tituloModalEditarFuncionario"
                 >
+                    Editar funcionário
+                </h5>
 
-                    <div class="modal-body">
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Fechar"
+                ></button>
 
-                       <label
-                                for="nome"
+            </div>
+
+
+            <form
+                method="POST"
+                id="formEditarFuncionario"
+            >
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+
+                        <label
+                            for="nomeEditar"
+                            class="form-label"
+                        >
+                            Nome do funcionário:
+                        </label>
+
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="nomeEditar"
+                            name="nome"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="usuarioEditar"
                                 class="form-label"
                             >
-                                Nome do funcionário:
+                                Usuário:
                             </label>
-                            
+
                             <input
                                 type="text"
                                 class="form-control"
-                                id="nome"
-                                name="nome"
-                                required
-                            >
-
-                            <div class="row">
-                            <div class="col-md-4"><label
-                                for="nome"
-                                class="form-label"
-                            >
-                                Usuario:
-                            </label>
-                            
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="user"
+                                id="usuarioEditar"
                                 name="usuario"
                                 required
-                            ></div>
-                            <div class="col-md-4"><label
-                                for="nome"
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label
+                                for="senhaEditar"
                                 class="form-label"
                             >
-                                Senha de acesso:
+                                Nova senha:
                             </label>
-                            
+
                             <input
-                                type="text"
+                                type="password"
                                 class="form-control"
-                                id="password"
+                                id="senhaEditar"
                                 name="senha"
-                                required
-                            ></div>
-                            </div>
-
-                                                                <label
-                                    for="funcoes"
-                                    class="form-label"
-                                >
-                                    Funções do funcionário:
-                                </label>
-
-                                <select
-                                    name="funcoes"
-                                    id="funcoes"
-                                    class="form-select"
-                                    multiple
-                                    size="3"
-                                    required
-                                    aria-describedby="ajuda-funcoes"
-                                >
-                                    <option value="cortar">Corte</option>
-                                    <option value="costurar">Costura</option>
-                                    <option value="colagem">Colagem</option>
-                                </select>
-
-                                <div
-                                    id="ajuda-funcoes"
-                                    class="form-text"
-                                >
-                                    Segure Ctrl (Windows/Linux) ou Command (Mac) para selecionar várias funções.
-                                </div>
-                                <br>
-                                 <br>
-
-                            <div class="row">
-                            <div class="col-md-4">  <label
-                                for="nome"
-                                class="form-label"
+                                placeholder="Deixe vazio para manter"
                             >
 
-                                Valor para Corte:
-                            </label>
-                            
-                            <input
-                                type="number"
-                                class="form-control"
-                                id="valorcorte"
-                                name="valor_corte"
-                                step="0.01" min="0"
-                                required
-                            ></div>
-                            <div class="col-md-4">  <label
-                                for="nome"
-                                class="form-label"
-                            >
-
-                                Valor para costura:
-                            </label>
-                            
-                            <input
-                                type="number"
-                                class="form-control"
-                                id="valorcostura"
-                                name="valor_costura"
-                                step="0.01" min="0"
-                                required
-                            ></div>
-                            <div class="col-md-4">  <label
-                                for="nome"
-                                class="form-label"
-                            >
-
-                                Valor para colagem:
-                            </label>
-                            
-                            <input
-                                type="number"
-                                class="form-control"
-                                id="valorcolagem"
-                                name="valor_colagem"
-                                step="0.01" min="0"
-                                required
-                            ></div>
                         </div>
 
                     </div>
 
 
-                    <div class="modal-footer">
+                    <div class="mt-3">
 
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal"
+                        <label
+                            for="funcoesEditar"
+                            class="form-label"
                         >
-                            Cancelar
-                        </button>
+                            Funções do funcionário:
+                        </label>
 
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
+                        <select
+                            name="funcoes"
+                            id="funcoesEditar"
+                            class="form-select"
+                            multiple
+                            size="3"
+                            required
+                            aria-describedby="ajuda-funcoes-editar"
                         >
-                            Salvar
-                        </button>
+                            <option value="cortar">Corte</option>
+                            <option value="costurar">Costura</option>
+                            <option value="colagem">Colagem</option>
+                        </select>
+
+                        <div
+                            id="ajuda-funcoes-editar"
+                            class="form-text"
+                        >
+                            Segure Ctrl (Windows/Linux) ou Command (Mac)
+                            para selecionar várias funções.
+                        </div>
 
                     </div>
 
-                </form>
 
-            </div>
+                    <div class="row mt-4">
+
+                        <div class="col-md-4">
+
+                            <label
+                                for="valorCorteEditar"
+                                class="form-label"
+                            >
+                                Valor para Corte:
+                            </label>
+
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="valorCorteEditar"
+                                name="valor_corte"
+                                step="0.01"
+                                min="0"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label
+                                for="valorCosturaEditar"
+                                class="form-label"
+                            >
+                                Valor para Costura:
+                            </label>
+
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="valorCosturaEditar"
+                                name="valor_costura"
+                                step="0.01"
+                                min="0"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="col-md-4">
+
+                            <label
+                                for="valorColagemEditar"
+                                class="form-label"
+                            >
+                                Valor para Colagem:
+                            </label>
+
+                            <input
+                                type="number"
+                                class="form-control"
+                                id="valorColagemEditar"
+                                name="valor_colagem"
+                                step="0.01"
+                                min="0"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancelar
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Salvar
+                    </button>
+
+                </div>
+
+            </form>
 
         </div>
 
     </div>
 
-
-    <!-- BOOTSTRAP -->
-
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-    >
-    </script>
+</div>
 
 
-    <!-- JAVASCRIPT -->
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+></script>
 
-    <script>
 
-    async function prepararEdicaoFuncionario(botao) {
+<script>
+
+async function prepararEdicaoFuncionario(botao) {
 
     const funcionarioId =
         botao.getAttribute("data-id");
@@ -607,34 +619,41 @@
     const funcionarioNome =
         botao.getAttribute("data-nome");
 
-    // -------------------------------------------------
-    // DEFINE O NOME INICIALMENTE
-    // -------------------------------------------------
 
-    document.getElementById(
-        "nomeEditar"
-    ).value = funcionarioNome;
+    const form =
+        document.getElementById(
+            "formEditarFuncionario"
+        );
 
 
-    // -------------------------------------------------
-    // DEFINE A URL DO FORMULÁRIO
-    // -------------------------------------------------
+    // Define a URL do formulário
 
-    document.getElementById(
-        "formEditarFuncionario"
-    ).action =
+    form.action =
         `/funcionarios/${funcionarioId}/editar`;
 
 
-    // -------------------------------------------------
-    // BUSCA OS DADOS ATUAIS DO FUNCIONÁRIO
-    // -------------------------------------------------
+    // Mostra o nome imediatamente enquanto a API carrega
+
+    document.getElementById(
+        "nomeEditar"
+    ).value =
+        funcionarioNome;
+
+
+    // Limpa a senha
+
+    document.getElementById(
+        "senhaEditar"
+    ).value = "";
+
 
     try {
 
-        const resposta = await fetch(
-            `/api/funcionarios/${funcionarioId}`
-        );
+        const resposta =
+            await fetch(
+                `/api/funcionarios/${funcionarioId}`
+            );
+
 
         if (!resposta.ok) {
 
@@ -644,40 +663,35 @@
 
         }
 
+
         const funcionario =
             await resposta.json();
 
 
-        // -------------------------------------------------
         // NOME
-        // -------------------------------------------------
 
         document.getElementById(
             "nomeEditar"
-        ).value = funcionario.nome;
+        ).value =
+            funcionario.nome;
 
 
-        // -------------------------------------------------
         // USUÁRIO
-        // -------------------------------------------------
 
         document.getElementById(
             "usuarioEditar"
-        ).value = funcionario.usuario;
+        ).value =
+            funcionario.usuario;
 
 
-        // -------------------------------------------------
         // SENHA
-        // -------------------------------------------------
 
         document.getElementById(
             "senhaEditar"
         ).value = "";
 
 
-        // -------------------------------------------------
         // VALORES
-        // -------------------------------------------------
 
         document.getElementById(
             "valorCorteEditar"
@@ -695,24 +709,48 @@
             funcionario.valor_colagem;
 
 
-        // -------------------------------------------------
         // FUNÇÕES
-        // -------------------------------------------------
 
-        document.getElementById(
-            "funcaoCorteEditar"
-        ).checked =
-            funcionario.pode_corte;
+        const selectFuncoes =
+            document.getElementById(
+                "funcoesEditar"
+            );
 
-        document.getElementById(
-            "funcaoCosturaEditar"
-        ).checked =
-            funcionario.pode_costura;
 
-        document.getElementById(
-            "funcaoColagemEditar"
-        ).checked =
-            funcionario.pode_colagem;
+        Array.from(
+            selectFuncoes.options
+        ).forEach(
+            opcao => {
+                opcao.selected = false;
+            }
+        );
+
+
+        if (funcionario.pode_corte) {
+
+            selectFuncoes.querySelector(
+                'option[value="cortar"]'
+            ).selected = true;
+
+        }
+
+
+        if (funcionario.pode_costura) {
+
+            selectFuncoes.querySelector(
+                'option[value="costurar"]'
+            ).selected = true;
+
+        }
+
+
+        if (funcionario.pode_colagem) {
+
+            selectFuncoes.querySelector(
+                'option[value="colagem"]'
+            ).selected = true;
+
+        }
 
 
     } catch (erro) {
@@ -725,158 +763,12 @@
         alert(
             "Não foi possível carregar os dados do funcionário."
         );
+
     }
+
 }
-       
-            
-        // =========================================================
-        // CARREGAR FUNCIONÁRIO PARA EDIÇÃO
-        // =========================================================
 
-        async function carregarFuncionario(id) {
-
-            try {
-
-                const resposta = await fetch(
-                    `/api/funcionarios/${id}`
-                );
-
-                if (!resposta.ok) {
-
-                    throw new Error(
-                        "Erro ao carregar funcionário."
-                    );
-
-                }
-
-                const funcionario = await resposta.json();
-
-                // -------------------------------------------------
-                // ID
-                // -------------------------------------------------
-
-                document.getElementById(
-                    "editar_id"
-                ).value = funcionario.id;
-
-
-                // -------------------------------------------------
-                // NOME
-                // -------------------------------------------------
-
-                document.getElementById(
-                    "nome"
-                ).value = funcionario.nome;
-
-
-                // -------------------------------------------------
-                // USUÁRIO
-                // -------------------------------------------------
-
-                document.getElementById(
-                    "user"
-                ).value = funcionario.usuario;
-
-
-                // -------------------------------------------------
-                // SENHA
-                // -------------------------------------------------
-
-                document.getElementById(
-                    "password"
-                ).value = "";
-
-
-                // -------------------------------------------------
-                // VALORES
-                // -------------------------------------------------
-
-                document.getElementById(
-                    "valorcorte"
-                ).value = funcionario.valor_corte;
-
-
-                document.getElementById(
-                    "valorcostura"
-                ).value = funcionario.valor_costura;
-
-
-                document.getElementById(
-                    "valorcolagem"
-                ).value = funcionario.valor_colagem;
-
-
-                // -------------------------------------------------
-                // FUNÇÕES
-                // -------------------------------------------------
-
-                const selectFuncoes =
-                    document.getElementById("funcoes");
-
-                const opcaoCorte =
-                    selectFuncoes.querySelector(
-                        'option[value="cortar"]'
-                    );
-
-                const opcaoCostura =
-                    selectFuncoes.querySelector(
-                        'option[value="costurar"]'
-                    );
-
-                const opcaoColagem =
-                    selectFuncoes.querySelector(
-                        'option[value="colagem"]'
-                    );
-
-
-                // Seleciona de acordo com os booleanos
-
-                if (opcaoCorte) {
-
-                    opcaoCorte.selected =
-                        funcionario.pode_corte;
-
-                }
-
-                if (opcaoCostura) {
-
-                    opcaoCostura.selected =
-                        funcionario.pode_costura;
-
-                }
-
-                if (opcaoColagem) {
-
-                    opcaoColagem.selected =
-                        funcionario.pode_colagem;
-
-                }
-
-            }
-
-            catch (erro) {
-
-                console.error(
-                    "Erro ao carregar funcionário:",
-                    erro
-                );
-
-                alert(
-                    "Não foi possível carregar os dados do funcionário."
-                );
-
-            }
-
-        }
-            
-            
-            
-            
-       
-       
-
-    </script>
+</script>
 
 </body>
-
 </html>

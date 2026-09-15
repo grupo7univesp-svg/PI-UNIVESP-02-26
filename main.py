@@ -1,30 +1,47 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-
 import psycopg2
 from psycopg2 import OperationalError
 import os
 import uuid
 from datetime import date, timedelta
-from dotenv import load_dotenv 
+from dotenv import load_dotenv
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 
 load_dotenv()
 
+
 app = Flask(__name__)
-app.secret_key = os.getenv( "FLASK_SECRET_KEY", "chave-temporaria-do-projeto" ) 
-# ========================================================= # CONEXÃO COM O BANCO # =========================================================
+
+app.secret_key = os.getenv(
+    "FLASK_SECRET_KEY",
+    "chave-temporaria-do-projeto"
+)
+
+
+# =========================================================
+# CONEXÃO COM O BANCO
+# =========================================================
+
 def get_connection():
     """Abre uma nova conexão PostgreSQL usando variáveis de ambiente."""
+
     try:
 
-        return psycopg2.connect( 
+        return psycopg2.connect(
             host=os.getenv("DB_HOST"),
             database=os.getenv("DB_NAME"),
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD"),
             port=os.getenv("DB_PORT"),
-            sslmode="require")
+            sslmode="require"
+        )
+
     except OperationalError as erro:
-        print("Erro na conexão com o banco:", erro)
+
+        print(
+            "Erro na conexão com o banco:",
+            erro
+        )
+
         return None
 
 
@@ -34,8 +51,10 @@ def get_connection():
 
 @app.route("/")
 def login():
-   
-    return render_template("login.html")
+
+    return render_template(
+        "login.html"
+    )
 
 
 # =========================================================
@@ -45,12 +64,12 @@ def login():
 @app.route("/entrar", methods=["POST"])
 def entrar():
 
-    tipo_usuario = request.form.get("tipo_usuario")
+    tipo_usuario = request.form.get(
+        "tipo_usuario"
+    )
 
-    # -----------------------------------------------------
     # TEMPORÁRIO
-    # Depois faremos autenticação real pelo banco
-    # -----------------------------------------------------
+    # Depois será substituído pelo login real no banco.
 
     if tipo_usuario == "adm":
 
@@ -62,10 +81,7 @@ def entrar():
         )
 
 
-    elif tipo_usuario == "funcionario":
-
-        # TEMPORÁRIO
-        # Depois o ID virá do login real
+    if tipo_usuario == "funcionario":
 
         session["usuario_id"] = 1
         session["tipo_usuario"] = "funcionario"
@@ -93,18 +109,13 @@ def sair():
         url_for("login")
     )
 
+
 # =========================================================
 # DASHBOARD ADMINISTRADOR
 # =========================================================
 
 @app.route("/dashboard-adm")
 def dashboard_adm():
-
-    
-
-    # -------------------------------------------------
-    # FILTRO POR PERÍODO
-    # -------------------------------------------------
 
     periodo = request.args.get(
         "periodo",
@@ -183,10 +194,6 @@ def dashboard_adm():
             data_fim = None
 
 
-    # -------------------------------------------------
-    # CONEXÃO
-    # -------------------------------------------------
-
     conn = get_connection()
 
     if conn is None:
@@ -205,7 +212,7 @@ def dashboard_adm():
 
 
         # -------------------------------------------------
-        # PRODUÇÃO TOTAL DE HOJE
+        # PRODUÇÃO DE HOJE
         # -------------------------------------------------
 
         cursor.execute(
@@ -220,9 +227,7 @@ def dashboard_adm():
                 ),
                 0
             )
-
             FROM producoes
-
             WHERE data_producao = CURRENT_DATE
             """
         )
@@ -231,7 +236,7 @@ def dashboard_adm():
 
 
         # -------------------------------------------------
-        # PRODUÇÃO TOTAL DO MÊS
+        # PRODUÇÃO DO MÊS
         # -------------------------------------------------
 
         cursor.execute(
@@ -246,9 +251,7 @@ def dashboard_adm():
                 ),
                 0
             )
-
             FROM producoes
-
             WHERE DATE_TRUNC(
                 'month',
                 data_producao
@@ -271,9 +274,7 @@ def dashboard_adm():
         cursor.execute(
             """
             SELECT COUNT(*)
-
             FROM usuarios
-
             WHERE ativo = TRUE
             """
         )
@@ -282,7 +283,7 @@ def dashboard_adm():
 
 
         # -------------------------------------------------
-        # LISTA DE FUNCIONÁRIOS PARA O FILTRO
+        # FUNCIONÁRIOS PARA O FILTRO
         # -------------------------------------------------
 
         cursor.execute(
@@ -290,11 +291,8 @@ def dashboard_adm():
             SELECT
                 id,
                 nome
-
             FROM usuarios
-
             WHERE ativo = TRUE
-
             ORDER BY nome
             """
         )
@@ -303,12 +301,13 @@ def dashboard_adm():
 
 
         # -------------------------------------------------
-        # FILTRO DA PRODUÇÃO POR FUNCIONÁRIO
+        # FILTROS
         # -------------------------------------------------
 
         condicao_data = ""
         condicao_funcionario = ""
         condicao_etapa = ""
+
         parametros = []
 
 
@@ -333,6 +332,7 @@ def dashboard_adm():
                 data_fim
             )
 
+
         if etapa:
 
             condicao_etapa = """
@@ -343,6 +343,7 @@ def dashboard_adm():
                 etapa
             )
 
+
         if funcionario_id:
 
             condicao_funcionario = """
@@ -352,6 +353,7 @@ def dashboard_adm():
             parametros.append(
                 funcionario_id
             )
+
 
         # -------------------------------------------------
         # PRODUÇÃO POR FUNCIONÁRIO
@@ -403,8 +405,9 @@ def dashboard_adm():
 
         producao_funcionarios = cursor.fetchall()
 
-                # -------------------------------------------------
-        # CARDS COM BASE NOS FILTROS
+
+        # -------------------------------------------------
+        # CARDS FILTRADOS
         # -------------------------------------------------
 
         producao_filtrada = sum(
@@ -418,7 +421,8 @@ def dashboard_adm():
             if (funcionario[2] or 0) > 0
         )
 
-                # -------------------------------------------------
+
+        # -------------------------------------------------
         # RESUMO POR PRODUTO
         # -------------------------------------------------
 
@@ -490,9 +494,7 @@ def dashboard_adm():
             WHERE 1 = 1
 
             {condicao_produto_data}
-
             {condicao_produto_funcionario}
-
             {condicao_produto_etapa}
 
             GROUP BY produto
@@ -508,76 +510,89 @@ def dashboard_adm():
 
         resumo_produtos = cursor.fetchall()
 
-        produtos_filtrados = len(resumo_produtos)
+        produtos_filtrados = len(
+            resumo_produtos
+        )
 
-                # -------------------------------------------------
-        # RESUMO POR COR E TAMANHO
+
+        # -------------------------------------------------
+        # RESUMO POR GÊNERO E TAMANHO
         # -------------------------------------------------
 
-        parametros_cores = []
+        parametros_tamanhos = []
 
-        condicao_cor_data = ""
-        condicao_cor_funcionario = ""
-        condicao_cor_etapa = ""
+        condicao_tamanho_data = ""
+        condicao_tamanho_funcionario = ""
+        condicao_tamanho_etapa = ""
 
 
         if data_inicio is not None:
 
-            condicao_cor_data += """
+            condicao_tamanho_data += """
                 AND producoes.data_producao >= %s
             """
 
-            parametros_cores.append(
+            parametros_tamanhos.append(
                 data_inicio
             )
 
 
         if data_fim is not None:
 
-            condicao_cor_data += """
+            condicao_tamanho_data += """
                 AND producoes.data_producao <= %s
             """
 
-            parametros_cores.append(
+            parametros_tamanhos.append(
                 data_fim
-            )
-
-
-        if etapa:
-
-            condicao_cor_etapa = """
-                AND producoes.etapa = %s
-            """
-
-            parametros_cores.append(
-                etapa
             )
 
 
         if funcionario_id:
 
-            condicao_cor_funcionario = """
+            condicao_tamanho_funcionario = """
                 AND producoes.usuario_id = %s
             """
 
-            parametros_cores.append(
+            parametros_tamanhos.append(
                 funcionario_id
             )
 
 
-        query_cores = f"""
+        if etapa:
+
+            condicao_tamanho_etapa = """
+                AND producoes.etapa = %s
+            """
+
+            parametros_tamanhos.append(
+                etapa
+            )
+
+
+        query_tamanhos = f"""
             SELECT
-                cor,
+                genero,
 
-                SUM(COALESCE(quantidade_p, 0)) AS total_p,
+                SUM(
+                    COALESCE(quantidade_p, 0)
+                ) AS total_p,
 
-                SUM(COALESCE(quantidade_m, 0)) AS total_m,
+                SUM(
+                    COALESCE(quantidade_m, 0)
+                ) AS total_m,
 
-                SUM(COALESCE(quantidade_g, 0)) AS total_g,
+                SUM(
+                    COALESCE(quantidade_g, 0)
+                ) AS total_g,
 
-                SUM(COALESCE(quantidade_gg, 0)) AS total_gg,
+                SUM(
+                    COALESCE(quantidade_gg, 0)
+                ) AS total_gg,
 
-                SUM(COALESCE(quantidade_xg, 0)) AS total_xg,
+                SUM(
+                    COALESCE(quantidade_xg, 0)
+                ) AS total_xg,
 
                 SUM(
                     COALESCE(quantidade_p, 0) +
@@ -591,29 +606,28 @@ def dashboard_adm():
 
             WHERE 1 = 1
 
-            {condicao_cor_data}
+            {condicao_tamanho_data}
+            {condicao_tamanho_funcionario}
+            {condicao_tamanho_etapa}
 
-            {condicao_cor_etapa}
-
-            {condicao_cor_funcionario}
-
-            GROUP BY cor
+            GROUP BY genero
 
             ORDER BY total DESC
         """
 
 
         cursor.execute(
-            query_cores,
-            parametros_cores
+            query_tamanhos,
+            parametros_tamanhos
         )
 
-        resumo_cores = cursor.fetchall()
+        resumo_tamanhos = cursor.fetchall()
 
 
-        # -------------------------------------------------
-        # CARREGA O HTML
-        # -------------------------------------------------
+        # Mantido para compatibilidade caso o dashboard antigo
+        # ainda utilize a variável resumo_cores.
+        resumo_cores = resumo_tamanhos
+
 
         return render_template(
             "dashboard_adm.html",
@@ -629,6 +643,8 @@ def dashboard_adm():
             producao_funcionarios=producao_funcionarios,
 
             resumo_produtos=resumo_produtos,
+
+            resumo_tamanhos=resumo_tamanhos,
 
             resumo_cores=resumo_cores,
 
@@ -673,6 +689,7 @@ def dashboard_adm():
 
         conn.close()
 
+
 # =========================================================
 # GERENCIAR FUNCIONÁRIOS
 # =========================================================
@@ -683,12 +700,14 @@ def funcionarios():
     conn = get_connection()
 
     if conn is None:
+
         return (
             "Não foi possível conectar ao banco.",
             500
         )
 
     cursor = None
+
 
     try:
 
@@ -700,19 +719,19 @@ def funcionarios():
                 id,
                 nome,
                 ativo
-
             FROM usuarios
-
             ORDER BY nome
             """
         )
 
         lista_funcionarios = cursor.fetchall()
 
+
         return render_template(
             "funcionarios.html",
             lista_funcionarios=lista_funcionarios
         )
+
 
     except Exception as erro:
 
@@ -729,6 +748,7 @@ def funcionarios():
             500
         )
 
+
     finally:
 
         if cursor:
@@ -736,43 +756,76 @@ def funcionarios():
 
         conn.close()
 
+
 # =========================================================
 # ADICIONAR FUNCIONÁRIO
 # =========================================================
 
-@app.route("/funcionarios/adicionar", methods=["POST"])
+@app.route(
+    "/funcionarios/adicionar",
+    methods=["POST"]
+)
 def adicionar_funcionario():
 
-    nome = request.form.get("nome", "").strip()
-    usuario = request.form.get("usuario", "").strip()
-    senha = request.form.get("senha", "").strip()
+    nome = request.form.get(
+        "nome",
+        ""
+    ).strip()
 
-    # ---------------------------------------------------------
+    usuario = request.form.get(
+        "usuario",
+        ""
+    ).strip()
+
+    senha = request.form.get(
+        "senha",
+        ""
+    ).strip()
+
+
+    # -------------------------------------------------
     # FUNÇÕES
-    # ---------------------------------------------------------
+    # -------------------------------------------------
 
-    funcoes = request.form.getlist("funcoes")
+    funcoes = request.form.getlist(
+        "funcoes"
+    )
 
-    pode_corte = "cortar" in funcoes
-    pode_costura = "costurar" in funcoes
-    pode_colagem = "colagem" in funcoes
+    pode_corte = (
+        "cortar" in funcoes
+    )
 
-    # ---------------------------------------------------------
+    pode_costura = (
+        "costurar" in funcoes
+    )
+
+    pode_colagem = (
+        "colagem" in funcoes
+    )
+
+
+    # -------------------------------------------------
     # VALORES
-    # ---------------------------------------------------------
+    # -------------------------------------------------
 
     try:
 
         valorcorte = float(
-            request.form.get("valor_corte") or 0
+            request.form.get(
+                "valor_corte"
+            ) or 0
         )
 
         valorcostura = float(
-            request.form.get("valor_costura") or 0
+            request.form.get(
+                "valor_costura"
+            ) or 0
         )
 
         valorcolagem = float(
-            request.form.get("valor_colagem") or 0
+            request.form.get(
+                "valor_colagem"
+            ) or 0
         )
 
     except ValueError:
@@ -781,9 +834,10 @@ def adicionar_funcionario():
             url_for("funcionarios")
         )
 
-    # ---------------------------------------------------------
+
+    # -------------------------------------------------
     # VALIDAÇÃO
-    # ---------------------------------------------------------
+    # -------------------------------------------------
 
     if not nome or not usuario or not senha:
 
@@ -791,9 +845,6 @@ def adicionar_funcionario():
             url_for("funcionarios")
         )
 
-    # ---------------------------------------------------------
-    # CONEXÃO
-    # ---------------------------------------------------------
 
     conn = get_connection()
 
@@ -806,6 +857,7 @@ def adicionar_funcionario():
 
     cursor = None
 
+
     try:
 
         cursor = conn.cursor()
@@ -813,31 +865,31 @@ def adicionar_funcionario():
         cursor.execute(
             """
             INSERT INTO usuarios
-                (
-                    nome,
-                    usuario,
-                    senha_hash,
-                    ativo,
-                    pode_corte,
-                    pode_costura,
-                    pode_colagem,
-                    valor_corte,
-                    valor_costura,
-                    valor_colagem
-                )
+            (
+                nome,
+                usuario,
+                senha_hash,
+                ativo,
+                pode_corte,
+                pode_costura,
+                pode_colagem,
+                valor_corte,
+                valor_costura,
+                valor_colagem
+            )
             VALUES
-                (
-                    %s,
-                    %s,
-                    %s,
-                    TRUE,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s
-                )
+            (
+                %s,
+                %s,
+                %s,
+                TRUE,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s,
+                %s
+            )
             """,
             (
                 nome,
@@ -858,6 +910,7 @@ def adicionar_funcionario():
             url_for("funcionarios")
         )
 
+
     except Exception as erro:
 
         conn.rollback()
@@ -875,12 +928,15 @@ def adicionar_funcionario():
             500
         )
 
+
     finally:
 
         if cursor:
             cursor.close()
 
         conn.close()
+
+
 # =========================================================
 # ATIVAR / DESATIVAR FUNCIONÁRIO
 # =========================================================
@@ -889,17 +945,21 @@ def adicionar_funcionario():
     "/funcionarios/<int:funcionario_id>/status",
     methods=["POST"]
 )
-def alterar_status_funcionario(funcionario_id):
+def alterar_status_funcionario(
+    funcionario_id
+):
 
     conn = get_connection()
 
     if conn is None:
+
         return (
             "Não foi possível conectar ao banco.",
             500
         )
 
     cursor = None
+
 
     try:
 
@@ -908,12 +968,12 @@ def alterar_status_funcionario(funcionario_id):
         cursor.execute(
             """
             UPDATE usuarios
-
             SET ativo = NOT ativo
-
             WHERE id = %s
             """,
-            (funcionario_id,)
+            (
+                funcionario_id,
+            )
         )
 
         conn.commit()
@@ -921,6 +981,7 @@ def alterar_status_funcionario(funcionario_id):
         return redirect(
             url_for("funcionarios")
         )
+
 
     except Exception as erro:
 
@@ -939,12 +1000,15 @@ def alterar_status_funcionario(funcionario_id):
             500
         )
 
+
     finally:
 
         if cursor:
             cursor.close()
 
         conn.close()
+
+
 # =========================================================
 # EDITAR FUNCIONÁRIO
 # =========================================================
@@ -953,7 +1017,9 @@ def alterar_status_funcionario(funcionario_id):
     "/funcionarios/<int:funcionario_id>/editar",
     methods=["POST"]
 )
-def editar_funcionario(funcionario_id):
+def editar_funcionario(
+    funcionario_id
+):
 
     nome = request.form.get(
         "nome",
@@ -970,19 +1036,31 @@ def editar_funcionario(funcionario_id):
         ""
     ).strip()
 
-    # ---------------------------------------------------------
+
+    # -------------------------------------------------
     # FUNÇÕES
-    # ---------------------------------------------------------
+    # -------------------------------------------------
 
-    funcoes = request.form.getlist("funcoes")
+    funcoes = request.form.getlist(
+        "funcoes"
+    )
 
-    pode_corte = "cortar" in funcoes
-    pode_costura = "costurar" in funcoes
-    pode_colagem = "colagem" in funcoes
+    pode_corte = (
+        "cortar" in funcoes
+    )
 
-    # ---------------------------------------------------------
+    pode_costura = (
+        "costurar" in funcoes
+    )
+
+    pode_colagem = (
+        "colagem" in funcoes
+    )
+
+
+    # -------------------------------------------------
     # VALORES
-    # ---------------------------------------------------------
+    # -------------------------------------------------
 
     try:
 
@@ -1010,9 +1088,6 @@ def editar_funcionario(funcionario_id):
             url_for("funcionarios")
         )
 
-    # ---------------------------------------------------------
-    # VALIDAÇÃO
-    # ---------------------------------------------------------
 
     if not nome or not usuario:
 
@@ -1020,9 +1095,6 @@ def editar_funcionario(funcionario_id):
             url_for("funcionarios")
         )
 
-    # ---------------------------------------------------------
-    # CONEXÃO
-    # ---------------------------------------------------------
 
     conn = get_connection()
 
@@ -1035,97 +1107,80 @@ def editar_funcionario(funcionario_id):
 
     cursor = None
 
+
     try:
 
         cursor = conn.cursor()
 
-        # -----------------------------------------------------
-        # COM SENHA NOVA
-        # -----------------------------------------------------
 
         if senha:
 
             cursor.execute(
                 """
                 UPDATE usuarios
-
                 SET
                     nome = %s,
                     usuario = %s,
                     senha_hash = %s,
-
                     pode_corte = %s,
                     pode_costura = %s,
                     pode_colagem = %s,
-
                     valor_corte = %s,
                     valor_costura = %s,
                     valor_colagem = %s
-
                 WHERE id = %s
                 """,
                 (
                     nome,
                     usuario,
                     senha,
-
                     pode_corte,
                     pode_costura,
                     pode_colagem,
-
                     valor_corte,
                     valor_costura,
                     valor_colagem,
-
                     funcionario_id
                 )
             )
 
-        # -----------------------------------------------------
-        # SEM ALTERAR SENHA
-        # -----------------------------------------------------
 
         else:
 
             cursor.execute(
                 """
                 UPDATE usuarios
-
                 SET
                     nome = %s,
                     usuario = %s,
-
                     pode_corte = %s,
                     pode_costura = %s,
                     pode_colagem = %s,
-
                     valor_corte = %s,
                     valor_costura = %s,
                     valor_colagem = %s
-
                 WHERE id = %s
                 """,
                 (
                     nome,
                     usuario,
-
                     pode_corte,
                     pode_costura,
                     pode_colagem,
-
                     valor_corte,
                     valor_costura,
                     valor_colagem,
-
                     funcionario_id
                 )
             )
+
 
         conn.commit()
 
         return redirect(
             url_for("funcionarios")
         )
+
 
     except Exception as erro:
 
@@ -1144,12 +1199,14 @@ def editar_funcionario(funcionario_id):
             500
         )
 
+
     finally:
 
         if cursor:
             cursor.close()
 
         conn.close()
+
 
 # =========================================================
 # BUSCAR FUNCIONÁRIO PARA EDIÇÃO
@@ -1159,7 +1216,9 @@ def editar_funcionario(funcionario_id):
     "/api/funcionarios/<int:funcionario_id>",
     methods=["GET"]
 )
-def buscar_funcionario(funcionario_id):
+def buscar_funcionario(
+    funcionario_id
+):
 
     conn = get_connection()
 
@@ -1170,6 +1229,7 @@ def buscar_funcionario(funcionario_id):
         }), 500
 
     cursor = None
+
 
     try:
 
@@ -1197,11 +1257,13 @@ def buscar_funcionario(funcionario_id):
 
         funcionario = cursor.fetchone()
 
+
         if not funcionario:
 
             return jsonify({
                 "erro": "Funcionário não encontrado."
             }), 404
+
 
         return jsonify({
 
@@ -1234,7 +1296,9 @@ def buscar_funcionario(funcionario_id):
             "valor_colagem": float(
                 funcionario[8] or 0
             )
+
         })
+
 
     except Exception as erro:
 
@@ -1250,15 +1314,13 @@ def buscar_funcionario(funcionario_id):
             "erro": "Erro ao buscar funcionário."
         }), 500
 
+
     finally:
 
         if cursor:
             cursor.close()
 
         conn.close()
-
-
-
 
 
 # =========================================================
@@ -1269,11 +1331,14 @@ def buscar_funcionario(funcionario_id):
     "/funcionarios/<int:funcionario_id>/excluir",
     methods=["POST"]
 )
-def excluir_funcionario(funcionario_id):
+def excluir_funcionario(
+    funcionario_id
+):
 
     conn = get_connection()
 
     if conn is None:
+
         return (
             "Não foi possível conectar ao banco.",
             500
@@ -1281,35 +1346,43 @@ def excluir_funcionario(funcionario_id):
 
     cursor = None
 
+
     try:
 
         cursor = conn.cursor()
 
-        # EXCLUI AS PRODUÇÕES DO FUNCIONÁRIO
+
+        # Exclui primeiro as produções
+        # por causa da chave estrangeira.
 
         cursor.execute(
             """
             DELETE FROM producoes
             WHERE usuario_id = %s
             """,
-            (funcionario_id,)
+            (
+                funcionario_id,
+            )
         )
 
-        # EXCLUI O FUNCIONÁRIO
 
         cursor.execute(
             """
             DELETE FROM usuarios
             WHERE id = %s
             """,
-            (funcionario_id,)
+            (
+                funcionario_id,
+            )
         )
+
 
         conn.commit()
 
         return redirect(
             url_for("funcionarios")
         )
+
 
     except Exception as erro:
 
@@ -1328,6 +1401,7 @@ def excluir_funcionario(funcionario_id):
             500
         )
 
+
     finally:
 
         if cursor:
@@ -1335,17 +1409,13 @@ def excluir_funcionario(funcionario_id):
 
         conn.close()
 
+
 # =========================================================
 # INÍCIO DO FUNCIONÁRIO
 # =========================================================
 
 @app.route("/inicio")
 def inicio_funcionario():
-
-    # -----------------------------------------------------
-    # TEMPORÁRIO
-    # Depois virá da sessão de login
-    # -----------------------------------------------------
 
     usuario_id = session.get(
         "usuario_id",
@@ -1363,6 +1433,7 @@ def inicio_funcionario():
         )
 
     cursor = None
+
 
     try:
 
@@ -1385,14 +1456,13 @@ def inicio_funcionario():
                 ),
                 0
             )
-
             FROM producoes
-
             WHERE usuario_id = %s
-
             AND data_producao = CURRENT_DATE
             """,
-            (usuario_id,)
+            (
+                usuario_id,
+            )
         )
 
         producao_hoje = cursor.fetchone()[0]
@@ -1414,11 +1484,8 @@ def inicio_funcionario():
                 ),
                 0
             )
-
             FROM producoes
-
             WHERE usuario_id = %s
-
             AND DATE_TRUNC(
                 'month',
                 data_producao
@@ -1429,7 +1496,9 @@ def inicio_funcionario():
                 CURRENT_DATE
             )
             """,
-            (usuario_id,)
+            (
+                usuario_id,
+            )
         )
 
         producao_mes = cursor.fetchone()[0]
@@ -1441,36 +1510,38 @@ def inicio_funcionario():
 
         cursor.execute(
             """
-           SELECT
-            relatorio_id,
-            MAX(data_producao) AS data_producao,
-            MAX(produto) AS produto,
-            MAX(etapa) AS etapa,
-            MAX(observacao) AS observacao,
+            SELECT
+                relatorio_id,
+                MAX(data_producao) AS data_producao,
+                MAX(produto) AS produto,
+                MAX(etapa) AS etapa,
+                MAX(observacao) AS observacao,
 
-            SUM(
-                COALESCE(quantidade_p, 0) +
-                COALESCE(quantidade_m, 0) +
-                COALESCE(quantidade_g, 0) +
-                COALESCE(quantidade_gg, 0) +
-                COALESCE(quantidade_xg, 0)
-            ) AS quantidade
+                SUM(
+                    COALESCE(quantidade_p, 0) +
+                    COALESCE(quantidade_m, 0) +
+                    COALESCE(quantidade_g, 0) +
+                    COALESCE(quantidade_gg, 0) +
+                    COALESCE(quantidade_xg, 0)
+                ) AS quantidade
 
-        FROM producoes
+            FROM producoes
 
-        WHERE usuario_id = %s
+            WHERE usuario_id = %s
 
-        GROUP BY relatorio_id
+            GROUP BY relatorio_id
 
-        ORDER BY data_producao DESC
+            ORDER BY data_producao DESC
 
-        LIMIT 5
+            LIMIT 5
             """,
-            (usuario_id,)
+            (
+                usuario_id,
+            )
         )
 
         ultimos_registros = cursor.fetchall()
-        print(ultimos_registros)
+
 
         return render_template(
             "inicio_funcionario.html",
@@ -1480,8 +1551,6 @@ def inicio_funcionario():
             producao_mes=producao_mes,
 
             ultimos_registros=ultimos_registros
-
-            
         )
 
 
@@ -1491,7 +1560,9 @@ def inicio_funcionario():
             "Erro ao carregar dashboard:"
         )
 
-        print(repr(erro))
+        print(
+            repr(erro)
+        )
 
         return (
             "Erro ao carregar dashboard.",
@@ -1508,23 +1579,39 @@ def inicio_funcionario():
 
 
 # =========================================================
-# Detalhes relatorio
+# DETALHES DO RELATÓRIO
 # =========================================================
-@app.route("/api/producoes/relatorio/<relatorio_id>")
-def detalhes_relatorio(relatorio_id):
+
+@app.route(
+    "/api/producoes/relatorio/<relatorio_id>"
+)
+def detalhes_relatorio(
+    relatorio_id
+):
 
     conn = get_connection()
 
+    if conn is None:
+
+        return jsonify({
+            "erro": "Não foi possível conectar ao banco."
+        }), 500
+
+
+    cursor = None
+
+
     try:
+
         cursor = conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT
                 relatorio_id,
                 data_producao,
                 etapa,
                 produto,
-                cor,
                 genero,
                 quantidade_p,
                 quantidade_m,
@@ -1540,27 +1627,34 @@ def detalhes_relatorio(relatorio_id):
                     WHEN genero = 'Feminino' THEN 2
                     ELSE 3
                 END
-        """, (relatorio_id,))
+            """,
+            (
+                relatorio_id,
+            )
+        )
 
         registros = cursor.fetchall()
 
+
         if not registros:
+
             return jsonify({
                 "erro": "Relatório não encontrado."
             }), 404
+
 
         dados = []
 
         total_geral = 0
 
+
         for registro in registros:
 
             (
-                relatorio_id,
+                relatorio_id_db,
                 data_producao,
                 etapa,
                 produto,
-                cor,
                 genero,
                 quantidade_p,
                 quantidade_m,
@@ -1570,11 +1664,27 @@ def detalhes_relatorio(relatorio_id):
                 observacao
             ) = registro
 
-            quantidade_p = quantidade_p or 0
-            quantidade_m = quantidade_m or 0
-            quantidade_g = quantidade_g or 0
-            quantidade_gg = quantidade_gg or 0
-            quantidade_xg = quantidade_xg or 0
+
+            quantidade_p = (
+                quantidade_p or 0
+            )
+
+            quantidade_m = (
+                quantidade_m or 0
+            )
+
+            quantidade_g = (
+                quantidade_g or 0
+            )
+
+            quantidade_gg = (
+                quantidade_gg or 0
+            )
+
+            quantidade_xg = (
+                quantidade_xg or 0
+            )
+
 
             total_genero = (
                 quantidade_p +
@@ -1584,52 +1694,92 @@ def detalhes_relatorio(relatorio_id):
                 quantidade_xg
             )
 
+
             total_geral += total_genero
 
+
             dados.append({
+
                 "genero": genero,
-                "cor": cor,
+
                 "quantidades": {
+
                     "P": quantidade_p,
+
                     "M": quantidade_m,
+
                     "G": quantidade_g,
+
                     "GG": quantidade_gg,
+
                     "XG": quantidade_xg
+
                 },
+
                 "total": total_genero
+
             })
 
+
         return jsonify({
-            "relatorio_id": str(relatorio_id),
-            "data": registros[0][1].strftime("%d/%m/%Y"),
-            "etapa": registros[0][2],
-            "produto": registros[0][3],
-            "observacao": registros[0][11],
-            "total_geral": total_geral,
-            "generos": dados
+
+            "relatorio_id":
+                str(registros[0][0]),
+
+            "data":
+                registros[0][1].strftime(
+                    "%d/%m/%Y"
+                ),
+
+            "etapa":
+                registros[0][2],
+
+            "produto":
+                registros[0][3],
+
+            "observacao":
+                registros[0][10],
+
+            "total_geral":
+                total_geral,
+
+            "generos":
+                dados
+
         })
 
-    except Exception as e:
 
-        print("Erro ao buscar detalhes:", e)
+    except Exception as erro:
+
+        print(
+            "Erro ao buscar detalhes:",
+            erro
+        )
 
         return jsonify({
-            "erro": "Erro ao buscar detalhes do relatório."
+            "erro":
+                "Erro ao buscar detalhes do relatório."
         }), 500
 
+
     finally:
+
+        if cursor:
+            cursor.close()
+
         conn.close()
+
 
 # =========================================================
 # RELATÓRIOS POR FUNCIONÁRIO
 # =========================================================
 
-@app.route("/api/funcionarios/<int:usuario_id>/relatorios")
-def relatorios_funcionario(usuario_id):
-
-    # -------------------------------------------------
-    # FILTRO POR PERÍODO
-    # -------------------------------------------------
+@app.route(
+    "/api/funcionarios/<int:usuario_id>/relatorios"
+)
+def relatorios_funcionario(
+    usuario_id
+):
 
     periodo = request.args.get(
         "periodo",
@@ -1650,6 +1800,7 @@ def relatorios_funcionario(usuario_id):
         "data_fim",
         ""
     )
+
 
     hoje = date.today()
 
@@ -1686,11 +1837,13 @@ def relatorios_funcionario(usuario_id):
         try:
 
             if data_inicio_texto:
+
                 data_inicio = date.fromisoformat(
                     data_inicio_texto
                 )
 
             if data_fim_texto:
+
                 data_fim = date.fromisoformat(
                     data_fim_texto
                 )
@@ -1701,16 +1854,13 @@ def relatorios_funcionario(usuario_id):
             data_fim = None
 
 
-    # -------------------------------------------------
-    # CONEXÃO
-    # -------------------------------------------------
-
     conn = get_connection()
 
     if conn is None:
 
         return jsonify({
-            "erro": "Não foi possível conectar ao banco."
+            "erro":
+                "Não foi possível conectar ao banco."
         }), 500
 
 
@@ -1721,10 +1871,6 @@ def relatorios_funcionario(usuario_id):
 
         cursor = conn.cursor()
 
-
-        # -------------------------------------------------
-        # MONTA O FILTRO DE DATA
-        # -------------------------------------------------
 
         condicao_data = ""
         condicao_etapa = ""
@@ -1755,6 +1901,7 @@ def relatorios_funcionario(usuario_id):
                 data_fim
             )
 
+
         if etapa:
 
             condicao_etapa = """
@@ -1765,10 +1912,6 @@ def relatorios_funcionario(usuario_id):
                 etapa
             )
 
-
-        # -------------------------------------------------
-        # BUSCA OS RELATÓRIOS
-        # -------------------------------------------------
 
         query = f"""
             SELECT
@@ -1813,11 +1956,24 @@ def relatorios_funcionario(usuario_id):
         for registro in registros:
 
             relatorios.append({
-                "relatorio_id": str(registro[0]),
-                "data": registro[1].strftime("%d/%m/%Y"),
-                "produto": registro[2],
-                "etapa": registro[3],
-                "quantidade": registro[4]
+
+                "relatorio_id":
+                    str(registro[0]),
+
+                "data":
+                    registro[1].strftime(
+                        "%d/%m/%Y"
+                    ),
+
+                "produto":
+                    registro[2],
+
+                "etapa":
+                    registro[3],
+
+                "quantidade":
+                    registro[4]
+
             })
 
 
@@ -1838,7 +1994,7 @@ def relatorios_funcionario(usuario_id):
 
         return jsonify({
             "erro":
-            "Não foi possível buscar os relatórios."
+                "Não foi possível buscar os relatórios."
         }), 500
 
 
@@ -1848,6 +2004,7 @@ def relatorios_funcionario(usuario_id):
             cursor.close()
 
         conn.close()
+
 
 # =========================================================
 # TELA DE PRODUÇÃO
@@ -1871,11 +2028,8 @@ def producao():
 )
 def api_producoes():
 
-    # -----------------------------------------------------
-    # RECEBE JSON
-    # -----------------------------------------------------
-
     dados = request.get_json()
+
 
     if not dados:
 
@@ -1883,10 +2037,6 @@ def api_producoes():
             "erro": "Nenhum dado recebido."
         }), 400
 
-
-    # -----------------------------------------------------
-    # DADOS PRINCIPAIS
-    # -----------------------------------------------------
 
     data_producao = dados.get(
         "data_producao"
@@ -1911,21 +2061,19 @@ def api_producoes():
     )
 
 
-    # -----------------------------------------------------
-    # VALIDAÇÕES
-    # -----------------------------------------------------
-
     if not data_producao:
 
         return jsonify({
-            "erro": "Informe a data da produção."
+            "erro":
+                "Informe a data da produção."
         }), 400
 
 
     if not etapa:
 
         return jsonify({
-            "erro": "Informe a etapa."
+            "erro":
+                "Informe a etapa."
         }), 400
 
 
@@ -1936,28 +2084,26 @@ def api_producoes():
     ]:
 
         return jsonify({
-            "erro": "Etapa inválida."
+            "erro":
+                "Etapa inválida."
         }), 400
 
 
     if not produto:
 
         return jsonify({
-            "erro": "Informe o modelo do produto."
+            "erro":
+                "Informe o modelo do produto."
         }), 400
-
 
 
     if not itens:
 
         return jsonify({
-            "erro": "Adicione pelo menos um item."
+            "erro":
+                "Adicione pelo menos um item."
         }), 400
 
-
-    # -----------------------------------------------------
-    # USUÁRIO
-    # -----------------------------------------------------
 
     usuario_id = session.get(
         "usuario_id",
@@ -1965,18 +2111,10 @@ def api_producoes():
     )
 
 
-    # -----------------------------------------------------
-    # ID DO RELATÓRIO
-    # -----------------------------------------------------
-
     relatorio_id = str(
         uuid.uuid4()
     )
 
-
-    # -----------------------------------------------------
-    # ESTRUTURA DOS ITENS
-    # -----------------------------------------------------
 
     tamanhos_validos = [
         "P",
@@ -1991,23 +2129,13 @@ def api_producoes():
         "Feminino"
     ]
 
-    # Aqui serão agrupadas as peças por gênero + cor.
-    #
-    # Exemplo:
-    #
-    # ("Masculino", "Preto")
-    # P = 5
-    # M = 3
-    #
-    # ("Feminino", "Marrom")
-    # G = 4
+
+    # -------------------------------------------------
+    # AGRUPA POR GÊNERO
+    # -------------------------------------------------
 
     grupos = {}
 
-
-    # -----------------------------------------------------
-    # PROCESSA OS ITENS
-    # -----------------------------------------------------
 
     try:
 
@@ -2021,75 +2149,54 @@ def api_producoes():
                 "tamanho"
             )
 
-            cor = item.get(
-                "cor"
-            )
 
-            quantidade = int(
-                item.get(
-                    "quantidade",
-                    0
+            try:
+
+                quantidade = int(
+                    item.get(
+                        "quantidade",
+                        0
+                    )
                 )
-            )
 
+            except (
+                TypeError,
+                ValueError
+            ):
 
-            # ---------------------------------------------
-            # VALIDA GÊNERO
-            # ---------------------------------------------
+                return jsonify({
+                    "erro":
+                        "Quantidade inválida."
+                }), 400
+
 
             if genero not in generos_validos:
 
                 return jsonify({
-                    "erro": "Gênero inválido."
+                    "erro":
+                        "Gênero inválido."
                 }), 400
 
-
-            # ---------------------------------------------
-            # VALIDA TAMANHO
-            # ---------------------------------------------
 
             if tamanho not in tamanhos_validos:
 
                 return jsonify({
-                    "erro": "Tamanho inválido."
+                    "erro":
+                        "Tamanho inválido."
                 }), 400
 
-
-            # ---------------------------------------------
-            # VALIDA COR
-            # ---------------------------------------------
-
-            if not cor:
-
-                return jsonify({
-                    "erro": "Cor inválida."
-                }), 400
-
-
-            # ---------------------------------------------
-            # VALIDA QUANTIDADE
-            # ---------------------------------------------
 
             if quantidade <= 0:
 
                 return jsonify({
                     "erro":
-                    "A quantidade deve ser maior que zero."
+                        "A quantidade deve ser maior que zero."
                 }), 400
 
 
-            # ---------------------------------------------
-            # CRIA O GRUPO GÊNERO + COR
-            # ---------------------------------------------
+            if genero not in grupos:
 
-            chave = (
-                genero,
-                cor
-            )
-
-            if chave not in grupos:
-
-                grupos[chave] = {
+                grupos[genero] = {
                     "P": 0,
                     "M": 0,
                     "G": 0,
@@ -2098,26 +2205,23 @@ def api_producoes():
                 }
 
 
-            # ---------------------------------------------
-            # SOMA A QUANTIDADE AO TAMANHO
-            # ---------------------------------------------
-
-            grupos[chave][tamanho] += quantidade
+            grupos[genero][tamanho] += (
+                quantidade
+            )
 
 
-    except (
-        TypeError,
-        ValueError
-    ):
+    except Exception as erro:
+
+        print(
+            "Erro ao processar itens:",
+            erro
+        )
 
         return jsonify({
-            "erro": "Quantidade inválida."
+            "erro":
+                "Não foi possível processar os itens."
         }), 400
 
-
-    # -----------------------------------------------------
-    # CONEXÃO
-    # -----------------------------------------------------
 
     conn = get_connection()
 
@@ -2125,7 +2229,7 @@ def api_producoes():
 
         return jsonify({
             "erro":
-            "Não foi possível conectar ao banco."
+                "Não foi possível conectar ao banco."
         }), 500
 
 
@@ -2137,12 +2241,7 @@ def api_producoes():
         cursor = conn.cursor()
 
 
-        # -------------------------------------------------
-        # QUERY
-        # -------------------------------------------------
-
         query = """
-
             INSERT INTO producoes
             (
                 relatorio_id,
@@ -2150,7 +2249,6 @@ def api_producoes():
                 data_producao,
                 etapa,
                 produto,
-                cor,
                 observacao,
                 genero,
                 quantidade_p,
@@ -2159,7 +2257,6 @@ def api_producoes():
                 quantidade_gg,
                 quantidade_xg
             )
-
             VALUES
             (
                 %s,
@@ -2173,20 +2270,12 @@ def api_producoes():
                 %s,
                 %s,
                 %s,
-                %s,
                 %s
             )
-
         """
 
 
-               # -------------------------------------------------
-        # SALVA CADA GRUPO GÊNERO + COR
-        # -------------------------------------------------
-
-        for chave, quantidades in grupos.items():
-
-            genero, cor = chave
+        for genero, quantidades in grupos.items():
 
             cursor.execute(
                 query,
@@ -2196,7 +2285,6 @@ def api_producoes():
                     data_producao,
                     etapa,
                     produto,
-                    cor,
                     observacao,
                     genero,
                     quantidades["P"],
@@ -2207,10 +2295,6 @@ def api_producoes():
                 )
             )
 
-
-        # -------------------------------------------------
-        # CONFIRMA
-        # -------------------------------------------------
 
         conn.commit()
 
@@ -2230,10 +2314,10 @@ def api_producoes():
             "sucesso": True,
 
             "mensagem":
-            "Produção enviada com sucesso!",
+                "Produção enviada com sucesso!",
 
             "relatorio_id":
-            relatorio_id
+                relatorio_id
 
         })
 
@@ -2241,7 +2325,6 @@ def api_producoes():
     except Exception as erro:
 
         conn.rollback()
-
 
         print(
             "Erro ao registrar produção:"
@@ -2251,11 +2334,10 @@ def api_producoes():
             repr(erro)
         )
 
-
         return jsonify({
 
             "erro":
-            "Não foi possível registrar a produção."
+                "Não foi possível registrar a produção."
 
         }), 500
 
@@ -2263,7 +2345,6 @@ def api_producoes():
     finally:
 
         if cursor:
-
             cursor.close()
 
         conn.close()
@@ -2275,10 +2356,6 @@ def api_producoes():
 
 if __name__ == "__main__":
 
-    # -----------------------------------------------------
-    # TESTE DE CONEXÃO
-    # -----------------------------------------------------
-
     conn = get_connection()
 
     if conn:
@@ -2289,6 +2366,4 @@ if __name__ == "__main__":
             "Teste de conexão concluído."
         )
 
-
     app.debug = True
-
