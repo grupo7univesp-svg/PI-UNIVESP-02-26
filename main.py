@@ -742,27 +742,63 @@ def funcionarios():
 
 @app.route("/funcionarios/adicionar", methods=["POST"])
 def adicionar_funcionario():
+
     nome = request.form.get("nome", "").strip()
     usuario = request.form.get("usuario", "").strip()
     senha = request.form.get("senha", "").strip()
-    
+
+    # ---------------------------------------------------------
+    # FUNÇÕES
+    # ---------------------------------------------------------
+
     funcoes = request.form.getlist("funcoes")
 
-    valorcorte = float(request.form.get("valor_corte") or 0)
-    valorcostura = float(request.form.get("valor_costura") or 0)
-    valorcolagem = float(request.form.get("valor_colagem") or 0)
+    pode_corte = "cortar" in funcoes
+    pode_costura = "costurar" in funcoes
+    pode_colagem = "colagem" in funcoes
 
-    print(nome,usuario,senha, valorcolagem,valorcorte,valorcostura,funcoes)
+    # ---------------------------------------------------------
+    # VALORES
+    # ---------------------------------------------------------
 
+    try:
 
-    if not nome:
+        valorcorte = float(
+            request.form.get("valor_corte") or 0
+        )
+
+        valorcostura = float(
+            request.form.get("valor_costura") or 0
+        )
+
+        valorcolagem = float(
+            request.form.get("valor_colagem") or 0
+        )
+
+    except ValueError:
+
         return redirect(
             url_for("funcionarios")
         )
 
+    # ---------------------------------------------------------
+    # VALIDAÇÃO
+    # ---------------------------------------------------------
+
+    if not nome or not usuario or not senha:
+
+        return redirect(
+            url_for("funcionarios")
+        )
+
+    # ---------------------------------------------------------
+    # CONEXÃO
+    # ---------------------------------------------------------
+
     conn = get_connection()
 
     if conn is None:
+
         return (
             "Não foi possível conectar ao banco.",
             500
@@ -776,29 +812,46 @@ def adicionar_funcionario():
 
         cursor.execute(
             """
-         
-                INSERT INTO usuarios
-                    (
-                        nome,
-                        usuario,
-                        senha_hash,
-                        ativo,
-                        valor_corte,
-                        valor_costura,
-                        valor_colagem
-                    )
-                VALUES
-                    (%s, %s, %s, TRUE, %s, %s, %s)
-                """,
+            INSERT INTO usuarios
                 (
                     nome,
                     usuario,
-                    senha,
-                    valorcorte,
-                    valorcostura,
-                    valorcolagem
+                    senha_hash,
+                    ativo,
+                    pode_corte,
+                    pode_costura,
+                    pode_colagem,
+                    valor_corte,
+                    valor_costura,
+                    valor_colagem
                 )
+            VALUES
+                (
+                    %s,
+                    %s,
+                    %s,
+                    TRUE,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s
+                )
+            """,
+            (
+                nome,
+                usuario,
+                senha,
+                pode_corte,
+                pode_costura,
+                pode_colagem,
+                valorcorte,
+                valorcostura,
+                valorcolagem
             )
+        )
+
         conn.commit()
 
         return redirect(
@@ -828,7 +881,6 @@ def adicionar_funcionario():
             cursor.close()
 
         conn.close()
-
 # =========================================================
 # ATIVAR / DESATIVAR FUNCIONÁRIO
 # =========================================================
@@ -893,7 +945,6 @@ def alterar_status_funcionario(funcionario_id):
             cursor.close()
 
         conn.close()
-
 # =========================================================
 # EDITAR FUNCIONÁRIO
 # =========================================================
@@ -909,14 +960,74 @@ def editar_funcionario(funcionario_id):
         ""
     ).strip()
 
-    if not nome:
+    usuario = request.form.get(
+        "usuario",
+        ""
+    ).strip()
+
+    senha = request.form.get(
+        "senha",
+        ""
+    ).strip()
+
+    # ---------------------------------------------------------
+    # FUNÇÕES
+    # ---------------------------------------------------------
+
+    funcoes = request.form.getlist("funcoes")
+
+    pode_corte = "cortar" in funcoes
+    pode_costura = "costurar" in funcoes
+    pode_colagem = "colagem" in funcoes
+
+    # ---------------------------------------------------------
+    # VALORES
+    # ---------------------------------------------------------
+
+    try:
+
+        valor_corte = float(
+            request.form.get(
+                "valor_corte"
+            ) or 0
+        )
+
+        valor_costura = float(
+            request.form.get(
+                "valor_costura"
+            ) or 0
+        )
+
+        valor_colagem = float(
+            request.form.get(
+                "valor_colagem"
+            ) or 0
+        )
+
+    except ValueError:
+
         return redirect(
             url_for("funcionarios")
         )
 
+    # ---------------------------------------------------------
+    # VALIDAÇÃO
+    # ---------------------------------------------------------
+
+    if not nome or not usuario:
+
+        return redirect(
+            url_for("funcionarios")
+        )
+
+    # ---------------------------------------------------------
+    # CONEXÃO
+    # ---------------------------------------------------------
+
     conn = get_connection()
 
     if conn is None:
+
         return (
             "Não foi possível conectar ao banco.",
             500
@@ -928,19 +1039,87 @@ def editar_funcionario(funcionario_id):
 
         cursor = conn.cursor()
 
-        cursor.execute(
-            """
-            UPDATE usuarios
+        # -----------------------------------------------------
+        # COM SENHA NOVA
+        # -----------------------------------------------------
 
-            SET nome = %s
+        if senha:
 
-            WHERE id = %s
-            """,
-            (
-                nome,
-                funcionario_id
+            cursor.execute(
+                """
+                UPDATE usuarios
+
+                SET
+                    nome = %s,
+                    usuario = %s,
+                    senha_hash = %s,
+
+                    pode_corte = %s,
+                    pode_costura = %s,
+                    pode_colagem = %s,
+
+                    valor_corte = %s,
+                    valor_costura = %s,
+                    valor_colagem = %s
+
+                WHERE id = %s
+                """,
+                (
+                    nome,
+                    usuario,
+                    senha,
+
+                    pode_corte,
+                    pode_costura,
+                    pode_colagem,
+
+                    valor_corte,
+                    valor_costura,
+                    valor_colagem,
+
+                    funcionario_id
+                )
             )
-        )
+
+        # -----------------------------------------------------
+        # SEM ALTERAR SENHA
+        # -----------------------------------------------------
+
+        else:
+
+            cursor.execute(
+                """
+                UPDATE usuarios
+
+                SET
+                    nome = %s,
+                    usuario = %s,
+
+                    pode_corte = %s,
+                    pode_costura = %s,
+                    pode_colagem = %s,
+
+                    valor_corte = %s,
+                    valor_costura = %s,
+                    valor_colagem = %s
+
+                WHERE id = %s
+                """,
+                (
+                    nome,
+                    usuario,
+
+                    pode_corte,
+                    pode_costura,
+                    pode_colagem,
+
+                    valor_corte,
+                    valor_costura,
+                    valor_colagem,
+
+                    funcionario_id
+                )
+            )
 
         conn.commit()
 
@@ -971,6 +1150,116 @@ def editar_funcionario(funcionario_id):
             cursor.close()
 
         conn.close()
+
+# =========================================================
+# BUSCAR FUNCIONÁRIO PARA EDIÇÃO
+# =========================================================
+
+@app.route(
+    "/api/funcionarios/<int:funcionario_id>",
+    methods=["GET"]
+)
+def buscar_funcionario(funcionario_id):
+
+    conn = get_connection()
+
+    if conn is None:
+
+        return jsonify({
+            "erro": "Não foi possível conectar ao banco."
+        }), 500
+
+    cursor = None
+
+    try:
+
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT
+                id,
+                nome,
+                usuario,
+                pode_corte,
+                pode_costura,
+                pode_colagem,
+                valor_corte,
+                valor_costura,
+                valor_colagem
+            FROM usuarios
+            WHERE id = %s
+            """,
+            (
+                funcionario_id,
+            )
+        )
+
+        funcionario = cursor.fetchone()
+
+        if not funcionario:
+
+            return jsonify({
+                "erro": "Funcionário não encontrado."
+            }), 404
+
+        return jsonify({
+
+            "id": funcionario[0],
+
+            "nome": funcionario[1],
+
+            "usuario": funcionario[2],
+
+            "pode_corte": bool(
+                funcionario[3]
+            ),
+
+            "pode_costura": bool(
+                funcionario[4]
+            ),
+
+            "pode_colagem": bool(
+                funcionario[5]
+            ),
+
+            "valor_corte": float(
+                funcionario[6] or 0
+            ),
+
+            "valor_costura": float(
+                funcionario[7] or 0
+            ),
+
+            "valor_colagem": float(
+                funcionario[8] or 0
+            )
+        })
+
+    except Exception as erro:
+
+        print(
+            "Erro ao buscar funcionário:"
+        )
+
+        print(
+            repr(erro)
+        )
+
+        return jsonify({
+            "erro": "Erro ao buscar funcionário."
+        }), 500
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        conn.close()
+
+
+
+
 
 # =========================================================
 # EXCLUIR FUNCIONÁRIO

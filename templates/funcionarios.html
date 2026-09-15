@@ -599,26 +599,281 @@
 
     <script>
 
-        function prepararEdicaoFuncionario(botao) {
+    async function prepararEdicaoFuncionario(botao) {
 
-            const funcionarioId =
-                botao.getAttribute("data-id");
+    const funcionarioId =
+        botao.getAttribute("data-id");
 
-            const funcionarioNome =
-                botao.getAttribute("data-nome");
+    const funcionarioNome =
+        botao.getAttribute("data-nome");
+
+    // -------------------------------------------------
+    // DEFINE O NOME INICIALMENTE
+    // -------------------------------------------------
+
+    document.getElementById(
+        "nomeEditar"
+    ).value = funcionarioNome;
 
 
-            document.getElementById(
-                "nomeEditar"
-            ).value = funcionarioNome;
+    // -------------------------------------------------
+    // DEFINE A URL DO FORMULÁRIO
+    // -------------------------------------------------
+
+    document.getElementById(
+        "formEditarFuncionario"
+    ).action =
+        `/funcionarios/${funcionarioId}/editar`;
 
 
-            document.getElementById(
-                "formEditarFuncionario"
-            ).action =
-                `/funcionarios/${funcionarioId}/editar`;
+    // -------------------------------------------------
+    // BUSCA OS DADOS ATUAIS DO FUNCIONÁRIO
+    // -------------------------------------------------
+
+    try {
+
+        const resposta = await fetch(
+            `/api/funcionarios/${funcionarioId}`
+        );
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                "Não foi possível carregar os dados."
+            );
 
         }
+
+        const funcionario =
+            await resposta.json();
+
+
+        // -------------------------------------------------
+        // NOME
+        // -------------------------------------------------
+
+        document.getElementById(
+            "nomeEditar"
+        ).value = funcionario.nome;
+
+
+        // -------------------------------------------------
+        // USUÁRIO
+        // -------------------------------------------------
+
+        document.getElementById(
+            "usuarioEditar"
+        ).value = funcionario.usuario;
+
+
+        // -------------------------------------------------
+        // SENHA
+        // -------------------------------------------------
+
+        document.getElementById(
+            "senhaEditar"
+        ).value = "";
+
+
+        // -------------------------------------------------
+        // VALORES
+        // -------------------------------------------------
+
+        document.getElementById(
+            "valorCorteEditar"
+        ).value =
+            funcionario.valor_corte;
+
+        document.getElementById(
+            "valorCosturaEditar"
+        ).value =
+            funcionario.valor_costura;
+
+        document.getElementById(
+            "valorColagemEditar"
+        ).value =
+            funcionario.valor_colagem;
+
+
+        // -------------------------------------------------
+        // FUNÇÕES
+        // -------------------------------------------------
+
+        document.getElementById(
+            "funcaoCorteEditar"
+        ).checked =
+            funcionario.pode_corte;
+
+        document.getElementById(
+            "funcaoCosturaEditar"
+        ).checked =
+            funcionario.pode_costura;
+
+        document.getElementById(
+            "funcaoColagemEditar"
+        ).checked =
+            funcionario.pode_colagem;
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar funcionário:",
+            erro
+        );
+
+        alert(
+            "Não foi possível carregar os dados do funcionário."
+        );
+    }
+}
+       
+            
+        // =========================================================
+        // CARREGAR FUNCIONÁRIO PARA EDIÇÃO
+        // =========================================================
+
+        async function carregarFuncionario(id) {
+
+            try {
+
+                const resposta = await fetch(
+                    `/api/funcionarios/${id}`
+                );
+
+                if (!resposta.ok) {
+
+                    throw new Error(
+                        "Erro ao carregar funcionário."
+                    );
+
+                }
+
+                const funcionario = await resposta.json();
+
+                // -------------------------------------------------
+                // ID
+                // -------------------------------------------------
+
+                document.getElementById(
+                    "editar_id"
+                ).value = funcionario.id;
+
+
+                // -------------------------------------------------
+                // NOME
+                // -------------------------------------------------
+
+                document.getElementById(
+                    "nome"
+                ).value = funcionario.nome;
+
+
+                // -------------------------------------------------
+                // USUÁRIO
+                // -------------------------------------------------
+
+                document.getElementById(
+                    "user"
+                ).value = funcionario.usuario;
+
+
+                // -------------------------------------------------
+                // SENHA
+                // -------------------------------------------------
+
+                document.getElementById(
+                    "password"
+                ).value = "";
+
+
+                // -------------------------------------------------
+                // VALORES
+                // -------------------------------------------------
+
+                document.getElementById(
+                    "valorcorte"
+                ).value = funcionario.valor_corte;
+
+
+                document.getElementById(
+                    "valorcostura"
+                ).value = funcionario.valor_costura;
+
+
+                document.getElementById(
+                    "valorcolagem"
+                ).value = funcionario.valor_colagem;
+
+
+                // -------------------------------------------------
+                // FUNÇÕES
+                // -------------------------------------------------
+
+                const selectFuncoes =
+                    document.getElementById("funcoes");
+
+                const opcaoCorte =
+                    selectFuncoes.querySelector(
+                        'option[value="cortar"]'
+                    );
+
+                const opcaoCostura =
+                    selectFuncoes.querySelector(
+                        'option[value="costurar"]'
+                    );
+
+                const opcaoColagem =
+                    selectFuncoes.querySelector(
+                        'option[value="colagem"]'
+                    );
+
+
+                // Seleciona de acordo com os booleanos
+
+                if (opcaoCorte) {
+
+                    opcaoCorte.selected =
+                        funcionario.pode_corte;
+
+                }
+
+                if (opcaoCostura) {
+
+                    opcaoCostura.selected =
+                        funcionario.pode_costura;
+
+                }
+
+                if (opcaoColagem) {
+
+                    opcaoColagem.selected =
+                        funcionario.pode_colagem;
+
+                }
+
+            }
+
+            catch (erro) {
+
+                console.error(
+                    "Erro ao carregar funcionário:",
+                    erro
+                );
+
+                alert(
+                    "Não foi possível carregar os dados do funcionário."
+                );
+
+            }
+
+        }
+            
+            
+            
+            
+       
+       
 
     </script>
 
