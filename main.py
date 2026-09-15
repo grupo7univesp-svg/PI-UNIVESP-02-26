@@ -21,8 +21,8 @@ app.secret_key = os.getenv(
 # =========================================================
 # CONTROLE DE ACESSO
 # =========================================================
-
 def redirecionar_painel_por_tipo():
+
     tipo = session.get("tipo_usuario")
 
     if tipo == "admin":
@@ -31,8 +31,10 @@ def redirecionar_painel_por_tipo():
     if tipo == "func":
         return redirect(url_for("inicio_funcionario"))
 
-    return redirect(url_for("login"))
+    # Se a sessão estiver inconsistente, limpa tudo
+    session.clear()
 
+    return redirect(url_for("login"))
 
 def login_required(view):
     @wraps(view)
@@ -105,20 +107,23 @@ def get_connection():
 # =========================================================
 # LOGIN
 # =========================================================
-
 @app.route("/")
 def login():
 
     if session.get("usuario_id"):
-        return redirecionar_painel_por_tipo()
+
+        tipo = session.get("tipo_usuario")
+
+        if tipo == "admin":
+            return redirect(url_for("dashboard_adm"))
+
+        if tipo == "func":
+            return redirect(url_for("inicio_funcionario"))
+
+        # Sessão antiga ou inválida
+        session.clear()
 
     return render_template("login.html")
-
-
-# =========================================================
-# ENTRAR
-# =========================================================
-
 @app.route("/entrar", methods=["POST"])
 def entrar():
 
