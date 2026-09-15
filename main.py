@@ -3,8 +3,9 @@ from psycopg2 import OperationalError
 import os
 import uuid
 from datetime import date, timedelta
+from functools import wraps
 from dotenv import load_dotenv
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, flash
 
 load_dotenv()
 
@@ -15,6 +16,62 @@ app.secret_key = os.getenv(
     "FLASK_SECRET_KEY",
     "chave-temporaria-do-projeto"
 )
+
+
+# =========================================================
+# CONTROLE DE ACESSO
+# =========================================================
+
+def redirecionar_painel_por_tipo():
+    tipo = session.get("tipo_usuario")
+
+    if tipo == "admin":
+        return redirect(url_for("dashboard_adm"))
+
+    if tipo == "func":
+        return redirect(url_for("inicio_funcionario"))
+
+    return redirect(url_for("login"))
+
+
+def login_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not session.get("usuario_id"):
+            flash("Faça login para continuar.", "warning")
+            return redirect(url_for("login"))
+        return view(*args, **kwargs)
+    return wrapped
+
+
+def admin_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not session.get("usuario_id"):
+            flash("Faça login para continuar.", "warning")
+            return redirect(url_for("login"))
+
+        if session.get("tipo_usuario") != "admin":
+            flash("Você não possui permissão para acessar esta página.", "danger")
+            return redirecionar_painel_por_tipo()
+
+        return view(*args, **kwargs)
+    return wrapped
+
+
+def func_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not session.get("usuario_id"):
+            flash("Faça login para continuar.", "warning")
+            return redirect(url_for("login"))
+
+        if session.get("tipo_usuario") != "func":
+            flash("Você não possui permissão para acessar esta página.", "danger")
+            return redirecionar_painel_por_tipo()
+
+        return view(*args, **kwargs)
+    return wrapped
 
 
 # =========================================================
@@ -52,9 +109,10 @@ def get_connection():
 @app.route("/")
 def login():
 
-    return render_template(
-        "login.html"
-    )
+    if session.get("usuario_id"):
+        return redirecionar_painel_por_tipo()
+
+    return render_template("login.html")
 
 
 # =========================================================
@@ -64,36 +122,70 @@ def login():
 @app.route("/entrar", methods=["POST"])
 def entrar():
 
-    tipo_usuario = request.form.get(
-        "tipo_usuario"
-    )
+    usuario = request.form.get("login", "").strip()
+    senha = request.form.get("senha", "").strip()
 
-    # TEMPORÁRIO
-    # Depois será substituído pelo login real no banco.
+    if not usuario or not senha:
+        flash("Informe usuário e senha.", "danger")
+        return redirect(url_for("login"))
 
-    if tipo_usuario == "adm":
+    conn = get_connection()
 
-        session["usuario_id"] = 1
-        session["tipo_usuario"] = "adm"
+    if conn is None:
+        flash("Não foi possível conectar ao banco de dados.", "danger")
+        return redirect(url_for("login"))
 
-        return redirect(
-            url_for("dashboard_adm")
+    cursor = None
+
+    try:
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT
+                id,
+                nome,
+                tipo
+            FROM usuarios
+            WHERE usuario = %s
+              AND senha_hash = %s
+              AND ativo = TRUE
+            LIMIT 1
+            """,
+            (usuario, senha)
         )
 
+        dados = cursor.fetchone()
 
-    if tipo_usuario == "funcionario":
+        if not dados:
+            flash("Usuário ou senha inválidos.", "danger")
+            return redirect(url_for("login"))
 
-        session["usuario_id"] = 1
-        session["tipo_usuario"] = "funcionario"
+        usuario_id, nome, tipo = dados
 
-        return redirect(
-            url_for("inicio_funcionario")
-        )
+        if tipo not in ("admin", "func"):
+            flash("Tipo de usuário inválido. Verifique o cadastro.", "danger")
+            return redirect(url_for("login"))
 
+        session.clear()
+        session["usuario_id"] = usuario_id
+        session["usuario_nome"] = nome
+        session["tipo_usuario"] = tipo
 
-    return redirect(
-        url_for("login")
-    )
+        if tipo == "admin":
+            return redirect(url_for("dashboard_adm"))
+
+        return redirect(url_for("inicio_funcionario"))
+
+    except Exception as erro:
+        print("Erro ao realizar login:", repr(erro))
+        flash("Erro ao realizar login.", "danger")
+        return redirect(url_for("login"))
+
+    finally:
+        if cursor:
+            cursor.close()
+        conn.close()
 
 
 # =========================================================
@@ -115,6 +207,7 @@ def sair():
 # =========================================================
 
 @app.route("/dashboard-adm")
+@admin_required
 def dashboard_adm():
 
     periodo = request.args.get(
@@ -695,6 +788,7 @@ def dashboard_adm():
 # =========================================================
 
 @app.route("/funcionarios")
+@admin_required
 def funcionarios():
 
     conn = get_connection()
@@ -765,6 +859,7 @@ def funcionarios():
     "/funcionarios/adicionar",
     methods=["POST"]
 )
+@admin_required
 def adicionar_funcionario():
 
     nome = request.form.get(
@@ -869,6 +964,7 @@ def adicionar_funcionario():
                 nome,
                 usuario,
                 senha_hash,
+                tipo,
                 ativo,
                 pode_corte,
                 pode_costura,
@@ -882,6 +978,7 @@ def adicionar_funcionario():
                 %s,
                 %s,
                 %s,
+                'func',
                 TRUE,
                 %s,
                 %s,
@@ -945,6 +1042,7 @@ def adicionar_funcionario():
     "/funcionarios/<int:funcionario_id>/status",
     methods=["POST"]
 )
+@admin_required
 def alterar_status_funcionario(
     funcionario_id
 ):
@@ -1017,6 +1115,7 @@ def alterar_status_funcionario(
     "/funcionarios/<int:funcionario_id>/editar",
     methods=["POST"]
 )
+@admin_required
 def editar_funcionario(
     funcionario_id
 ):
@@ -1216,6 +1315,7 @@ def editar_funcionario(
     "/api/funcionarios/<int:funcionario_id>",
     methods=["GET"]
 )
+@admin_required
 def buscar_funcionario(
     funcionario_id
 ):
@@ -1331,6 +1431,7 @@ def buscar_funcionario(
     "/funcionarios/<int:funcionario_id>/excluir",
     methods=["POST"]
 )
+@admin_required
 def excluir_funcionario(
     funcionario_id
 ):
@@ -1415,12 +1516,10 @@ def excluir_funcionario(
 # =========================================================
 
 @app.route("/inicio")
+@func_required
 def inicio_funcionario():
 
-    usuario_id = session.get(
-        "usuario_id",
-        1
-    )
+    usuario_id = session.get("usuario_id")
 
 
     conn = get_connection()
@@ -1585,6 +1684,7 @@ def inicio_funcionario():
 @app.route(
     "/api/producoes/relatorio/<relatorio_id>"
 )
+@login_required
 def detalhes_relatorio(
     relatorio_id
 ):
@@ -1604,6 +1704,21 @@ def detalhes_relatorio(
     try:
 
         cursor = conn.cursor()
+
+        if session.get("tipo_usuario") == "func":
+            cursor.execute(
+                """
+                SELECT 1
+                FROM producoes
+                WHERE relatorio_id = %s
+                  AND usuario_id = %s
+                LIMIT 1
+                """,
+                (relatorio_id, session.get("usuario_id"))
+            )
+
+            if not cursor.fetchone():
+                return jsonify({"erro": "Acesso negado."}), 403
 
         cursor.execute(
             """
@@ -1777,9 +1892,13 @@ def detalhes_relatorio(
 @app.route(
     "/api/funcionarios/<int:usuario_id>/relatorios"
 )
+@login_required
 def relatorios_funcionario(
     usuario_id
 ):
+
+    if session.get("tipo_usuario") == "func" and usuario_id != session.get("usuario_id"):
+        return jsonify({"erro": "Acesso negado."}), 403
 
     periodo = request.args.get(
         "periodo",
@@ -2011,6 +2130,7 @@ def relatorios_funcionario(
 # =========================================================
 
 @app.route("/producao")
+@func_required
 def producao():
 
     return render_template(
@@ -2026,6 +2146,7 @@ def producao():
     "/api/producoes",
     methods=["POST"]
 )
+@func_required
 def api_producoes():
 
     dados = request.get_json()
@@ -2105,10 +2226,7 @@ def api_producoes():
         }), 400
 
 
-    usuario_id = session.get(
-        "usuario_id",
-        1
-    )
+    usuario_id = session.get("usuario_id")
 
 
     relatorio_id = str(
@@ -2240,6 +2358,30 @@ def api_producoes():
 
         cursor = conn.cursor()
 
+        cursor.execute(
+            """
+            SELECT pode_corte, pode_costura, pode_colagem
+            FROM usuarios
+            WHERE id = %s AND ativo = TRUE
+            """,
+            (usuario_id,)
+        )
+
+        permissoes = cursor.fetchone()
+
+        if not permissoes:
+            return jsonify({"erro": "Funcionário inválido ou inativo."}), 403
+
+        pode_corte, pode_costura, pode_colagem = permissoes
+
+        permitido = (
+            (etapa == "Corte" and pode_corte) or
+            (etapa == "Costura" and pode_costura) or
+            (etapa == "Colagem" and pode_colagem)
+        )
+
+        if not permitido:
+            return jsonify({"erro": "Você não possui permissão para registrar esta etapa."}), 403
 
         query = """
             INSERT INTO producoes
