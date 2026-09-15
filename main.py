@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-from livereload import Server
+
 import psycopg2
 from psycopg2 import OperationalError
 import os
@@ -2003,25 +2003,3 @@ if __name__ == "__main__":
 
     app.debug = True
 
-
-    # -----------------------------------------------------
-    # LIVEReload
-    # -----------------------------------------------------
-
-    server = Server(
-        app.wsgi_app
-    )
-
-
-    server.watch(
-        "templates/"
-    )
-
-    server.watch(
-        "static/"
-    )
-
-
-    server.serve(
-        port=5000
-    )
