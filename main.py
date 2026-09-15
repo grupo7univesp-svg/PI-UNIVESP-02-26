@@ -2133,15 +2133,35 @@ def relatorios_funcionario(
 # =========================================================
 # TELA DE PRODUÇÃO
 # =========================================================
-
 @app.route("/producao")
 @func_required
 def producao():
 
-    return render_template(
-        "producao.html"
-    )
+    usuario_id = session["usuario_id"]
 
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT
+            pode_corte,
+            pode_costura,
+            pode_colagem
+        FROM usuarios
+        WHERE id = %s
+    """, (usuario_id,))
+
+    permissoes = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    return render_template(
+        "producao.html",
+        pode_corte=permissoes[0],
+        pode_costura=permissoes[1],
+        pode_colagem=permissoes[2]
+    )
 
 # =========================================================
 # API - REGISTRAR PRODUÇÃO

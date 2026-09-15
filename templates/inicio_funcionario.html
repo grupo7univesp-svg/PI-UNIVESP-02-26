@@ -360,32 +360,17 @@
 
                                 <select class="form-select" id="etapa" required>
 
-                                    <option value="">
+                                    {% if pode_corte %}
+                                        <option value="Corte">Corte</option>
+                                    {% endif %}
 
-                                        Selecione...
+                                    {% if pode_costura %}
+                                        <option value="Costura">Costura</option>
+                                    {% endif %}
 
-                                    </option>
-
-
-                                    <option value="Corte">
-
-                                        Corte
-
-                                    </option>
-
-
-                                    <option value="Costura">
-
-                                        Costura
-
-                                    </option>
-
-
-                                    <option value="Colagem">
-
-                                        Colagem
-
-                                    </option>
+                                    {% if pode_colagem %}
+                                        <option value="Colagem">Colagem</option>
+                                    {% endif %}
 
                                 </select>
 
