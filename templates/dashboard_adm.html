@@ -561,7 +561,8 @@
                                     <td>{{ funcionario[1] }}</td>
                                     <td>{{ funcionario[2] }}</td>
                                     <td>
-                                        <span class="valor-pagamento" data-valor="A definir">
+                                        <span class="valor-pagamento"
+                                            data-valor="R$ {{ '%.2f'|format(funcionario[4] or 0)|replace('.', ',') }}">
                                             ••••••••
                                         </span>
                                     </td>

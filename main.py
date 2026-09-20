@@ -475,7 +475,37 @@ def dashboard_adm():
 
                 MAX(
                     producoes.data_producao
-                ) AS ultima_producao
+                ) AS ultima_producao,
+
+                (
+                    COALESCE(
+                        SUM(
+                            COALESCE(producoes.quantidade_p, 0) +
+                            COALESCE(producoes.quantidade_m, 0) +
+                            COALESCE(producoes.quantidade_g, 0) +
+                            COALESCE(producoes.quantidade_gg, 0) +
+                            COALESCE(producoes.quantidade_xg, 0)
+                        ),
+                        0
+                    )
+                    *
+                    (
+                        CASE WHEN usuarios.pode_corte
+                            THEN COALESCE(usuarios.valor_corte, 0)
+                            ELSE 0
+                        END
+                        +
+                        CASE WHEN usuarios.pode_costura
+                            THEN COALESCE(usuarios.valor_costura, 0)
+                            ELSE 0
+                        END
+                        +
+                        CASE WHEN usuarios.pode_colagem
+                            THEN COALESCE(usuarios.valor_colagem, 0)
+                            ELSE 0
+                        END
+                    )
+                ) AS valor_estimado
 
             FROM usuarios
 
