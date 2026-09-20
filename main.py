@@ -1644,10 +1644,6 @@ def inicio_funcionario():
             SELECT
                 relatorio_id,
                 MAX(data_producao) AS data_producao,
-                MAX(produto) AS produto,
-                MAX(etapa) AS etapa,
-                MAX(observacao) AS observacao,
-
                 SUM(
                     COALESCE(quantidade_p, 0) +
                     COALESCE(quantidade_m, 0) +
@@ -1655,20 +1651,13 @@ def inicio_funcionario():
                     COALESCE(quantidade_gg, 0) +
                     COALESCE(quantidade_xg, 0)
                 ) AS quantidade
-
             FROM producoes
-
             WHERE usuario_id = %s
-
             GROUP BY relatorio_id
-
             ORDER BY data_producao DESC
-
             LIMIT 5
             """,
-            (
-                usuario_id,
-            )
+            (usuario_id,)
         )
 
         ultimos_registros = cursor.fetchall()
@@ -1720,207 +1709,67 @@ def inicio_funcionario():
 # DETALHES DO RELATÓRIO
 # =========================================================
 
-@app.route(
-    "/api/producoes/relatorio/<relatorio_id>"
-)
+@app.route("/api/producoes/relatorio/<relatorio_id>")
 @login_required
-def detalhes_relatorio(
-    relatorio_id
-):
+def detalhes_relatorio(relatorio_id):
 
     conn = get_connection()
-
     if conn is None:
-
-        return jsonify({
-            "erro": "Não foi possível conectar ao banco."
-        }), 500
-
+        return jsonify({"erro": "Não foi possível conectar ao banco."}), 500
 
     cursor = None
-
-
     try:
-
         cursor = conn.cursor()
 
-        if session.get("tipo_usuario") == "func":
-            cursor.execute(
-                """
-                SELECT 1
-                FROM producoes
-                WHERE relatorio_id = %s
-                  AND usuario_id = %s
-                LIMIT 1
-                """,
-                (relatorio_id, session.get("usuario_id"))
-            )
+        parametros = [relatorio_id]
+        filtro_usuario = ""
 
-            if not cursor.fetchone():
-                return jsonify({"erro": "Acesso negado."}), 403
+        if session.get("tipo_usuario") == "func":
+            filtro_usuario = " AND usuario_id = %s"
+            parametros.append(session.get("usuario_id"))
 
         cursor.execute(
-            """
+            f"""
             SELECT
-                relatorio_id,
-                data_producao,
-                etapa,
-                produto,
-                genero,
-                quantidade_p,
-                quantidade_m,
-                quantidade_g,
-                quantidade_gg,
-                quantidade_xg,
-                observacao
+                MAX(data_producao) AS data_producao,
+                SUM(COALESCE(quantidade_p, 0)) AS quantidade_p,
+                SUM(COALESCE(quantidade_m, 0)) AS quantidade_m,
+                SUM(COALESCE(quantidade_g, 0)) AS quantidade_g,
+                SUM(COALESCE(quantidade_gg, 0)) AS quantidade_gg,
+                SUM(COALESCE(quantidade_xg, 0)) AS quantidade_xg
             FROM producoes
             WHERE relatorio_id = %s
-            ORDER BY
-                CASE
-                    WHEN genero = 'Masculino' THEN 1
-                    WHEN genero = 'Feminino' THEN 2
-                    ELSE 3
-                END
+            {filtro_usuario}
             """,
-            (
-                relatorio_id,
-            )
+            parametros
         )
 
-        registros = cursor.fetchall()
+        registro = cursor.fetchone()
+        if not registro or registro[0] is None:
+            return jsonify({"erro": "Relatório não encontrado."}), 404
 
-
-        if not registros:
-
-            return jsonify({
-                "erro": "Relatório não encontrado."
-            }), 404
-
-
-        dados = []
-
-        total_geral = 0
-
-
-        for registro in registros:
-
-            (
-                relatorio_id_db,
-                data_producao,
-                etapa,
-                produto,
-                genero,
-                quantidade_p,
-                quantidade_m,
-                quantidade_g,
-                quantidade_gg,
-                quantidade_xg,
-                observacao
-            ) = registro
-
-
-            quantidade_p = (
-                quantidade_p or 0
-            )
-
-            quantidade_m = (
-                quantidade_m or 0
-            )
-
-            quantidade_g = (
-                quantidade_g or 0
-            )
-
-            quantidade_gg = (
-                quantidade_gg or 0
-            )
-
-            quantidade_xg = (
-                quantidade_xg or 0
-            )
-
-
-            total_genero = (
-                quantidade_p +
-                quantidade_m +
-                quantidade_g +
-                quantidade_gg +
-                quantidade_xg
-            )
-
-
-            total_geral += total_genero
-
-
-            dados.append({
-
-                "genero": genero,
-
-                "quantidades": {
-
-                    "P": quantidade_p,
-
-                    "M": quantidade_m,
-
-                    "G": quantidade_g,
-
-                    "GG": quantidade_gg,
-
-                    "XG": quantidade_xg
-
-                },
-
-                "total": total_genero
-
-            })
-
+        data_producao, q_p, q_m, q_g, q_gg, q_xg = registro
+        quantidades = {
+            "P": q_p or 0,
+            "M": q_m or 0,
+            "G": q_g or 0,
+            "GG": q_gg or 0,
+            "XG": q_xg or 0
+        }
 
         return jsonify({
-
-            "relatorio_id":
-                str(registros[0][0]),
-
-            "data":
-                registros[0][1].strftime(
-                    "%d/%m/%Y"
-                ),
-
-            "etapa":
-                registros[0][2],
-
-            "produto":
-                registros[0][3],
-
-            "observacao":
-                registros[0][10],
-
-            "total_geral":
-                total_geral,
-
-            "generos":
-                dados
-
+            "relatorio_id": relatorio_id,
+            "data": data_producao.strftime("%d/%m/%Y"),
+            "quantidades": quantidades,
+            "total_geral": sum(quantidades.values())
         })
 
-
     except Exception as erro:
-
-        print(
-            "Erro ao buscar detalhes:",
-            erro
-        )
-
-        return jsonify({
-            "erro":
-                "Erro ao buscar detalhes do relatório."
-        }), 500
-
-
+        print("Erro ao buscar detalhes:", repr(erro))
+        return jsonify({"erro": "Erro ao buscar detalhes do relatório."}), 500
     finally:
-
         if cursor:
             cursor.close()
-
         conn.close()
 
 
@@ -2201,353 +2050,70 @@ def producao():
 # API - REGISTRAR PRODUÇÃO
 # =========================================================
 
-@app.route(
-    "/api/producoes",
-    methods=["POST"]
-)
+@app.route("/api/producoes", methods=["POST"])
 @func_required
 def api_producoes():
 
-    dados = request.get_json()
-
-
-    if not dados:
-
-        return jsonify({
-            "erro": "Nenhum dado recebido."
-        }), 400
-
-
-    data_producao = dados.get(
-        "data_producao"
-    )
-
-    etapa = dados.get(
-        "etapa"
-    )
-
-    produto = dados.get(
-        "produto"
-    )
-
-    observacao = dados.get(
-        "observacao",
-        ""
-    )
-
-    itens = dados.get(
-        "itens",
-        []
-    )
-
+    dados = request.get_json(silent=True) or {}
+    data_producao = dados.get("data_producao")
 
     if not data_producao:
+        return jsonify({"erro": "Informe a data da produção."}), 400
 
-        return jsonify({
-            "erro":
-                "Informe a data da produção."
-        }), 400
+    quantidades = {}
+    for tamanho in ["P", "M", "G", "GG", "XG"]:
+        try:
+            valor = int(dados.get(f"quantidade_{tamanho.lower()}", 0) or 0)
+        except (TypeError, ValueError):
+            return jsonify({"erro": f"Quantidade inválida para o tamanho {tamanho}."}), 400
 
+        if valor < 0:
+            return jsonify({"erro": "As quantidades não podem ser negativas."}), 400
+        quantidades[tamanho] = valor
 
-    if not etapa:
-
-        return jsonify({
-            "erro":
-                "Informe a etapa."
-        }), 400
-
-
-    if etapa not in [
-        "Corte",
-        "Costura",
-        "Colagem"
-    ]:
-
-        return jsonify({
-            "erro":
-                "Etapa inválida."
-        }), 400
-
-
-    if not produto:
-
-        return jsonify({
-            "erro":
-                "Informe o modelo do produto."
-        }), 400
-
-
-    if not itens:
-
-        return jsonify({
-            "erro":
-                "Adicione pelo menos um item."
-        }), 400
-
+    if sum(quantidades.values()) <= 0:
+        return jsonify({"erro": "Informe a quantidade de pelo menos um tamanho."}), 400
 
     usuario_id = session.get("usuario_id")
-
-
-    relatorio_id = str(
-        uuid.uuid4()
-    )
-
-
-    tamanhos_validos = [
-        "P",
-        "M",
-        "G",
-        "GG",
-        "XG"
-    ]
-
-    generos_validos = [
-        "Masculino",
-        "Feminino"
-    ]
-
-
-    # -------------------------------------------------
-    # AGRUPA POR GÊNERO
-    # -------------------------------------------------
-
-    grupos = {}
-
-
-    try:
-
-        for item in itens:
-
-            genero = item.get(
-                "genero"
-            )
-
-            tamanho = item.get(
-                "tamanho"
-            )
-
-
-            try:
-
-                quantidade = int(
-                    item.get(
-                        "quantidade",
-                        0
-                    )
-                )
-
-            except (
-                TypeError,
-                ValueError
-            ):
-
-                return jsonify({
-                    "erro":
-                        "Quantidade inválida."
-                }), 400
-
-
-            if genero not in generos_validos:
-
-                return jsonify({
-                    "erro":
-                        "Gênero inválido."
-                }), 400
-
-
-            if tamanho not in tamanhos_validos:
-
-                return jsonify({
-                    "erro":
-                        "Tamanho inválido."
-                }), 400
-
-
-            if quantidade <= 0:
-
-                return jsonify({
-                    "erro":
-                        "A quantidade deve ser maior que zero."
-                }), 400
-
-
-            if genero not in grupos:
-
-                grupos[genero] = {
-                    "P": 0,
-                    "M": 0,
-                    "G": 0,
-                    "GG": 0,
-                    "XG": 0
-                }
-
-
-            grupos[genero][tamanho] += (
-                quantidade
-            )
-
-
-    except Exception as erro:
-
-        print(
-            "Erro ao processar itens:",
-            erro
-        )
-
-        return jsonify({
-            "erro":
-                "Não foi possível processar os itens."
-        }), 400
-
+    relatorio_id = str(uuid.uuid4())
 
     conn = get_connection()
-
     if conn is None:
-
-        return jsonify({
-            "erro":
-                "Não foi possível conectar ao banco."
-        }), 500
-
+        return jsonify({"erro": "Não foi possível conectar ao banco."}), 500
 
     cursor = None
-
-
     try:
-
         cursor = conn.cursor()
-
         cursor.execute(
             """
-            SELECT pode_corte, pode_costura, pode_colagem
-            FROM usuarios
-            WHERE id = %s AND ativo = TRUE
+            INSERT INTO producoes (
+                relatorio_id, usuario_id, data_producao,
+                quantidade_p, quantidade_m, quantidade_g,
+                quantidade_gg, quantidade_xg
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,
-            (usuario_id,)
-        )
-
-        permissoes = cursor.fetchone()
-
-        if not permissoes:
-            return jsonify({"erro": "Funcionário inválido ou inativo."}), 403
-
-        pode_corte, pode_costura, pode_colagem = permissoes
-
-        permitido = (
-            (etapa == "Corte" and pode_corte) or
-            (etapa == "Costura" and pode_costura) or
-            (etapa == "Colagem" and pode_colagem)
-        )
-
-        if not permitido:
-            return jsonify({"erro": "Você não possui permissão para registrar esta etapa."}), 403
-
-        query = """
-            INSERT INTO producoes
             (
-                relatorio_id,
-                usuario_id,
-                data_producao,
-                etapa,
-                produto,
-                observacao,
-                genero,
-                quantidade_p,
-                quantidade_m,
-                quantidade_g,
-                quantidade_gg,
-                quantidade_xg
+                relatorio_id, usuario_id, data_producao,
+                quantidades["P"], quantidades["M"], quantidades["G"],
+                quantidades["GG"], quantidades["XG"]
             )
-            VALUES
-            (
-                %s,
-                %s,
-                %s,
-                %s,
-                %s,
-                %s,
-                %s,
-                %s,
-                %s,
-                %s,
-                %s,
-                %s
-            )
-        """
-
-
-        for genero, quantidades in grupos.items():
-
-            cursor.execute(
-                query,
-                (
-                    relatorio_id,
-                    usuario_id,
-                    data_producao,
-                    etapa,
-                    produto,
-                    observacao,
-                    genero,
-                    quantidades["P"],
-                    quantidades["M"],
-                    quantidades["G"],
-                    quantidades["GG"],
-                    quantidades["XG"]
-                )
-            )
-
-
+        )
         conn.commit()
 
-
-        print(
-            "Relatório de produção registrado!"
-        )
-
-        print(
-            "ID:",
-            relatorio_id
-        )
-
-
         return jsonify({
-
             "sucesso": True,
-
-            "mensagem":
-                "Produção enviada com sucesso!",
-
-            "relatorio_id":
-                relatorio_id
-
+            "mensagem": "Produção enviada com sucesso!",
+            "relatorio_id": relatorio_id
         })
 
-
     except Exception as erro:
-
         conn.rollback()
-
-        print(
-            "Erro ao registrar produção:"
-        )
-
-        print(
-            repr(erro)
-        )
-
-        return jsonify({
-
-            "erro":
-                "Não foi possível registrar a produção."
-
-        }), 500
-
-
+        print("Erro ao registrar produção:", repr(erro))
+        return jsonify({"erro": "Não foi possível registrar a produção."}), 500
     finally:
-
         if cursor:
             cursor.close()
-
         conn.close()
 
 

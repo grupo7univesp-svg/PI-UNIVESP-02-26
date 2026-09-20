@@ -1,885 +1,107 @@
-// =========================================================
-// ARRAY DOS ITENS
-// =========================================================
+const form = document.getElementById("formProducao");
+const mensagem = document.getElementById("mensagem");
+const tamanhos = ["p", "m", "g", "gg", "xg"];
 
-let itens = [];
+function valorQuantidade(tamanho) {
+    const campo = document.getElementById(`quantidade_${tamanho}`);
+    const valor = parseInt(campo.value || "0", 10);
+    return Number.isNaN(valor) ? 0 : valor;
+}
 
+function atualizarTotal() {
+    const total = tamanhos.reduce((soma, tamanho) => soma + Math.max(0, valorQuantidade(tamanho)), 0);
+    document.getElementById("totalRelatorio").textContent = total;
+}
 
-// =========================================================
-// ELEMENTOS
-// =========================================================
-
-const form =
-    document.getElementById("formProducao");
-
-const btnAdicionar =
-    document.getElementById("btnAdicionar");
-
-const listaItens =
-    document.getElementById("listaItens");
-
-const totalItens =
-    document.getElementById("totalItens");
-
-const mensagem =
-    document.getElementById("mensagem");
-
-// =========================================================
-// SELEÇÃO DE TAMANHO
-// =========================================================
-
-const botoesTamanho =
-    document.querySelectorAll(".tamanho-btn");
-
-const campoTamanho =
-    document.getElementById("tamanho");
-
-
-botoesTamanho.forEach(function (botao) {
-
-    botao.addEventListener("click", function () {
-
-        // Remove a seleção dos outros botões
-        botoesTamanho.forEach(function (outroBotao) {
-
-            outroBotao.classList.remove("selecionado");
-
-        });
-
-
-        // Marca o botão clicado
-        botao.classList.add("selecionado");
-
-
-        // Guarda o valor no campo oculto
-        campoTamanho.value =
-            botao.dataset.tamanho;
-
-    });
-
+tamanhos.forEach(tamanho => {
+    document.getElementById(`quantidade_${tamanho}`).addEventListener("input", atualizarTotal);
 });
 
-// =========================================================
-// SELEÇÃO DE COR
-// =========================================================
-
-const botoesCor =
-    document.querySelectorAll(".cor-btn");
-
-const campoCor =
-    document.getElementById("cor");
-
-const nomeCorSelecionada =
-    document.getElementById("nomeCorSelecionada");
-
-const indicadorCor =
-    document.getElementById("indicadorCor");
-
-
-botoesCor.forEach(function (botao) {
-
-    botao.addEventListener("click", function () {
-
-        botoesCor.forEach(function (outraCor) {
-
-            outraCor.classList.remove("selecionado");
-
-        });
-
-        botao.classList.add("selecionado");
-
-        campoCor.value =
-            botao.dataset.cor;
-
-        nomeCorSelecionada.textContent =
-            botao.dataset.cor + " selecionado";
-
-        indicadorCor.style.display = "inline-block";
-
-        indicadorCor.style.backgroundColor =
-            window.getComputedStyle(botao).backgroundColor;
-
-    });
-
-});
-
-// =========================================================
-// ADICIONAR ITEM
-// =========================================================
-// =========================================================
-// =========================================================
-
-
-function adicionarItem() {
-
-    const generoElement =
-        document.querySelector(
-            'input[name="genero"]:checked'
-        );
-
-
-    const tamanhoElement =
-        document.getElementById("tamanho");
-
-    const corElement =
-        document.getElementById("cor");
-
-    const quantidadeElement =
-        document.getElementById("quantidade");
-
-
-    // -----------------------------------------------------
-    // VALIDA GÊNERO
-    // -----------------------------------------------------
-
-    if (!generoElement) {
-
-        alert(
-            "Selecione o gênero."
-        );
-
-        return;
-    }
-
-
-    // -----------------------------------------------------
-    // VALIDA TAMANHO
-    // -----------------------------------------------------
-
-    if (!tamanhoElement.value) {
-
-        alert(
-            "Selecione o tamanho."
-        );
-
-        return;
-    }
-
-    // -----------------------------------------------------
-    // VALIDA COR
-    // -----------------------------------------------------
-
-    if (!corElement.value) {
-
-        alert(
-            "Selecione a cor."
-        );
-
-        return;
-    }
-
-
-    // -----------------------------------------------------
-    // QUANTIDADE
-    // -----------------------------------------------------
-
-    const quantidade =
-        parseInt(
-            quantidadeElement.value
-        );
-
-
-    if (
-        isNaN(quantidade) ||
-        quantidade <= 0
-    ) {
-
-        alert(
-            "Informe uma quantidade válida."
-        );
-
-        return;
-    }
-
-
-    // -----------------------------------------------------
-    // CRIA ITEM
-    // -----------------------------------------------------
-
-    const novoItem = {
-
-        genero:
-            generoElement.value,
-
-        tamanho:
-            tamanhoElement.value,
-
-        cor:
-            corElement.value,
-
-        quantidade:
-            quantidade
-
-    };
-
-
-    // -----------------------------------------------------
-    // ADICIONA AO ARRAY
-    // -----------------------------------------------------
-
-    itens.push(
-        novoItem
-    );
-
-
-    // -----------------------------------------------------
-    // ATUALIZA CARRINHO
-    // -----------------------------------------------------
-
-    atualizarCarrinho();
-
-
-    // -----------------------------------------------------
-    // LIMPA CAMPOS
-    // -----------------------------------------------------
-
-    quantidadeElement.value = "";
-
-    tamanhoElement.value = "";
-
-    corElement.value = "";
-
-    botoesCor.forEach(function (botao) {
-
-        botao.classList.remove("selecionado");
-
-    });
-
-    nomeCorSelecionada.textContent =
-        "Nenhuma cor selecionada";
-
-    indicadorCor.style.display =
-        "none";
-
-    botoesTamanho.forEach(function (botao) {
-
-        botao.classList.remove("selecionado");
-
-    });
-
-    generoElement.checked = false;
-
-}
-
-
-// =========================================================
-// ATUALIZAR CARRINHO
-// =========================================================
-
-function atualizarCarrinho() {
-
-    listaItens.innerHTML = "";
-
-
-    // -----------------------------------------------------
-    // NENHUM ITEM
-    // -----------------------------------------------------
-
-    if (itens.length === 0) {
-
-        listaItens.innerHTML = `
-
-            <p class="text-muted mb-0">
-
-                Nenhum item adicionado.
-
-            </p>
-
-        `;
-
-
-        totalItens.textContent = "0";
-
-        return;
-    }
-
-
-    // -----------------------------------------------------
-    // CRIA LISTA
-    // -----------------------------------------------------
-
-    let total = 0;
-
-
-    itens.forEach(
-        function (item, index) {
-
-            total +=
-                item.quantidade;
-
-
-            const linha =
-                document.createElement("div");
-
-
-            linha.className =
-                "d-flex justify-content-between align-items-center border-bottom py-2";
-
-
-            linha.innerHTML = `
-
-                <div>
-
-                    <strong>
-                        ${item.genero}
-                    </strong>
-
-                    <span class="text-muted">
-                        -
-                    </span>
-
-                    Tamanho
-<strong>
-    ${item.tamanho}
-</strong>
-
-<span class="text-muted">
-    -
-</span>
-
-Cor
-<strong>
-    ${item.cor}
-</strong>
-
-<span class="text-muted">
-    -
-</span>
-
-<strong>
-    ${item.quantidade}
-</strong>
-peças
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="btn btn-sm btn-danger"
-                    onclick="removerItem(${index})"
-                >
-
-                    Remover
-
-                </button>
-
-            `;
-
-
-            listaItens.appendChild(
-                linha
-            );
-
-        }
-    );
-
-
-    // -----------------------------------------------------
-    // TOTAL
-    // -----------------------------------------------------
-
-    totalItens.textContent =
-        total;
-
-}
-
-
-// =========================================================
-// REMOVER ITEM
-// =========================================================
-
-function removerItem(index) {
-
-    itens.splice(
-        index,
-        1
-    );
-
-
-    atualizarCarrinho();
-
-}
-
-
-// =========================================================
-// ENVIAR RELATÓRIO
-// =========================================================
-
-async function enviarRelatorio() {
-
-    // -----------------------------------------------------
-    // LIMPA MENSAGEM
-    // -----------------------------------------------------
-
+form.addEventListener("submit", async function (event) {
+    event.preventDefault();
     mensagem.innerHTML = "";
 
-
-    // -----------------------------------------------------
-    // CAMPOS
-    // -----------------------------------------------------
-
-    const dataProducao =
-        document.getElementById(
-            "data_producao"
-        ).value;
-
-
-    const etapa =
-        document.getElementById(
-            "etapa"
-        ).value;
-
-
-    const produto =
-        document.getElementById(
-            "produto"
-        ).value;
-
-
-
-
-    const observacao =
-        document.getElementById(
-            "observacao"
-        ).value;
-
-
-    // -----------------------------------------------------
-    // VALIDA DATA
-    // -----------------------------------------------------
-
-    if (!dataProducao) {
-
-        mostrarErro(
-            "Informe a data da produção."
-        );
-
-        return;
-    }
-
-
-    // -----------------------------------------------------
-    // VALIDA ETAPA
-    // -----------------------------------------------------
-
-    if (!etapa) {
-
-        mostrarErro(
-            "Selecione a etapa."
-        );
-
-        return;
-    }
-
-
-    // -----------------------------------------------------
-    // VALIDA PRODUTO
-    // -----------------------------------------------------
-
-    if (!produto) {
-
-        mostrarErro(
-            "Selecione o produto."
-        );
-
-        return;
-    }
-
-
-
-
-    // -----------------------------------------------------
-    // VALIDA ITENS
-    // -----------------------------------------------------
-
-    if (itens.length === 0) {
-
-        mostrarErro(
-            "Adicione pelo menos um item ao relatório."
-        );
-
-        return;
-    }
-
-
-    // -----------------------------------------------------
-    // MONTA JSON
-    // -----------------------------------------------------
-
     const dados = {
-
-        data_producao:
-            dataProducao,
-
-        etapa:
-            etapa,
-
-        produto:
-            produto,
-        observacao:
-            observacao,
-
-        itens:
-            itens
-
+        data_producao: document.getElementById("data_producao").value,
+        quantidade_p: valorQuantidade("p"),
+        quantidade_m: valorQuantidade("m"),
+        quantidade_g: valorQuantidade("g"),
+        quantidade_gg: valorQuantidade("gg"),
+        quantidade_xg: valorQuantidade("xg")
     };
 
+    if (!dados.data_producao) {
+        mostrarErro("Informe a data da produção.");
+        return;
+    }
 
-    // -----------------------------------------------------
-    // DESABILITA BOTÃO
-    // -----------------------------------------------------
+    const total = dados.quantidade_p + dados.quantidade_m + dados.quantidade_g + dados.quantidade_gg + dados.quantidade_xg;
+    if (total <= 0) {
+        mostrarErro("Informe a quantidade de pelo menos um tamanho.");
+        return;
+    }
 
-    const btnSalvar =
-        document.getElementById(
-            "btnSalvar"
-        );
-
-
+    const btnSalvar = document.getElementById("btnSalvar");
     btnSalvar.disabled = true;
-
-    btnSalvar.textContent =
-        "Salvando...";
-
+    btnSalvar.textContent = "Enviando...";
 
     try {
-
-        // -------------------------------------------------
-        // ENVIA PARA FLASK
-        // -------------------------------------------------
-
-        const resposta =
-            await fetch(
-                "/api/producoes",
-                {
-
-                    method: "POST",
-
-                    headers: {
-
-                        "Content-Type":
-                            "application/json"
-
-                    },
-
-                    body:
-                        JSON.stringify(
-                            dados
-                        )
-
-                }
-            );
-
-
-        // -------------------------------------------------
-        // CONVERTE RESPOSTA
-        // -------------------------------------------------
-
-        const resultado =
-            await resposta.json();
-
-
-        // -------------------------------------------------
-        // ERRO
-        // -------------------------------------------------
-
+        const resposta = await fetch("/api/producoes", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(dados)
+        });
+        const resultado = await resposta.json();
         if (!resposta.ok) {
-
-            mostrarErro(
-                resultado.erro ||
-                "Erro ao salvar relatório."
-            );
-
+            mostrarErro(resultado.erro || "Erro ao salvar relatório.");
             return;
         }
-
-
-        // -------------------------------------------------
-        // SUCESSO
-        // -------------------------------------------------
-
-        mostrarSucesso(
-            resultado.mensagem
-        );
-
-
-        // -------------------------------------------------
-        // AGUARDA UM POUCO
-        // E RECARREGA
-        // -------------------------------------------------
-
-        setTimeout(
-            function () {
-
-                window.location.reload();
-
-            },
-            1200
-        );
-
-
-    }
-    catch (erro) {
-
-        console.error(
-            erro
-        );
-
-
-        mostrarErro(
-            "Não foi possível conectar ao servidor."
-        );
-
-    }
-    finally {
-
+        mensagem.innerHTML = `<div class="alert alert-success">${resultado.mensagem}</div>`;
+        setTimeout(() => window.location.reload(), 800);
+    } catch (erro) {
+        console.error(erro);
+        mostrarErro("Não foi possível conectar ao servidor.");
+    } finally {
         btnSalvar.disabled = false;
-
-        btnSalvar.textContent =
-            "Salvar relatório";
-
+        btnSalvar.textContent = "Enviar relatório";
     }
-
-}
-
-
-// =========================================================
-// MENSAGEM DE ERRO
-// =========================================================
+});
 
 function mostrarErro(texto) {
-
-    mensagem.innerHTML = `
-
-        <div class="alert alert-danger">
-
-            ${texto}
-
-        </div>
-
-    `;
-
+    mensagem.innerHTML = `<div class="alert alert-danger">${texto}</div>`;
 }
-
-
-// =========================================================
-// MENSAGEM DE SUCESSO
-// =========================================================
-
-function mostrarSucesso(texto) {
-
-    mensagem.innerHTML = `
-
-        <div class="alert alert-success">
-
-            ${texto}
-
-        </div>
-
-    `;
-
-}
-
-
 
 async function abrirDetalhes(relatorioId) {
-
     const carregando = document.getElementById("detalhesCarregando");
     const conteudo = document.getElementById("detalhesConteudo");
     const erro = document.getElementById("detalhesErro");
-
-    const data = document.getElementById("detalheData");
-    const etapa = document.getElementById("detalheEtapa");
-    const produto = document.getElementById("detalheProduto");
-    const total = document.getElementById("detalheTotal");
-    const generos = document.getElementById("detalhesGeneros");
-
-    // Estado inicial
     carregando.style.display = "block";
     conteudo.style.display = "none";
     erro.style.display = "none";
 
-    generos.innerHTML = "";
-
     try {
-
-        const resposta = await fetch(
-            `/api/producoes/relatorio/${relatorioId}`
-        );
-
-        if (!resposta.ok) {
-            throw new Error("Erro ao buscar relatório.");
-        }
-
+        const resposta = await fetch(`/api/producoes/relatorio/${relatorioId}`);
+        if (!resposta.ok) throw new Error("Erro ao buscar relatório");
         const dados = await resposta.json();
-
-        // Informações principais
-        data.textContent = dados.data;
-        etapa.textContent = dados.etapa;
-        produto.textContent = dados.produto;
-
-        // Total geral
-        total.textContent = dados.total_geral;
-
-        // Gêneros
-        dados.generos.forEach(genero => {
-
-            const quantidades = genero.quantidades;
-
-            const bloco = document.createElement("div");
-
-            bloco.className = "mb-4";
-
-            bloco.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h5 class="mb-0">
-                         ${genero.genero} - ${genero.cor}
-                    </h5>
-
-                    <strong>
-                        Total: ${genero.total} peças
-                    </strong>
-                </div>
-
-                <div class="table-responsive">
-
-                    <table class="table table-bordered table-sm">
-
-                        <thead>
-                            <tr>
-                                <th>Tamanho</th>
-                                <th>Quantidade</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            <tr>
-                                <td>P</td>
-                                <td>${quantidades.P}</td>
-                            </tr>
-
-                            <tr>
-                                <td>M</td>
-                                <td>${quantidades.M}</td>
-                            </tr>
-
-                            <tr>
-                                <td>G</td>
-                                <td>${quantidades.G}</td>
-                            </tr>
-
-                            <tr>
-                                <td>GG</td>
-                                <td>${quantidades.GG}</td>
-                            </tr>
-
-                            <tr>
-                                <td>XG</td>
-                                <td>${quantidades.XG}</td>
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-            `;
-
-            generos.appendChild(bloco);
-        });
-
+        document.getElementById("detalheData").textContent = dados.data;
+        document.getElementById("detalheTotal").textContent = dados.total_geral;
+        document.getElementById("detalhesTamanhos").innerHTML = ["P", "M", "G", "GG", "XG"]
+            .map(t => `<tr><td>${t}</td><td>${dados.quantidades[t]}</td></tr>`).join("");
         carregando.style.display = "none";
         conteudo.style.display = "block";
-
     } catch (e) {
-
         console.error(e);
-
         carregando.style.display = "none";
         erro.style.display = "block";
     }
 }
 
-
-
-
-
-
-
-
-// =========================================================
-// EVENTO - ADICIONAR ITEM
-// =========================================================
-
-btnAdicionar.addEventListener(
-    "click",
-    adicionarItem
-);
-
-
-// =========================================================
-// EVENTO - ENVIAR FORMULÁRIO
-// =========================================================
-
-form.addEventListener(
-    "submit",
-    function (event) {
-
-        event.preventDefault();
-
-        enviarRelatorio();
-
+document.addEventListener("DOMContentLoaded", function () {
+    const campoData = document.getElementById("data_producao");
+    if (campoData && !campoData.value) {
+        const hoje = new Date();
+        const local = new Date(hoje.getTime() - hoje.getTimezoneOffset() * 60000);
+        campoData.value = local.toISOString().split("T")[0];
     }
-);
-
-
-// =========================================================
-// DEFINE DATA ATUAL
-// =========================================================
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        const campoData =
-            document.getElementById(
-                "data_producao"
-            );
-
-
-        if (campoData) {
-
-            const hoje =
-                new Date();
-
-
-            const ano =
-                hoje.getFullYear();
-
-
-            const mes =
-                String(
-                    hoje.getMonth() + 1
-                ).padStart(
-                    2,
-                    "0"
-                );
-
-
-            const dia =
-                String(
-                    hoje.getDate()
-                ).padStart(
-                    2,
-                    "0"
-                );
-
-
-            campoData.value =
-                `${ano}-${mes}-${dia}`;
-
-        }
-
-    }
-);
+    atualizarTotal();
+});
