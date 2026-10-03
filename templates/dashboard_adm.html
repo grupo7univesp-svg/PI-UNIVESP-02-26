@@ -51,7 +51,7 @@
 
         <div class="row g-3">
 
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="card dashboard-card">
                     <div class="card-body">
 
@@ -72,7 +72,7 @@
             </div>
 
 
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="card dashboard-card">
                     <div class="card-body">
 
@@ -86,27 +86,6 @@
 
                         <small class="text-muted">
                             funcionários com produção
-                        </small>
-
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="col-md-4">
-                <div class="card dashboard-card">
-                    <div class="card-body">
-
-                        <h2 class="h6">
-                            Produtos no resultado
-                        </h2>
-
-                        <p class="dashboard-number">
-                            {{ produtos_filtrados }}
-                        </p>
-
-                        <small class="text-muted">
-                            produtos diferentes
                         </small>
 
                     </div>
@@ -151,36 +130,6 @@
                                 </option>
 
                                 {% endfor %}
-
-                            </select>
-
-                        </div>
-
-                        <!-- ETAPA -->
-
-                        <div id="colunaEtapa" class="col-md-3">
-
-                            <label for="etapa" class="form-label">
-                                Etapa
-                            </label>
-
-                            <select class="form-select" id="etapa" name="etapa">
-
-                                <option value="" {% if etapa=="" %}selected{% endif %}>
-                                    Todas as etapas
-                                </option>
-
-                                <option value="Corte" {% if etapa=="Corte" %}selected{% endif %}>
-                                    Corte
-                                </option>
-
-                                <option value="Costura" {% if etapa=="Costura" %}selected{% endif %}>
-                                    Costura
-                                </option>
-
-                                <option value="Colagem" {% if etapa=="Colagem" %}selected{% endif %}>
-                                    Colagem
-                                </option>
 
                             </select>
 
@@ -371,7 +320,7 @@
 
         </div>
 
-        <!-- RESUMO POR PRODUTO -->
+        <!-- RESUMO POR TAMANHO -->
 
         <div class="card table-card mt-4">
 
@@ -380,18 +329,18 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
 
                     <h2 class="h5 mb-0">
-                        Resumo por produto
+                        Resumo por tamanho
                     </h2>
 
-                    <button id="botaoResumoProduto" class="btn btn-sm btn-outline-secondary botao-sanfona" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#collapseResumoProduto" aria-expanded="false"
-                        aria-controls="collapseResumoProduto" title="Abrir ou fechar Resumo por produto">
+                    <button id="botaoResumoTamanho" class="btn btn-sm btn-outline-secondary botao-sanfona" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#collapseResumoTamanho" aria-expanded="false"
+                        aria-controls="collapseResumoTamanho" title="Abrir ou fechar Resumo por tamanho">
                         <span class="seta-sanfona"></span>
                     </button>
 
                 </div>
 
-                <div class="collapse" id="collapseResumoProduto">
+                <div class="collapse" id="collapseResumoTamanho">
 
                     <div class="table-responsive">
 
@@ -399,103 +348,42 @@
 
                             <thead>
                                 <tr>
-                                    <th>Produto</th>
-                                    <th>Quantidade produzida</th>
+                                    <th>Tamanho</th>
+                                    <th>Quantidade</th>
                                 </tr>
                             </thead>
 
                             <tbody>
 
-                                {% for produto in resumo_produtos %}
-
                                 <tr>
-                                    <td>{{ produto[0] }}</td>
-                                    <td>{{ produto[1] }}</td>
+                                    <td>P</td>
+                                    <td>{{ resumo_tamanhos[0] or 0 }}</td>
                                 </tr>
 
-                                {% else %}
-
                                 <tr>
-                                    <td colspan="2">
-                                        Nenhum produto encontrado.
-                                    </td>
+                                    <td>M</td>
+                                    <td>{{ resumo_tamanhos[1] or 0 }}</td>
                                 </tr>
 
-                                {% endfor %}
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- RESUMO POR COR E TAMANHO -->
-
-        <div class="card table-card mt-4">
-
-            <div class="card-body">
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
-
-                    <h2 class="h5 mb-0">
-                        Resumo por cor e tamanho
-                    </h2>
-
-                    <button id="botaoResumoCor" class="btn btn-sm btn-outline-secondary botao-sanfona" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#collapseResumoCor" aria-expanded="false"
-                        aria-controls="collapseResumoCor" title="Abrir ou fechar Resumo por cor e tamanho">
-                        <span class="seta-sanfona"></span>
-                    </button>
-
-                </div>
-
-                <div class="collapse" id="collapseResumoCor">
-
-                    <div class="table-responsive">
-
-                        <table class="table">
-
-                            <thead>
                                 <tr>
-                                    <th>Cor</th>
-                                    <th>P</th>
-                                    <th>M</th>
-                                    <th>G</th>
-                                    <th>GG</th>
-                                    <th>XG</th>
+                                    <td>G</td>
+                                    <td>{{ resumo_tamanhos[2] or 0 }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td>GG</td>
+                                    <td>{{ resumo_tamanhos[3] or 0 }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td>XG</td>
+                                    <td>{{ resumo_tamanhos[4] or 0 }}</td>
+                                </tr>
+
+                                <tr>
                                     <th>Total</th>
+                                    <th>{{ resumo_tamanhos[5] or 0 }}</th>
                                 </tr>
-                            </thead>
-
-                            <tbody>
-
-                                {% for cor in resumo_cores %}
-
-                                <tr>
-                                    <td>{{ cor[0] }}</td>
-                                    <td>{{ cor[1] }}</td>
-                                    <td>{{ cor[2] }}</td>
-                                    <td>{{ cor[3] }}</td>
-                                    <td>{{ cor[4] }}</td>
-                                    <td>{{ cor[5] }}</td>
-                                    <td>{{ cor[6] }}</td>
-                                </tr>
-
-                                {% else %}
-
-                                <tr>
-                                    <td colspan="7">
-                                        Nenhum registro encontrado.
-                                    </td>
-                                </tr>
-
-                                {% endfor %}
 
                             </tbody>
 
@@ -630,8 +518,6 @@
                                 <thead>
                                     <tr>
                                         <th>Data</th>
-                                        <th>Produto</th>
-                                        <th>Etapa</th>
                                         <th>Quantidade</th>
                                         <th>Detalhes</th>
                                     </tr>
@@ -697,21 +583,11 @@
                                 <span id="relatorioData"></span>
                             </div>
 
-                            <div class="col-md-4">
-                                <strong>Etapa:</strong>
-                                <span id="relatorioEtapa"></span>
-                            </div>
-
-                            <div class="col-md-4">
-                                <strong>Produto:</strong>
-                                <span id="relatorioProduto"></span>
-                            </div>
-
                         </div>
 
                         <hr>
 
-                        <div id="relatorioGeneros"></div>
+                        <div id="relatorioTamanhos"></div>
 
                         <hr>
 
@@ -785,9 +661,6 @@
                 const periodo =
                     document.getElementById("periodo").value;
 
-                const etapa =
-                    document.getElementById("etapa").value;
-
                 const dataInicio =
                     document.getElementById("data_inicio").value;
 
@@ -802,13 +675,6 @@
                     parametros.append(
                         "periodo",
                         periodo
-                    );
-                }
-
-                if (etapa) {
-                    parametros.append(
-                        "etapa",
-                        etapa
                     );
                 }
 
@@ -848,7 +714,7 @@
 
                     lista.innerHTML = `
                     <tr>
-                        <td colspan="5">
+                        <td colspan="3">
                             Nenhum relatório encontrado.
                         </td>
                     </tr>
@@ -862,28 +728,20 @@
                             document.createElement("tr");
 
                         linha.innerHTML = `
-                        <td>
-                            ${relatorio.data}
-                        </td>
+    <td>
+        ${relatorio.data}
+    </td>
 
-                        <td>
-                            ${relatorio.produto}
-                        </td>
+    <td>
+        ${relatorio.quantidade}
+    </td>
 
-                        <td>
-                            ${relatorio.etapa}
-                        </td>
-
-                        <td>
-                            ${relatorio.quantidade}
-                        </td>
-
-                        <td>
-                            <button
-                                type="button"
-                                class="btn btn-sm btn-primary"
-                                onclick="abrirDetalhesRelatorio('${relatorio.relatorio_id}')"
-                            >
+    <td>
+        <button
+            type="button"
+            class="btn btn-sm btn-primary"
+            onclick="abrirDetalhesRelatorio('${relatorio.relatorio_id}')"
+        >
                                 Detalhes
                             </button>
                         </td>
@@ -935,24 +793,18 @@
             const data =
                 document.getElementById("relatorioData");
 
-            const etapa =
-                document.getElementById("relatorioEtapa");
-
-            const produto =
-                document.getElementById("relatorioProduto");
-
             const total =
                 document.getElementById("relatorioTotal");
 
-            const generos =
-                document.getElementById("relatorioGeneros");
+            const tamanhos =
+                document.getElementById("relatorioTamanhos");
 
 
             carregando.style.display = "block";
             conteudo.style.display = "none";
             erro.style.display = "none";
 
-            generos.innerHTML = "";
+            tamanhos.innerHTML = "";
 
             modal.show();
 
@@ -979,90 +831,63 @@
                 data.textContent =
                     dados.data;
 
-                etapa.textContent =
-                    dados.etapa;
-
-                produto.textContent =
-                    dados.produto;
-
                 total.textContent =
                     dados.total_geral;
 
 
-                dados.generos.forEach(function (grupo) {
+                const quantidades = dados.quantidades;
 
-                    const quantidades =
-                        grupo.quantidades;
+                const bloco = document.createElement("div");
 
-                    const bloco =
-                        document.createElement("div");
+                bloco.className = "mb-4";
 
-                    bloco.className =
-                        "mb-4";
+                bloco.innerHTML = `
+    <div class="table-responsive">
 
-                    bloco.innerHTML = `
+        <table class="table table-bordered table-sm">
 
-                    <div class="d-flex justify-content-between align-items-center mb-2">
+            <thead>
+                <tr>
+                    <th>Tamanho</th>
+                    <th>Quantidade</th>
+                </tr>
+            </thead>
 
-                        <h5 class="mb-0">
-                            ${grupo.genero} - ${grupo.cor}
-                        </h5>
+            <tbody>
 
-                        <strong>
-                            Total: ${grupo.total} peças
-                        </strong>
+                <tr>
+                    <td>P</td>
+                    <td>${quantidades.P}</td>
+                </tr>
 
-                    </div>
+                <tr>
+                    <td>M</td>
+                    <td>${quantidades.M}</td>
+                </tr>
 
-                    <div class="table-responsive">
+                <tr>
+                    <td>G</td>
+                    <td>${quantidades.G}</td>
+                </tr>
 
-                        <table class="table table-bordered table-sm">
+                <tr>
+                    <td>GG</td>
+                    <td>${quantidades.GG}</td>
+                </tr>
 
-                            <thead>
-                                <tr>
-                                    <th>Tamanho</th>
-                                    <th>Quantidade</th>
-                                </tr>
-                            </thead>
+                <tr>
+                    <td>XG</td>
+                    <td>${quantidades.XG}</td>
+                </tr>
 
-                            <tbody>
+            </tbody>
 
-                                <tr>
-                                    <td>P</td>
-                                    <td>${quantidades.P}</td>
-                                </tr>
+        </table>
 
-                                <tr>
-                                    <td>M</td>
-                                    <td>${quantidades.M}</td>
-                                </tr>
+    </div>
+`;
 
-                                <tr>
-                                    <td>G</td>
-                                    <td>${quantidades.G}</td>
-                                </tr>
-
-                                <tr>
-                                    <td>GG</td>
-                                    <td>${quantidades.GG}</td>
-                                </tr>
-
-                                <tr>
-                                    <td>XG</td>
-                                    <td>${quantidades.XG}</td>
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-                `;
-
-                    generos.appendChild(bloco);
-
-                });
-
+                tamanhos.appendChild(bloco);
 
                 carregando.style.display =
                     "none";
@@ -1103,9 +928,6 @@
             const colunaFuncionario =
                 document.getElementById("colunaFuncionario");
 
-            const colunaEtapa =
-                document.getElementById("colunaEtapa");
-
             const colunaPeriodo =
                 document.getElementById("colunaPeriodo");
 
@@ -1120,9 +942,8 @@
 
             if (campoPeriodo.value === "personalizado") {
 
-                colunaFuncionario.className = "col-md-2";
-                colunaEtapa.className = "col-md-2";
-                colunaPeriodo.className = "col-md-2";
+                colunaFuncionario.className = "col-md-3";
+                colunaPeriodo.className = "col-md-3";
                 colunaDataInicio.className = "col-md-2";
                 colunaDataFim.className = "col-md-2";
                 colunaBotao.className = "col-md-2";
@@ -1132,10 +953,9 @@
 
             } else {
 
-                colunaFuncionario.className = "col-md-3";
-                colunaEtapa.className = "col-md-3";
-                colunaPeriodo.className = "col-md-3";
-                colunaBotao.className = "col-md-3";
+                colunaFuncionario.className = "col-md-4";
+                colunaPeriodo.className = "col-md-4";
+                colunaBotao.className = "col-md-4";
 
                 colunaDataInicio.style.display = "none";
                 colunaDataFim.style.display = "none";
@@ -1233,13 +1053,8 @@
         );
 
         configurarSanfona(
-            "collapseResumoProduto",
-            "botaoResumoProduto"
-        );
-
-        configurarSanfona(
-            "collapseResumoCor",
-            "botaoResumoCor"
+            "collapseResumoTamanho",
+            "botaoResumoTamanho"
         );
 
         configurarSanfona(

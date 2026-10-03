@@ -225,11 +225,6 @@ def dashboard_adm():
         ""
     )
 
-    etapa = request.args.get(
-        "etapa",
-        ""
-    )
-
     data_inicio_texto = request.args.get(
         "data_inicio",
         ""
@@ -369,13 +364,12 @@ def dashboard_adm():
         # FUNCIONÁRIOS ATIVOS
         # -------------------------------------------------
 
-        cursor.execute(
-            """
+        cursor.execute("""
             SELECT COUNT(*)
             FROM usuarios
             WHERE ativo = TRUE
-            """
-        )
+            AND tipo = 'func'
+        """)
 
         funcionarios_ativos = cursor.fetchone()[0]
 
@@ -404,7 +398,6 @@ def dashboard_adm():
 
         condicao_data = ""
         condicao_funcionario = ""
-        condicao_etapa = ""
 
         parametros = []
 
@@ -429,19 +422,7 @@ def dashboard_adm():
             parametros.append(
                 data_fim
             )
-
-
-        if etapa:
-
-            condicao_etapa = """
-                AND producoes.etapa = %s
-            """
-
-            parametros.append(
-                etapa
-            )
-
-
+       
         if funcionario_id:
 
             condicao_funcionario = """
@@ -512,9 +493,9 @@ def dashboard_adm():
             LEFT JOIN producoes
                 ON usuarios.id = producoes.usuario_id
                 {condicao_data}
-                {condicao_etapa}
-
+                
             WHERE usuarios.ativo = TRUE
+              AND usuarios.tipo = 'func'
             {condicao_funcionario}
 
             GROUP BY
@@ -549,109 +530,14 @@ def dashboard_adm():
             if (funcionario[2] or 0) > 0
         )
 
-
         # -------------------------------------------------
-        # RESUMO POR PRODUTO
-        # -------------------------------------------------
-
-        parametros_produtos = []
-
-        condicao_produto_data = ""
-        condicao_produto_funcionario = ""
-        condicao_produto_etapa = ""
-
-
-        if data_inicio is not None:
-
-            condicao_produto_data += """
-                AND producoes.data_producao >= %s
-            """
-
-            parametros_produtos.append(
-                data_inicio
-            )
-
-
-        if data_fim is not None:
-
-            condicao_produto_data += """
-                AND producoes.data_producao <= %s
-            """
-
-            parametros_produtos.append(
-                data_fim
-            )
-
-
-        if funcionario_id:
-
-            condicao_produto_funcionario = """
-                AND producoes.usuario_id = %s
-            """
-
-            parametros_produtos.append(
-                funcionario_id
-            )
-
-
-        if etapa:
-
-            condicao_produto_etapa = """
-                AND producoes.etapa = %s
-            """
-
-            parametros_produtos.append(
-                etapa
-            )
-
-
-        query_produtos = f"""
-            SELECT
-                produto,
-
-                SUM(
-                    COALESCE(quantidade_p, 0) +
-                    COALESCE(quantidade_m, 0) +
-                    COALESCE(quantidade_g, 0) +
-                    COALESCE(quantidade_gg, 0) +
-                    COALESCE(quantidade_xg, 0)
-                ) AS quantidade
-
-            FROM producoes
-
-            WHERE 1 = 1
-
-            {condicao_produto_data}
-            {condicao_produto_funcionario}
-            {condicao_produto_etapa}
-
-            GROUP BY produto
-
-            ORDER BY quantidade DESC
-        """
-
-
-        cursor.execute(
-            query_produtos,
-            parametros_produtos
-        )
-
-        resumo_produtos = cursor.fetchall()
-
-        produtos_filtrados = len(
-            resumo_produtos
-        )
-
-
-        # -------------------------------------------------
-        # RESUMO POR GÊNERO E TAMANHO
+        # RESUMO POR TAMANHO
         # -------------------------------------------------
 
         parametros_tamanhos = []
 
         condicao_tamanho_data = ""
         condicao_tamanho_funcionario = ""
-        condicao_tamanho_etapa = ""
 
 
         if data_inicio is not None:
@@ -687,20 +573,8 @@ def dashboard_adm():
             )
 
 
-        if etapa:
-
-            condicao_tamanho_etapa = """
-                AND producoes.etapa = %s
-            """
-
-            parametros_tamanhos.append(
-                etapa
-            )
-
-
         query_tamanhos = f"""
             SELECT
-                genero,
 
                 SUM(
                     COALESCE(quantidade_p, 0)
@@ -736,11 +610,6 @@ def dashboard_adm():
 
             {condicao_tamanho_data}
             {condicao_tamanho_funcionario}
-            {condicao_tamanho_etapa}
-
-            GROUP BY genero
-
-            ORDER BY total DESC
         """
 
 
@@ -749,14 +618,9 @@ def dashboard_adm():
             parametros_tamanhos
         )
 
-        resumo_tamanhos = cursor.fetchall()
-
-
-        # Mantido para compatibilidade caso o dashboard antigo
-        # ainda utilize a variável resumo_cores.
-        resumo_cores = resumo_tamanhos
-
-
+        resumo_tamanhos = cursor.fetchone()
+        
+        
         return render_template(
             "dashboard_adm.html",
 
@@ -770,21 +634,13 @@ def dashboard_adm():
 
             producao_funcionarios=producao_funcionarios,
 
-            resumo_produtos=resumo_produtos,
-
             resumo_tamanhos=resumo_tamanhos,
-
-            resumo_cores=resumo_cores,
 
             producao_filtrada=producao_filtrada,
 
             funcionarios_filtrados=funcionarios_filtrados,
 
-            produtos_filtrados=produtos_filtrados,
-
             funcionario_id=funcionario_id,
-
-            etapa=etapa,
 
             periodo=periodo,
 
@@ -817,7 +673,6 @@ def dashboard_adm():
 
         conn.close()
 
-
 # =========================================================
 # GERENCIAR FUNCIONÁRIOS
 # =========================================================
@@ -844,11 +699,10 @@ def funcionarios():
 
         cursor.execute(
             """
-            SELECT
-                id,
-                nome,
-                ativo
+            SELECT id, nome
             FROM usuarios
+            WHERE ativo = TRUE
+              AND tipo = 'func'
             ORDER BY nome
             """
         )
@@ -1816,15 +1670,13 @@ def relatorios_funcionario(
 ):
 
     if session.get("tipo_usuario") == "func" and usuario_id != session.get("usuario_id"):
-        return jsonify({"erro": "Acesso negado."}), 403
+        return jsonify({
+            "erro": "Acesso negado."
+        }), 403
+
 
     periodo = request.args.get(
         "periodo",
-        ""
-    )
-
-    etapa = request.args.get(
-        "etapa",
         ""
     )
 
@@ -1896,8 +1748,7 @@ def relatorios_funcionario(
     if conn is None:
 
         return jsonify({
-            "erro":
-                "Não foi possível conectar ao banco."
+            "erro": "Não foi possível conectar ao banco."
         }), 500
 
 
@@ -1910,7 +1761,6 @@ def relatorios_funcionario(
 
 
         condicao_data = ""
-        condicao_etapa = ""
 
         parametros = [
             usuario_id
@@ -1939,23 +1789,13 @@ def relatorios_funcionario(
             )
 
 
-        if etapa:
-
-            condicao_etapa = """
-                AND etapa = %s
-            """
-
-            parametros.append(
-                etapa
-            )
-
-
         query = f"""
             SELECT
                 relatorio_id,
-                MAX(data_producao) AS data_producao,
-                MAX(produto) AS produto,
-                MAX(etapa) AS etapa,
+
+                MAX(
+                    data_producao
+                ) AS data_producao,
 
                 SUM(
                     COALESCE(quantidade_p, 0) +
@@ -1970,8 +1810,6 @@ def relatorios_funcionario(
             WHERE usuario_id = %s
 
             {condicao_data}
-
-            {condicao_etapa}
 
             GROUP BY relatorio_id
 
@@ -2002,14 +1840,8 @@ def relatorios_funcionario(
                         "%d/%m/%Y"
                     ),
 
-                "produto":
-                    registro[2],
-
-                "etapa":
-                    registro[3],
-
                 "quantidade":
-                    registro[4]
+                    registro[2]
 
             })
 
@@ -2041,40 +1873,6 @@ def relatorios_funcionario(
             cursor.close()
 
         conn.close()
-
-
-# =========================================================
-# TELA DE PRODUÇÃO
-# =========================================================
-@app.route("/producao")
-@func_required
-def producao():
-
-    usuario_id = session["usuario_id"]
-
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT
-            pode_corte,
-            pode_costura,
-            pode_colagem
-        FROM usuarios
-        WHERE id = %s
-    """, (usuario_id,))
-
-    permissoes = cursor.fetchone()
-
-    cursor.close()
-    conn.close()
-
-    return render_template(
-        "producao.html",
-        pode_corte=permissoes[0],
-        pode_costura=permissoes[1],
-        pode_colagem=permissoes[2]
-    )
 
 # =========================================================
 # API - REGISTRAR PRODUÇÃO
