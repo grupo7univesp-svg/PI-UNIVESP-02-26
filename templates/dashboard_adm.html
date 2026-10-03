@@ -534,13 +534,17 @@
 
                 </div>
 
-                <div class="modal-footer">
+<div class="modal-footer">
 
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Fechar
-                    </button>
+    <button
+        type="button"
+        class="btn btn-secondary"
+        data-bs-dismiss="modal"
+    >
+        Fechar
+    </button>
 
-                </div>
+</div>
 
             </div>
 
@@ -605,13 +609,25 @@
 
                 </div>
 
-                <div class="modal-footer">
+<div class="modal-footer">
 
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Fechar
-                    </button>
+    <button
+        type="button"
+        class="btn btn-outline-secondary"
+        id="btnVoltarFuncionario"
+    >
+        Voltar
+    </button>
 
-                </div>
+    <button
+        type="button"
+        class="btn btn-secondary"
+        data-bs-dismiss="modal"
+    >
+        Fechar
+    </button>
+
+</div>
 
             </div>
 
@@ -627,7 +643,11 @@
         // RELATÓRIOS DO FUNCIONÁRIO
         // =========================================================
 
+        let funcionarioAtualId = null;
+
         async function abrirDetalhesFuncionario(usuarioId) {
+
+            funcionarioAtualId = usuarioId;
 
             const modal =
                 new bootstrap.Modal(
@@ -775,6 +795,16 @@
         // =========================================================
 
         async function abrirDetalhesRelatorio(relatorioId) {
+
+            const modalFuncionarioEl =
+                document.getElementById("modalFuncionario");
+
+            const modalFuncionario =
+                bootstrap.Modal.getInstance(modalFuncionarioEl);
+
+            if (modalFuncionario) {
+                modalFuncionario.hide();
+            }
 
             const modal =
                 new bootstrap.Modal(
@@ -1062,6 +1092,35 @@
             "botaoResumoPagamento"
         );
 
+        document
+    .getElementById("btnVoltarFuncionario")
+    .addEventListener("click", function () {
+
+        const modalDetalhesEl =
+            document.getElementById("modalDetalhesRelatorio");
+
+        const modalDetalhes =
+            bootstrap.Modal.getInstance(modalDetalhesEl);
+
+        modalDetalhesEl.addEventListener(
+            "hidden.bs.modal",
+            function voltarParaFuncionario() {
+
+                modalDetalhesEl.removeEventListener(
+                    "hidden.bs.modal",
+                    voltarParaFuncionario
+                );
+
+                if (funcionarioAtualId) {
+                    abrirDetalhesFuncionario(funcionarioAtualId);
+                }
+            }
+        );
+
+        if (modalDetalhes) {
+            modalDetalhes.hide();
+        }
+    });
 
         // =========================================================
         // MOSTRAR / OCULTAR VALORES DO PAGAMENTO

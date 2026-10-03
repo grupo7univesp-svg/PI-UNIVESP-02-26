@@ -92,6 +92,25 @@ body {
         0 0 0 3px rgba(37, 99, 235, 0.10);
 }
 
+.btn-mostrar-senha {
+    background: white;
+
+    border: 1px solid #ced4da;
+    border-left: 0;
+
+    color: #6c757d;
+}
+
+.btn-mostrar-senha:hover,
+.btn-mostrar-senha:focus {
+    background: white;
+    color: #6c757d;
+
+    border-color: #ced4da;
+
+    box-shadow: none;
+}
+
 
 /* ESPAÇO ENTRE OS CAMPOS */
 
