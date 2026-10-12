@@ -320,6 +320,50 @@
 
         </div>
 
+        <!-- PRODUÇÃO POR FUNCIONÁRIO E TAMANHO -->
+        <div class="card table-card mt-4">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Produção por funcionário e tamanho</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Funcionário</th>
+                                <th scope="col" class="text-end">P</th>
+                                <th scope="col" class="text-end">M</th>
+                                <th scope="col" class="text-end">G</th>
+                                <th scope="col" class="text-end">GG</th>
+                                <th scope="col" class="text-end">XG</th>
+                                <th scope="col" class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for funcionario in funcionarios_tamanhos %}
+                            <tr>
+                                <th scope="row">{{ funcionario[1] }}</th>
+                                {% for indice in range(2, 7) %}
+                                <td class="text-end">{{ funcionario[indice] or 0 }}</td>
+                                {% endfor %}
+                                <td class="text-end fw-semibold">{{ (funcionario[2] or 0) + (funcionario[3] or 0) + (funcionario[4] or 0) + (funcionario[5] or 0) + (funcionario[6] or 0) }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="7" class="text-center text-muted">Nenhum funcionário encontrado para os filtros selecionados.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-group-divider">
+                            <tr class="fw-bold">
+                                <th scope="row">Total geral</th>
+                                {% for quantidade in totais_funcionarios_tamanhos %}
+                                <td class="text-end">{{ quantidade }}</td>
+                                {% endfor %}
+                                <td class="text-end">{{ totais_funcionarios_tamanhos | sum }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- RESUMO POR TAMANHO -->
 
         <div class="card table-card mt-4">

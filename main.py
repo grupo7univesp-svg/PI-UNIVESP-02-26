@@ -516,6 +516,37 @@ def dashboard_adm():
 
 
         # -------------------------------------------------
+        # QUANTIDADES POR FUNCIONÁRIO E TAMANHO
+        # Usa exatamente os mesmos filtros da tabela de produção.
+        # -------------------------------------------------
+
+        query_funcionarios_tamanhos = f"""
+            SELECT
+                usuarios.id,
+                usuarios.nome,
+                COALESCE(SUM(producoes.quantidade_p), 0) AS total_p,
+                COALESCE(SUM(producoes.quantidade_m), 0) AS total_m,
+                COALESCE(SUM(producoes.quantidade_g), 0) AS total_g,
+                COALESCE(SUM(producoes.quantidade_gg), 0) AS total_gg,
+                COALESCE(SUM(producoes.quantidade_xg), 0) AS total_xg
+            FROM usuarios
+            LEFT JOIN producoes
+                ON usuarios.id = producoes.usuario_id
+                {condicao_data}
+            WHERE usuarios.ativo = TRUE
+              AND usuarios.tipo = 'func'
+              {condicao_funcionario}
+            GROUP BY usuarios.id, usuarios.nome
+            ORDER BY usuarios.nome
+        """
+        cursor.execute(query_funcionarios_tamanhos, parametros)
+        funcionarios_tamanhos = cursor.fetchall()
+        totais_funcionarios_tamanhos = [
+            sum(registro[indice] or 0 for registro in funcionarios_tamanhos)
+            for indice in range(2, 7)
+        ]
+
+        # -------------------------------------------------
         # CARDS FILTRADOS
         # -------------------------------------------------
 
@@ -633,6 +664,9 @@ def dashboard_adm():
             funcionarios_filtro=funcionarios_filtro,
 
             producao_funcionarios=producao_funcionarios,
+
+            funcionarios_tamanhos=funcionarios_tamanhos,
+            totais_funcionarios_tamanhos=totais_funcionarios_tamanhos,
 
             resumo_tamanhos=resumo_tamanhos,
 
