@@ -2,6 +2,10 @@ import psycopg2
 from psycopg2 import OperationalError
 import os
 import uuid
+import hmac
+import json
+import threading
+from pathlib import Path
 from datetime import date, timedelta
 from functools import wraps
 from dotenv import load_dotenv
@@ -80,28 +84,82 @@ def func_required(view):
 # CONEXÃO COM O BANCO
 # =========================================================
 
+_db_lock = threading.RLock()
+_db_override = None
+_db_config_path = Path(os.getenv("DB_CONFIG_PATH", "/tmp/ladys_pet_db_config.json"))
+
+
+def _db_settings():
+    with _db_lock:
+        override = dict(_db_override or {})
+    return {
+        "host": override.get("host") or os.getenv("DB_HOST"),
+        "database": override.get("database") or os.getenv("DB_NAME"),
+        "user": override.get("user") or os.getenv("DB_USER"),
+        "password": override.get("password") or os.getenv("DB_PASSWORD"),
+        "port": override.get("port") or os.getenv("DB_PORT", "5432"),
+        "sslmode": override.get("sslmode") or "require",
+    }
+
+
 def get_connection():
-    """Abre uma nova conexão PostgreSQL usando variáveis de ambiente."""
-
     try:
-
-        return psycopg2.connect(
-            host=os.getenv("DB_HOST"),
-            database=os.getenv("DB_NAME"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            port=os.getenv("DB_PORT"),
-            sslmode="require"
-        )
-
+        return psycopg2.connect(**_db_settings(), connect_timeout=8)
     except OperationalError as erro:
-
-        print(
-            "Erro na conexão com o banco:",
-            erro
-        )
-
+        print("Erro na conexão com o banco:", erro.__class__.__name__)
         return None
+
+
+@app.route("/configuracoes", methods=["GET", "POST"])
+def configuracoes():
+    # A senha administrativa é independente do banco: útil mesmo se o DB estiver indisponível.
+    segredo = os.getenv("SETTINGS_ADMIN_PASSWORD", "")
+    if not segredo:
+        return "Defina SETTINGS_ADMIN_PASSWORD no Render para habilitar configurações.", 503
+
+    if request.method == "POST" and request.form.get("acao") == "autenticar":
+        if hmac.compare_digest(request.form.get("senha_admin", ""), segredo):
+            session["config_autorizada"] = True
+            return redirect(url_for("configuracoes"))
+        flash("Senha administrativa incorreta.", "danger")
+        return redirect(url_for("configuracoes"))
+
+    if not session.get("config_autorizada"):
+        return render_template("configuracoes_banco.html", autenticado=False)
+
+    atual = _db_settings()
+    if request.method == "POST":
+        acao = request.form.get("acao")
+        if acao == "sair":
+            session.pop("config_autorizada", None)
+            return redirect(url_for("login"))
+
+        candidato = {
+            "host": request.form.get("host", "").strip(),
+            "database": request.form.get("database", "").strip(),
+            "user": request.form.get("user", "").strip(),
+            "password": request.form.get("password") or atual["password"],
+            "port": request.form.get("port", "5432").strip(),
+            "sslmode": request.form.get("sslmode", "require"),
+        }
+        if not all(candidato.values()) or not candidato["port"].isdigit() or not 1 <= int(candidato["port"]) <= 65535 or candidato["sslmode"] not in ("require", "verify-full", "verify-ca"):
+            flash("Preencha os campos com valores válidos.", "danger")
+        else:
+            try:
+                teste = psycopg2.connect(**candidato, connect_timeout=8)
+                teste.close()
+                if acao == "salvar":
+                    global _db_override
+                    with _db_lock:
+                        _db_override = candidato
+                    flash("Conexão testada e aplicada nesta instância. No Render, essa alteração é temporária.", "success")
+                else:
+                    flash("Conexão realizada com sucesso.", "success")
+            except OperationalError:
+                flash("Não foi possível conectar com os dados informados.", "danger")
+        return redirect(url_for("configuracoes"))
+
+    return render_template("configuracoes_banco.html", autenticado=True, config=atual)
 
 
 # =========================================================
