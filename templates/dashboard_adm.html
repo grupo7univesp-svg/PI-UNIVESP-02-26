@@ -232,7 +232,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
 
                     <h2 class="h5 mb-0">
-                        Produção por funcionário
+                        lançamentos por funcionário
                     </h2>
 
                     <button id="botaoProducaoFuncionario" class="btn btn-sm btn-outline-secondary botao-sanfona"
@@ -323,7 +323,7 @@
         <!-- PRODUÇÃO POR FUNCIONÁRIO E TAMANHO -->
         <div class="card table-card mt-4">
             <div class="card-body">
-                <h2 class="h5 mb-3">Produção por funcionário e tamanho</h2>
+                <h2 class="h5 mb-3">Produção por funcionário</h2>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle">
                         <thead>
@@ -364,82 +364,6 @@
             </div>
         </div>
 
-        <!-- RESUMO POR TAMANHO -->
-
-        <div class="card table-card mt-4">
-
-            <div class="card-body">
-
-                <div class="d-flex justify-content-between align-items-center mb-3">
-
-                    <h2 class="h5 mb-0">
-                        Resumo por tamanho
-                    </h2>
-
-                    <button id="botaoResumoTamanho" class="btn btn-sm btn-outline-secondary botao-sanfona" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#collapseResumoTamanho" aria-expanded="false"
-                        aria-controls="collapseResumoTamanho" title="Abrir ou fechar Resumo por tamanho">
-                        <span class="seta-sanfona"></span>
-                    </button>
-
-                </div>
-
-                <div class="collapse" id="collapseResumoTamanho">
-
-                    <div class="table-responsive">
-
-                        <table class="table">
-
-                            <thead>
-                                <tr>
-                                    <th>Tamanho</th>
-                                    <th>Quantidade</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-
-                                <tr>
-                                    <td>P</td>
-                                    <td>{{ resumo_tamanhos[0] or 0 }}</td>
-                                </tr>
-
-                                <tr>
-                                    <td>M</td>
-                                    <td>{{ resumo_tamanhos[1] or 0 }}</td>
-                                </tr>
-
-                                <tr>
-                                    <td>G</td>
-                                    <td>{{ resumo_tamanhos[2] or 0 }}</td>
-                                </tr>
-
-                                <tr>
-                                    <td>GG</td>
-                                    <td>{{ resumo_tamanhos[3] or 0 }}</td>
-                                </tr>
-
-                                <tr>
-                                    <td>XG</td>
-                                    <td>{{ resumo_tamanhos[4] or 0 }}</td>
-                                </tr>
-
-                                <tr>
-                                    <th>Total</th>
-                                    <th>{{ resumo_tamanhos[5] or 0 }}</th>
-                                </tr>
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
 
         <!-- RESUMO PARA PAGAMENTO -->
 

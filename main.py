@@ -791,10 +791,9 @@ def funcionarios():
 
         cursor.execute(
             """
-            SELECT id, nome
+            SELECT id, nome, ativo
             FROM usuarios
-            WHERE ativo = TRUE
-              AND tipo = 'func'
+            WHERE tipo = 'func'
             ORDER BY nome
             """
         )
